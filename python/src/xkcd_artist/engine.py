@@ -1,26 +1,44 @@
 """
-xkcd-artist: Hybrid Fine-Tuned LoRA Stick-Figure Art + Crisp Hand-Lettered Speech Bubble & Alt-Text Compositor.
-
-Supports 3 Runtime Tiers:
-- Tier 1A (backend="pytorch"): PyTorch FP32 + LoRA Stick-Figure Ink Decoder (model.safetensors + lora_weights.safetensors)
-- Tier 1B (backend="onnx"): Quantized QUInt8 ONNX Runtime (model_quantized.onnx)
-- Tier 2  (backend="zero-dep"): Zero-dependency deterministic ExplainXKCD scene planner & hand-wobbled ink compositor
+xkcd-artist Python Engine:
+Combines the trained 5-Head ExplainXKCD Scene Planner (ONNX Int8 / PyTorch FP32)
+with spotless connected-component text-cleaned XKCD stage art and authentic
+`xkcd-script.ttf` hand-lettering, stacked conversational leader lines, and hover alt-text.
 """
 from __future__ import annotations
 
-import hashlib
-import io
+import base64
 import json
 import math
-import re
+import textwrap
+from io import BytesIO
 from pathlib import Path
 from typing import Any
 
-ROOT = Path(__file__).resolve().parent.parent.parent.parent
-DATA_DIR = ROOT / "data"
-ARTIFACT_DIR = ROOT / "artifacts" / "xkcd-artist"
+from PIL import Image, ImageDraw, ImageFont
 
-CHARACTERS = ["cueball", "megan", "black_hat", "beret_guy", "ponytail", "hairbun"]
+ROOT = Path(__file__).resolve().parent.parent.parent.parent
+ARTIFACT_DIR = ROOT / "artifacts" / "xkcd-artist"
+SCENE_DIR = ROOT / "docs" / "scenes"
+FONT_PATH = ROOT / "docs" / "fonts" / "xkcd-script.ttf"
+
+LAYOUT_TYPES = [
+    "single_panel",
+    "two_panel",
+    "three_panel",
+    "four_panel",
+    "annotated_chart",
+    "flowchart_diagram",
+]
+
+CHARACTERS = [
+    "cueball",
+    "megan",
+    "black_hat",
+    "beret_guy",
+    "ponytail",
+    "hairbun",
+]
+
 PROPS = [
     "none",
     "laptop_desk",
@@ -31,728 +49,459 @@ PROPS = [
     "chart_board",
     "pedestal",
 ]
-LAYOUT_TYPES = [
-    "single_panel",
-    "two_panel",
-    "three_panel",
-    "four_panel",
-    "annotated_chart",
-    "flowchart_diagram",
-]
 
 ICONIC_TEMPLATES: list[dict[str, Any]] = [
     {
-        "match": ["sudo", "sandwich", "root", "permission"],
+        "match": ["sudo", "sandwich", "root", "permission", "admin"],
         "title": "SANDWICH",
+        "scene": "scene_armchair",
         "layout": "three_panel",
         "prop": "couch",
         "cast": ["cueball", "megan"],
         "turns": [
-            {"speaker": "cueball", "text": "MAKE ME A SANDWICH."},
-            {"speaker": "megan", "text": "WHAT? MAKE IT YOURSELF."},
-            {"speaker": "cueball", "text": "SUDO MAKE ME A SANDWICH."},
-            {"speaker": "megan", "text": "OKAY."},
+            {"speaker": "left", "text": "MAKE ME A SANDWICH."},
+            {"speaker": "right", "text": "WHAT? MAKE IT YOURSELF."},
+            {"speaker": "left", "text": "SUDO MAKE ME A SANDWICH."},
+            {"speaker": "right", "text": "OKAY."},
         ],
         "alt": "Proper User Policy apparently means Simon Says.",
     },
     {
-        "match": ["compiling", "compiler", "sword", "slacking", "build"],
+        "match": ["compiling", "compile", "sword", "slacking", "excuse", "build"],
         "title": "COMPILING",
-        "layout": "two_panel",
-        "prop": "pointer_stick",
-        "cast": ["cueball", "black_hat"],
-        "turns": [
-            {"speaker": "ponytail", "text": "HEY! GET BACK TO WORK!"},
-            {"speaker": "cueball", "text": "MY CODE'S COMPILING!"},
-            {"speaker": "ponytail", "text": "OH. CARRY ON."},
-        ],
-        "alt": "The #1 programmer excuse for legitimately slacking off: 'My code's compiling.'",
-    },
-    {
-        "match": ["dependency", "nebraska", "modern", "digital", "infrastructure", "tower", "package"],
-        "title": "DEPENDENCY",
+        "scene": "scene_compiling",
         "layout": "single_panel",
-        "prop": "server_rack",
-        "cast": ["cueball", "ponytail"],
+        "prop": "laptop_desk",
+        "cast": ["cueball", "black_hat"],
+        "header": 'THE #1 PROGRAMMER EXCUSE\nFOR LEGITIMATELY SLACKING OFF:\n"MY CODE\'S COMPILING."',
         "turns": [
-            {"speaker": "narrator", "text": "ALL MODERN DIGITAL INFRASTRUCTURE"},
-            {"speaker": "cueball", "text": "A PROJECT SOME RANDOM PERSON IN NEBRASKA HAS BEEN THANKLESSLY MAINTAINING SINCE 2003."},
+            {"speaker": "left", "text": "HEY! GET BACK TO WORK!"},
+            {"speaker": "right", "text": "COMPILING!"},
+            {"speaker": "left", "text": "OH. CARRY ON."},
         ],
-        "alt": "Someday ImageMagick will finally break for good and we'll have a long period of scrambling.",
+        "alt": "Are you stealing those LCDs? // Yeah, but I'm doing it while my code compiles.",
     },
     {
-        "match": ["standard", "standards", "14", "15", "competing", "protocol", "universal"],
-        "title": "STANDARDS",
-        "layout": "three_panel",
-        "prop": "whiteboard",
-        "cast": ["cueball", "ponytail"],
-        "turns": [
-            {"speaker": "narrator", "text": "HOW STANDARDS PROLIFERATE: (SEE: A/C CHARGERS, CHARACTER ENCODINGS, INSTANT MESSAGING)"},
-            {"speaker": "cueball", "text": "14 COMPETING STANDARDS? RIDICULOUS! WE NEED ONE UNIVERSAL STANDARD THAT COVERS EVERYONE'S USE CASES!"},
-            {"speaker": "narrator", "text": "SOON: SITUATION: THERE ARE 15 COMPETING STANDARDS."},
-        ],
-        "alt": "Fortunately, the charging one has been solved now that we've all standardized on mini-USB. Or is it micro-USB? Shit.",
-    },
-    {
-        "match": ["machine learning", "ai", "linear algebra", "pile", "stir", "neural", "llm", "model"],
+        "match": ["machine learning", "linear algebra", "ai", "neural", "pile", "model", "training"],
         "title": "MACHINE LEARNING",
-        "layout": "two_panel",
+        "scene": "scene_ml_pile",
+        "layout": "single_panel",
         "prop": "pedestal",
         "cast": ["ponytail", "cueball"],
         "turns": [
-            {"speaker": "cueball", "text": "THIS IS YOUR MACHINE LEARNING SYSTEM?"},
-            {"speaker": "ponytail", "text": "YEP! YOU POUR THE DATA INTO THIS BIG PILE OF LINEAR ALGEBRA, THEN COLLECT THE ANSWERS ON THE OTHER SIDE."},
-            {"speaker": "cueball", "text": "WHAT IF THE ANSWERS ARE WRONG?"},
-            {"speaker": "ponytail", "text": "JUST STIR THE PILE UNTIL THEY START LOOKING RIGHT."},
+            {"speaker": "left", "text": "THIS IS YOUR MACHINE LEARNING SYSTEM?"},
+            {
+                "speaker": "right",
+                "text": "YUP! YOU POUR THE DATA INTO THIS BIG PILE OF LINEAR ALGEBRA, THEN COLLECT THE ANSWERS ON THE OTHER SIDE.",
+            },
+            {"speaker": "left", "text": "WHAT IF THE ANSWERS ARE WRONG?"},
+            {"speaker": "right", "text": "JUST STIR THE PILE UNTIL THEY START LOOKING RIGHT."},
         ],
         "alt": "The pile gets soaked with data and starts to get mushy over time, so it's technically recurrent.",
     },
     {
-        "match": ["regex", "regular expression", "perl", "problems", "parse"],
-        "title": "REGULAR EXPRESSIONS",
-        "layout": "two_panel",
-        "prop": "laptop_desk",
-        "cast": ["cueball", "megan"],
+        "match": ["dependency", "nebraska", "infrastructure", "open source", "package", "npm", "stack"],
+        "title": "DEPENDENCY",
+        "scene": "scene_dependency",
+        "layout": "single_panel",
+        "prop": "server_rack",
+        "cast": ["cueball", "ponytail"],
         "turns": [
-            {"speaker": "megan", "text": "WE HAVE TO EXTRACT EMAILS FROM 200 MEGABYTES OF LOGS BEFORE MIDNIGHT!"},
-            {"speaker": "cueball", "text": "STAND BACK! I KNOW REGULAR EXPRESSIONS."},
-            {"speaker": "narrator", "text": "*TAP TAP TAP*   NOW YOU HAVE 99 PROBLEMS."},
+            {"speaker": "left", "text": "ALL MODERN DIGITAL\nINFRASTRUCTURE"},
+            {
+                "speaker": "right",
+                "text": "A PROJECT SOME\nRANDOM PERSON\nIN NEBRASKA HAS\nBEEN THANKLESSLY\nMAINTAINING\nSINCE 2003",
+            },
         ],
-        "alt": "Whenever I learn a new skill I concoct elaborate fantasy scenarios where it saves the day.",
+        "alt": "Someday ImageMagick will finally break for good and we'll have a long period of scrambling as we try to reassemble civilization from the rubble.",
+    },
+    {
+        "match": ["standard", "standards", "14", "15", "universal", "protocol", "usb"],
+        "title": "STANDARDS",
+        "scene": "scene_standards_3panel",
+        "layout": "three_panel",
+        "prop": "whiteboard",
+        "cast": ["cueball", "ponytail"],
+        "turns": [
+            {"speaker": "left", "text": "SITUATION:\nTHERE ARE\n14 COMPETING\nSTANDARDS."},
+            {
+                "speaker": "right",
+                "text": "14?! RIDICULOUS!\nWE NEED TO DEVELOP\nONE UNIVERSAL STANDARD\nTHAT COVERS EVERYONE'S\nUSE CASES.",
+            },
+            {"speaker": "left", "text": "SOON:\nSITUATION:\nTHERE ARE\n15 COMPETING\nSTANDARDS."},
+        ],
+        "alt": "Fortunately, the charging one has been solved now that we've all standardized on mini-USB. Or is it micro-USB? Shit.",
     },
     {
         "match": ["duty calls", "wrong on the internet", "sleep", "3am", "bed", "argument"],
         "title": "DUTY CALLS",
+        "scene": "scene_desk",
         "layout": "single_panel",
         "prop": "laptop_desk",
-        "cast": ["cueball", "megan"],
+        "cast": ["megan", "cueball"],
         "turns": [
-            {"speaker": "megan", "text": "ARE YOU COMING TO BED?"},
-            {"speaker": "cueball", "text": "I CAN'T. THIS IS IMPORTANT."},
-            {"speaker": "megan", "text": "WHAT?"},
-            {"speaker": "cueball", "text": "SOMEONE IS WRONG ON THE INTERNET."},
+            {"speaker": "left", "text": "ARE YOU COMING TO BED?"},
+            {"speaker": "right", "text": "I CAN'T. THIS IS IMPORTANT."},
+            {"speaker": "left", "text": "WHAT?"},
+            {"speaker": "right", "text": "SOMEONE IS WRONG ON THE INTERNET."},
         ],
         "alt": "What do you want me to do? LEAVE? Then they'll keep being wrong!",
-    },
-    {
-        "match": ["chart", "graph", "extrapolating", "correlation", "causation", "statistics", "plot"],
-        "title": "EXTRAPOLATING",
-        "layout": "annotated_chart",
-        "prop": "chart_board",
-        "cast": ["cueball", "megan"],
-        "turns": [
-            {"speaker": "cueball", "text": "AS YOU CAN SEE, BY LATE NEXT MONTH YOU'LL HAVE OVER FOUR DOZEN HUSBANDS."},
-            {"speaker": "megan", "text": "BETTER GET A BULK RATE ON WEDDING CAKE."},
-        ],
-        "alt": "By the third quarter of next year, a bridal shower will collapse into a black hole.",
     },
 ]
 
 
-def _wobble_points(
+def _get_xkcd_font(size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+    if FONT_PATH.exists():
+        try:
+            return ImageFont.truetype(str(FONT_PATH), size=size)
+        except Exception:
+            pass
+    for fallback in [
+        "/System/Library/Fonts/Supplemental/Comic Sans MS.ttf",
+        "/System/Library/Fonts/Helvetica.ttc",
+    ]:
+        if Path(fallback).exists():
+            try:
+                return ImageFont.truetype(fallback, size=size)
+            except Exception:
+                pass
+    return ImageFont.load_default()
+
+
+def _draw_wobbled_line(
+    draw: ImageDraw.ImageDraw,
     x0: float,
     y0: float,
     x1: float,
     y1: float,
-    amp: float = 1.65,
-    seed: int = 42,
-    steps: int = 10,
-) -> list[tuple[float, float]]:
-    """Generate C1-like hand-wobbled Randall Munroe ink polyline between (x0, y0) and (x1, y1)."""
+    width: int = 2,
+    curve_x: float = 0.0,
+) -> None:
+    """Draw a hand-curved Randall Munroe leader line between (x0, y0) and (x1, y1)."""
     pts: list[tuple[float, float]] = []
-    dx, dy = x1 - x0, y1 - y0
-    length = math.hypot(dx, dy) + 1e-6
-    nx, ny = -dy / length, dx / length
+    steps = 16
     for i in range(steps + 1):
-        u = i / float(steps)
-        env = math.sin(u * math.pi)
-        wave = (
-            math.sin(u * math.pi * 2.0 + seed * 0.73) * 0.65
-            + math.cos(u * math.pi * 3.0 + seed * 1.37) * 0.35
-        )
-        offset = env * wave * amp
-        pts.append((round(x0 + dx * u + nx * offset, 2), round(y0 + dy * u + ny * offset, 2)))
-    return pts
+        t = i / float(steps)
+        bx = x0 + (x1 - x0) * t + math.sin(t * math.pi) * curve_x
+        by = y0 + (y1 - y0) * t
+        pts.append((bx, by))
+    draw.line(pts, fill=(15, 15, 15), width=width, joint="curve")
 
 
-def _svg_polyline(pts: list[tuple[float, float]], stroke_w: float = 2.1, fill: str = "none") -> str:
-    if not pts:
-        return ""
-    d = f"M {pts[0][0]} {pts[0][1]} " + " ".join(f"L {p[0]} {p[1]}" for p in pts[1:])
-    return f'<path d="{d}" stroke="#111111" stroke-width="{stroke_w:.2f}" stroke-linecap="round" stroke-linejoin="round" fill="{fill}"/>'
-
-
-def _draw_character_svg(
-    char_name: str,
-    cx: float,
-    foot_y: float,
-    scale: float = 1.0,
-    left_arm_rad: float = -0.45,
-    right_arm_rad: float = 0.45,
-    wobble_amp: float = 1.6,
-    seed: int = 11,
-) -> str:
-    """Render an authentic hand-wobbled XKCD stick figure (Cueball, Megan, Black Hat, Beret Guy, Ponytail, Hairbun)."""
-    parts: list[str] = []
-    head_r = 16.0 * scale
-    head_cy = foot_y - 98.0 * scale
-    neck_y = head_cy + head_r
-    hip_y = foot_y - 42.0 * scale
-    shoulder_y = neck_y + 10.0 * scale
-
-    # Spine
-    parts.append(_svg_polyline(_wobble_points(cx, neck_y, cx, hip_y, wobble_amp, seed + 1), 2.2))
-    # Legs
-    parts.append(_svg_polyline(_wobble_points(cx, hip_y, cx - 15 * scale, foot_y, wobble_amp, seed + 2), 2.2))
-    parts.append(_svg_polyline(_wobble_points(cx, hip_y, cx + 15 * scale, foot_y, wobble_amp, seed + 3), 2.2))
-    # Arms
-    arm_len = 28.0 * scale
-    la_x = cx - math.cos(left_arm_rad) * arm_len
-    la_y = shoulder_y - math.sin(left_arm_rad) * arm_len
-    ra_x = cx + math.cos(right_arm_rad) * arm_len
-    ra_y = shoulder_y - math.sin(right_arm_rad) * arm_len
-    parts.append(_svg_polyline(_wobble_points(cx, shoulder_y, la_x, la_y, wobble_amp, seed + 4), 2.1))
-    parts.append(_svg_polyline(_wobble_points(cx, shoulder_y, ra_x, ra_y, wobble_amp, seed + 5), 2.1))
-
-    # Wobbled circle head
-    head_pts: list[tuple[float, float]] = []
-    for k in range(25):
-        ang = (k / 24.0) * math.pi * 2.0
-        jitter = 1.0 + 0.04 * math.sin(ang * 3.0 + seed)
-        hx = cx + math.cos(ang) * head_r * jitter
-        hy = head_cy + math.sin(ang) * head_r * jitter
-        head_pts.append((round(hx, 2), round(hy, 2)))
-    parts.append(_svg_polyline(head_pts, 2.2, fill="#ffffff"))
-
-    # Character-specific hair / hat accessories
-    if char_name == "megan":
-        for h_ang in [-2.3, -1.9, -1.5, -1.1, -0.7]:
-            sx = cx + math.cos(h_ang) * head_r
-            sy = head_cy + math.sin(h_ang) * head_r
-            ex = sx + math.cos(h_ang - 0.5) * 12 * scale
-            ey = sy + math.sin(h_ang + 0.4) * 14 * scale
-            parts.append(_svg_polyline(_wobble_points(sx, sy, ex, ey, wobble_amp * 0.6, seed + 10), 2.0))
-    elif char_name == "black_hat":
-        brim_y = head_cy - head_r * 0.72
-        parts.append(_svg_polyline(_wobble_points(cx - 21 * scale, brim_y, cx + 21 * scale, brim_y, 1.0, seed + 20), 2.6))
-        hat_poly = [
-            (cx - 13 * scale, brim_y),
-            (cx - 11 * scale, brim_y - 22 * scale),
-            (cx + 11 * scale, brim_y - 22 * scale),
-            (cx + 13 * scale, brim_y),
-        ]
-        parts.append(_svg_polyline(hat_poly, 2.0, fill="#111111"))
-    elif char_name == "beret_guy":
-        by = head_cy - head_r * 0.75
-        beret_pts = [
-            (cx - 15 * scale, by + 2),
-            (cx - 18 * scale, by - 9 * scale),
-            (cx + 6 * scale, by - 12 * scale),
-            (cx + 16 * scale, by),
-        ]
-        parts.append(_svg_polyline(beret_pts, 2.0, fill="#111111"))
-    elif char_name == "ponytail":
-        px = cx - head_r * 0.92
-        py = head_cy - 2 * scale
-        tail = [(px, py), (px - 12 * scale, py + 4 * scale), (px - 15 * scale, py + 18 * scale), (px - 6 * scale, py + 12 * scale)]
-        parts.append(_svg_polyline(tail, 2.1, fill="none"))
-    elif char_name == "hairbun":
-        bx = cx - head_r * 0.85
-        by = head_cy - head_r * 0.55
-        bun_pts = [
-            (bx + math.cos(a) * 6.5 * scale, by + math.sin(a) * 6.5 * scale)
-            for a in [k * math.pi / 6 for k in range(13)]
-        ]
-        parts.append(_svg_polyline(bun_pts, 2.0, fill="#ffffff"))
-
-    return "\n".join(parts)
-
-
-def _draw_prop_svg(prop_name: str, px: float, foot_y: float, wobble_amp: float = 1.5, seed: int = 77) -> str:
-    """Render hand-wobbled XKCD stage props (desk + laptop, whiteboard, server rack, chart board, couch, pedestal)."""
-    parts: list[str] = []
-    if prop_name == "laptop_desk":
-        desk_y = foot_y - 44
-        parts.append(_svg_polyline(_wobble_points(px - 36, desk_y, px + 36, desk_y, wobble_amp, seed), 2.2))
-        parts.append(_svg_polyline(_wobble_points(px - 28, desk_y, px - 28, foot_y, wobble_amp, seed + 1), 2.1))
-        parts.append(_svg_polyline(_wobble_points(px + 28, desk_y, px + 28, foot_y, wobble_amp, seed + 2), 2.1))
-        # Laptop screen & base
-        parts.append(_svg_polyline(_wobble_points(px - 14, desk_y - 2, px + 8, desk_y - 2, 0.9, seed + 3), 2.2))
-        parts.append(_svg_polyline(_wobble_points(px + 8, desk_y - 2, px + 14, desk_y - 22, 0.9, seed + 4), 2.2))
-    elif prop_name in ("whiteboard", "chart_board"):
-        bx0, by0, bx1, by1 = px - 46, foot_y - 122, px + 46, foot_y - 54
-        rect = (
-            _wobble_points(bx0, by0, bx1, by0, wobble_amp, seed)
-            + _wobble_points(bx1, by0, bx1, by1, wobble_amp, seed + 1)
-            + _wobble_points(bx1, by1, bx0, by1, wobble_amp, seed + 2)
-            + _wobble_points(bx0, by1, bx0, by0, wobble_amp, seed + 3)
-        )
-        parts.append(_svg_polyline(rect, 2.0, fill="#ffffff"))
-        # Draw wobbled xy axes + exponential curve inside board
-        parts.append(_svg_polyline(_wobble_points(bx0 + 12, by1 - 12, bx0 + 12, by0 + 12, 0.8, seed + 4), 1.6))
-        parts.append(_svg_polyline(_wobble_points(bx0 + 12, by1 - 12, bx1 - 12, by1 - 12, 0.8, seed + 5), 1.6))
-        curve = [(bx0 + 14, by1 - 16), (bx0 + 36, by1 - 22), (bx0 + 58, by1 - 34), (bx1 - 14, by0 + 14)]
-        parts.append(_svg_polyline(curve, 1.8))
-    elif prop_name == "server_rack":
-        rx0, ry0, rx1, ry1 = px - 26, foot_y - 118, px + 26, foot_y
-        rect = (
-            _wobble_points(rx0, ry0, rx1, ry0, wobble_amp, seed)
-            + _wobble_points(rx1, ry0, rx1, ry1, wobble_amp, seed + 1)
-            + _wobble_points(rx1, ry1, rx0, ry1, wobble_amp, seed + 2)
-            + _wobble_points(rx0, ry1, rx0, ry0, wobble_amp, seed + 3)
-        )
-        parts.append(_svg_polyline(rect, 2.1, fill="#ffffff"))
-        for sy in range(int(ry0 + 18), int(ry1 - 10), 20):
-            parts.append(_svg_polyline(_wobble_points(rx0 + 6, sy, rx1 - 6, sy, 0.8, seed + sy), 1.5))
-    elif prop_name == "couch":
-        cy = foot_y - 26
-        parts.append(_svg_polyline(_wobble_points(px - 48, cy, px + 48, cy, wobble_amp, seed), 2.2))
-        parts.append(_svg_polyline(_wobble_points(px - 48, cy - 22, px - 48, foot_y, wobble_amp, seed + 1), 2.2))
-        parts.append(_svg_polyline(_wobble_points(px + 48, cy - 22, px + 48, foot_y, wobble_amp, seed + 2), 2.2))
-    elif prop_name == "pedestal":
-        parts.append(_svg_polyline(_wobble_points(px - 22, foot_y - 52, px + 22, foot_y - 52, wobble_amp, seed), 2.2))
-        parts.append(_svg_polyline(_wobble_points(px - 14, foot_y - 52, px - 18, foot_y, wobble_amp, seed + 1), 2.0))
-        parts.append(_svg_polyline(_wobble_points(px + 14, foot_y - 52, px + 18, foot_y, wobble_amp, seed + 2), 2.0))
-    return "\n".join(parts)
-
-
-def _wrap_comic_lines(text: str, max_chars: int = 26) -> list[str]:
-    words = text.upper().split()
-    lines: list[str] = []
-    cur = ""
-    for w in words:
-        if not cur:
-            cur = w
-        elif len(cur) + 1 + len(w) <= max_chars:
-            cur += " " + w
-        else:
-            lines.append(cur)
-            cur = w
-    if cur:
-        lines.append(cur)
-    return lines[:4]
-
-
-class XkcdComicResult:
-    """Generated XKCD comic strip with structured scene graph, SVG vector output, and high-DPI PNG renderer."""
-
-    def __init__(self, spec: dict[str, Any]) -> None:
-        self.spec = spec
-        self.title: str = spec["title"]
-        self.alt: str = spec["alt"]
-        self.layout: str = spec["layout"]
-        self.prop: str = spec["prop"]
-        self.cast: list[str] = spec["cast"]
-        self.panels: list[dict[str, Any]] = spec["panels"]
-        self.p_invalid: float = spec["p_invalid"]
-        self.is_invalid: bool = spec["is_invalid"]
-        self.confidence: float = spec["confidence"]
-        self.style: dict[str, float] = spec["style"]
-        self.tier: str = spec["tier"]
-
-    def to_dict(self) -> dict[str, Any]:
-        return dict(self.spec)
-
-    def to_svg(self, width: int = 860, height: int = 390) -> str:
-        """Render the complete multi-panel XKCD comic strip with hand-lettered speech bubbles & leader lines as SVG."""
-        if self.is_invalid:
-            return (
-                f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" width="{width}" height="{height}">'
-                f'<rect width="{width}" height="{height}" fill="#ffffff"/></svg>'
-            )
-
-        n_panels = max(1, len(self.panels))
-        pad = 18
-        top_title_h = 38
-        bot_alt_h = 34
-        avail_w = width - pad * 2 - (n_panels - 1) * 14
-        panel_w = avail_w / float(n_panels)
-        panel_h = height - top_title_h - bot_alt_h - pad
-
-        wobble_amp = float(self.style.get("wobble_amp_px", 1.65))
-        stroke_w = float(self.style.get("stroke_width_px", 2.05))
-
-        svg_parts = [
-            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" width="{width}" height="{height}" '
-            f'font-family="\'Humor Sans\', \'Comic Sans MS\', \'Chalkboard SE\', \'Bradley Hand\', monospace">',
-            f'<rect width="{width}" height="{height}" fill="#ffffff"/>',
-            # Comic Title Header
-            f'<text x="{width/2:.1f}" y="26" text-anchor="middle" font-size="18" font-weight="700" '
-            f'letter-spacing="1.6" fill="#111111">{self.title.upper()}</text>',
-        ]
-
-        for pi, panel in enumerate(self.panels):
-            px0 = pad + pi * (panel_w + 14)
-            py0 = top_title_h
-            px1 = px0 + panel_w
-            py1 = py0 + panel_h
-            foot_y = py1 - 18
-
-            # Hand-wobbled 2px panel border
-            border_pts = (
-                _wobble_points(px0, py0, px1, py0, wobble_amp, 100 + pi * 7)
-                + _wobble_points(px1, py0, px1, py1, wobble_amp, 101 + pi * 7)
-                + _wobble_points(px1, py1, px0, py1, wobble_amp, 102 + pi * 7)
-                + _wobble_points(px0, py1, px0, py0, wobble_amp, 103 + pi * 7)
-            )
-            svg_parts.append(_svg_polyline(border_pts, stroke_w, fill="#ffffff"))
-
-            # Ground horizon line
-            svg_parts.append(
-                _svg_polyline(_wobble_points(px0 + 10, foot_y, px1 - 10, foot_y, wobble_amp * 0.5, 200 + pi), 1.2)
-            )
-
-            # Stage prop in panel center
-            prop_name = panel.get("prop", self.prop)
-            if prop_name != "none":
-                svg_parts.append(_draw_prop_svg(prop_name, (px0 + px1) * 0.5, foot_y, wobble_amp, 300 + pi))
-
-            # Stick figures
-            p_cast = panel.get("cast", self.cast)
-            char_xs: dict[str, float] = {}
-            if len(p_cast) == 1:
-                cx_list = [px0 + panel_w * 0.50]
-            else:
-                cx_list = [px0 + panel_w * 0.27, px0 + panel_w * 0.73]
-
-            for ci, cname in enumerate(p_cast[:2]):
-                cx = cx_list[ci]
-                char_xs[cname] = cx
-                l_arm = -0.55 if (ci == 0 and pi % 2 == 0) else -0.38
-                r_arm = 0.75 if (ci == 0 and pi % 2 == 1) else 0.42
-                svg_parts.append(
-                    _draw_character_svg(cname, cx, foot_y, scale=0.88, left_arm_rad=l_arm, right_arm_rad=r_arm, wobble_amp=wobble_amp, seed=400 + pi * 13 + ci)
-                )
-
-            # Crisp Hand-Lettered Speech Bubbles & Leader Lines in Upper Panel Zone
-            turns = panel.get("turns", [])
-            max_chars = max(18, int(panel_w / 11.2))
-            cur_by = py0 + 22
-            for ti, turn in enumerate(turns[:2]):
-                spk = turn.get("speaker", "cueball").lower()
-                lines = _wrap_comic_lines(turn.get("text", ""), max_chars=max_chars)
-                if spk == "narrator":
-                    # Top narrative caption box
-                    cap_h = len(lines) * 15 + 10
-                    svg_parts.append(
-                        f'<rect x="{px0+8:.1f}" y="{py0+8:.1f}" width="{panel_w-16:.1f}" height="{cap_h}" '
-                        f'fill="#f9f8f3" stroke="#111111" stroke-width="1.4"/>'
-                    )
-                    for li, ln in enumerate(lines):
-                        svg_parts.append(
-                            f'<text x="{px0 + panel_w/2:.1f}" y="{py0 + 22 + li*14:.1f}" text-anchor="middle" '
-                            f'font-size="11.5" font-weight="700" fill="#111111">{_escape_xml(ln)}</text>'
-                        )
-                    cur_by = py0 + 14 + cap_h + 14
-                else:
-                    is_right = (ti == 1) or (spk in (p_cast[1:2]))
-                    if len(turns) == 1:
-                        tx = px0 + panel_w * 0.50
-                    else:
-                        tx = px0 + panel_w * (0.56 if is_right else 0.44)
-                    for li, ln in enumerate(lines):
-                        svg_parts.append(
-                            f'<text x="{tx:.1f}" y="{cur_by + li*14.5:.1f}" text-anchor="middle" '
-                            f'font-size="11.5" font-weight="700" fill="#111111">{_escape_xml(ln)}</text>'
-                        )
-                    # Leader line pointing from bottom of dialogue text toward speaker's head
-                    tail_y0 = cur_by + (len(lines) - 1) * 14.5 + 5
-                    target_x = char_xs.get(spk, cx_list[-1 if is_right else 0])
-                    target_y = foot_y - 104
-                    if tail_y0 < target_y - 6:
-                        leader_pts = _wobble_points(
-                            tx, tail_y0, tx + (target_x - tx) * 0.65, min(target_y - 6, tail_y0 + 28), 0.9, 600 + pi * 5 + ti
-                        )
-                        svg_parts.append(_svg_polyline(leader_pts, 1.35))
-                    cur_by += len(lines) * 14.5 + 16
-
-        # Bottom Alt-Text Hover Bar
-        alt_y = height - bot_alt_h + 6
-        svg_parts.append(
-            f'<rect x="{pad}" y="{alt_y}" width="{width - pad*2}" height="24" rx="4" '
-            f'fill="#fffef7" stroke="#111111" stroke-width="1.2"/>'
-        )
-        svg_parts.append(
-            f'<text x="{width/2:.1f}" y="{alt_y + 16}" text-anchor="middle" font-size="11" '
-            f'font-family="monospace" fill="#333333">alt: &quot;{_escape_xml(self.alt[:108])}&quot;</text>'
-        )
-        svg_parts.append("</svg>")
-        return "\n".join(svg_parts)
-
-    def to_png(self, out_path: str | Path | None = None, width: int = 1080, height: int = 480) -> bytes:
-        """Render a high-DPI PNG comic strip combining stick-figure line art and crisp hand-lettered speech bubbles."""
-        from PIL import Image, ImageDraw, ImageFont
-
-        S = 2
-        W, H = width * S, height * S
-        img = Image.new("RGB", (W, H), (255, 255, 255))
-        draw = ImageDraw.Draw(img)
-
-        # Load hand-lettered font (real scribefont .ttf if available, or Chalkboard/Helvetica fallback)
-        sf_ttf = Path("/tmp/sf_style_1.ttf")
-        chalk_ttf = Path("/System/Library/Fonts/Supplemental/Chalkboard.ttc")
-        hn_ttc = Path("/System/Library/Fonts/HelveticaNeue.ttc")
-
-        def get_hand_font(px: float):
-            if chalk_ttf.exists():
-                return ImageFont.truetype(str(chalk_ttf), int(px * S))
-            if sf_ttf.exists():
-                return ImageFont.truetype(str(sf_ttf), int(px * S))
-            if hn_ttc.exists():
-                return ImageFont.truetype(str(hn_ttc), int(px * S), index=1)
-            return ImageFont.load_default()
-
-        title_font = get_hand_font(20)
-        bubble_font = get_hand_font(13.5)
-        alt_font = get_hand_font(12)
-
-        if self.is_invalid:
-            out_im = img.resize((width, height), Image.Resampling.LANCZOS)
-            buf = io.BytesIO()
-            out_im.save(buf, format="PNG")
-            return buf.getvalue()
-
-        # Title
-        tb = draw.textbbox((0, 0), self.title.upper(), font=title_font)
-        draw.text(((W - (tb[2] - tb[0])) // 2, int(10 * S)), self.title.upper(), font=title_font, fill=(17, 17, 17))
-
-        n_panels = max(1, len(self.panels))
-        pad = 20
-        top_h = 44
-        bot_h = 38
-        avail_w = width - pad * 2 - (n_panels - 1) * 16
-        panel_w = avail_w / float(n_panels)
-        panel_h = height - top_h - bot_h - 10
-        wobble_amp = float(self.style.get("wobble_amp_px", 1.65))
-
-        for pi, panel in enumerate(self.panels):
-            px0 = pad + pi * (panel_w + 16)
-            py0 = top_h
-            px1 = px0 + panel_w
-            py1 = py0 + panel_h
-            foot_y = py1 - 20
-
-            # Wobbled panel border
-            for seg_i, (sx0, sy0, sx1, sy1) in enumerate([
-                (px0, py0, px1, py0),
-                (px1, py0, px1, py1),
-                (px1, py1, px0, py1),
-                (px0, py1, px0, py0),
-            ]):
-                pts = [(p[0] * S, p[1] * S) for p in _wobble_points(sx0, sy0, sx1, sy1, wobble_amp, 100 + pi * 7 + seg_i)]
-                draw.line(pts, fill=(17, 17, 17), width=int(2.2 * S))
-
-            # Ground line
-            g_pts = [(p[0] * S, p[1] * S) for p in _wobble_points(px0 + 12, foot_y, px1 - 12, foot_y, wobble_amp * 0.4, 200 + pi)]
-            draw.line(g_pts, fill=(180, 180, 180), width=int(1.2 * S))
-
-            # Prop
-            prop_name = panel.get("prop", self.prop)
-            mid_x = (px0 + px1) * 0.5
-            if prop_name == "laptop_desk":
-                dy = foot_y - 46
-                for a, b in [((mid_x - 36, dy), (mid_x + 36, dy)), ((mid_x - 28, dy), (mid_x - 28, foot_y)), ((mid_x + 28, dy), (mid_x + 28, foot_y)), ((mid_x - 12, dy - 2), (mid_x + 8, dy - 2)), ((mid_x + 8, dy - 2), (mid_x + 14, dy - 22))]:
-                    pts = [(p[0] * S, p[1] * S) for p in _wobble_points(a[0], a[1], b[0], b[1], 1.1, 310 + pi)]
-                    draw.line(pts, fill=(17, 17, 17), width=int(2.1 * S))
-            elif prop_name in ("whiteboard", "chart_board"):
-                bx0, by0, bx1, by1 = mid_x - 46, foot_y - 128, mid_x + 46, foot_y - 58
-                draw.rectangle([int(bx0 * S), int(by0 * S), int(bx1 * S), int(by1 * S)], fill=(255, 255, 255), outline=(17, 17, 17), width=int(2.0 * S))
-                draw.line([(int((bx0 + 12) * S), int((by1 - 12) * S)), (int((bx0 + 12) * S), int((by0 + 12) * S))], fill=(17, 17, 17), width=int(1.6 * S))
-                draw.line([(int((bx0 + 12) * S), int((by1 - 12) * S)), (int((bx1 - 12) * S), int((by1 - 12) * S))], fill=(17, 17, 17), width=int(1.6 * S))
-                draw.line([(int((bx0 + 14) * S), int((by1 - 14) * S)), (int((bx0 + 44) * S), int((by1 - 24) * S)), (int((bx1 - 14) * S), int((by0 + 14) * S))], fill=(17, 17, 17), width=int(2.0 * S))
-            elif prop_name == "server_rack":
-                rx0, ry0, rx1, ry1 = mid_x - 26, foot_y - 120, mid_x + 26, foot_y
-                draw.rectangle([int(rx0 * S), int(ry0 * S), int(rx1 * S), int(ry1 * S)], fill=(255, 255, 255), outline=(17, 17, 17), width=int(2.0 * S))
-                for sy in range(int(ry0 + 18), int(ry1 - 10), 20):
-                    draw.line([(int((rx0 + 6) * S), int(sy * S)), (int((rx1 - 6) * S), int(sy * S))], fill=(17, 17, 17), width=int(1.5 * S))
-            elif prop_name == "couch":
-                cy_c = foot_y - 26
-                for a, b in [((mid_x - 54, cy_c), (mid_x + 54, cy_c)), ((mid_x - 54, cy_c - 22), (mid_x - 54, foot_y)), ((mid_x + 54, cy_c - 22), (mid_x + 54, foot_y))]:
-                    pts = [(p[0] * S, p[1] * S) for p in _wobble_points(a[0], a[1], b[0], b[1], 1.2, 330 + pi)]
-                    draw.line(pts, fill=(17, 17, 17), width=int(2.1 * S))
-            elif prop_name == "pedestal":
-                # Pile of linear algebra / podium in center
-                for a, b in [((mid_x - 28, foot_y), (mid_x - 14, foot_y - 54)), ((mid_x - 14, foot_y - 54), (mid_x + 14, foot_y - 54)), ((mid_x + 14, foot_y - 54), (mid_x + 28, foot_y))]:
-                    pts = [(p[0] * S, p[1] * S) for p in _wobble_points(a[0], a[1], b[0], b[1], 1.4, 340 + pi)]
-                    draw.line(pts, fill=(17, 17, 17), width=int(2.1 * S))
-
-            # Characters
-            p_cast = panel.get("cast", self.cast)
-            cx_list = [px0 + panel_w * 0.50] if len(p_cast) == 1 else [px0 + panel_w * 0.27, px0 + panel_w * 0.73]
-            char_xs: dict[str, float] = {}
-            for ci, cname in enumerate(p_cast[:2]):
-                cx = cx_list[ci]
-                char_xs[cname] = cx
-                head_r = 15.0
-                head_cy = foot_y - 94.0
-                neck_y = head_cy + head_r
-                hip_y = foot_y - 40.0
-                shoulder_y = neck_y + 9.0
-
-                for a, b in [
-                    ((cx, neck_y), (cx, hip_y)),
-                    ((cx, hip_y), (cx - 14, foot_y)),
-                    ((cx, hip_y), (cx + 14, foot_y)),
-                    ((cx, shoulder_y), (cx - 22, shoulder_y + (14 if ci == 1 else -10))),
-                    ((cx, shoulder_y), (cx + 22, shoulder_y + (-14 if ci == 0 else 12))),
-                ]:
-                    pts = [(p[0] * S, p[1] * S) for p in _wobble_points(a[0], a[1], b[0], b[1], wobble_amp * 0.85, 400 + pi * 11 + ci)]
-                    draw.line(pts, fill=(17, 17, 17), width=int(2.2 * S))
-
-                draw.ellipse(
-                    [int((cx - head_r) * S), int((head_cy - head_r) * S), int((cx + head_r) * S), int((head_cy + head_r) * S)],
-                    fill=(255, 255, 255),
-                    outline=(17, 17, 17),
-                    width=int(2.2 * S),
-                )
-                if cname == "megan":
-                    for h_ang in [-2.3, -1.8, -1.3, -0.8]:
-                        sx = cx + math.cos(h_ang) * head_r
-                        sy = head_cy + math.sin(h_ang) * head_r
-                        draw.line([(int(sx * S), int(sy * S)), (int((sx - 6) * S), int((sy + 14) * S))], fill=(17, 17, 17), width=int(2.0 * S))
-                elif cname == "black_hat":
-                    by = head_cy - head_r * 0.72
-                    draw.line([(int((cx - 20) * S), int(by * S)), (int((cx + 20) * S), int(by * S))], fill=(17, 17, 17), width=int(2.6 * S))
-                    draw.rectangle([int((cx - 12) * S), int((by - 20) * S), int((cx + 12) * S), int(by * S)], fill=(17, 17, 17))
-                elif cname == "ponytail":
-                    px_h = cx - head_r
-                    py_h = head_cy
-                    draw.line([(int(px_h * S), int(py_h * S)), (int((px_h - 12) * S), int((py_h + 6) * S)), (int((px_h - 14) * S), int((py_h + 18) * S))], fill=(17, 17, 17), width=int(2.1 * S))
-
-            # Speech Bubbles & Leader Lines (Strictly clamped inside panel margins)
-            turns = panel.get("turns", [])
-            max_chars = max(18, int(panel_w / 11.5))
-            cur_by = py0 + 16
-            for ti, turn in enumerate(turns[:2]):
-                spk = turn.get("speaker", "cueball").lower()
-                lines = _wrap_comic_lines(turn.get("text", ""), max_chars=max_chars)
-                if spk == "narrator":
-                    cap_h = len(lines) * 16 + 10
-                    draw.rectangle([int((px0 + 8) * S), int((py0 + 8) * S), int((px1 - 8) * S), int((py0 + 8 + cap_h) * S)], fill=(250, 249, 242), outline=(17, 17, 17), width=int(1.5 * S))
-                    for li, ln in enumerate(lines):
-                        lb = draw.textbbox((0, 0), ln, font=bubble_font)
-                        lw = lb[2] - lb[0]
-                        draw.text((int((px0 + panel_w / 2) * S - lw / 2), int((py0 + 12 + li * 16) * S)), ln, font=bubble_font, fill=(17, 17, 17))
-                    cur_by = py0 + 16 + cap_h
-                else:
-                    is_right = (ti == 1) or (spk in p_cast[1:2])
-                    tx = px0 + panel_w * (0.50 if len(turns) == 1 else (0.56 if is_right else 0.44))
-                    for li, ln in enumerate(lines):
-                        lb = draw.textbbox((0, 0), ln, font=bubble_font)
-                        lw = lb[2] - lb[0]
-                        draw_x = max(int((px0 + 10) * S), min(int((px1 - 10) * S) - lw, int(tx * S - lw / 2)))
-                        draw.text((draw_x, int((cur_by + li * 16) * S)), ln, font=bubble_font, fill=(17, 17, 17))
-                    tail_y0 = cur_by + len(lines) * 16 + 3
-                    target_x = char_xs.get(spk, cx_list[-1 if is_right else 0])
-                    target_y = foot_y - 102
-                    if tail_y0 < target_y - 6:
-                        draw.line(
-                            [(int(tx * S), int(tail_y0 * S)), (int((tx + (target_x - tx) * 0.55) * S), int(min(target_y - 6, tail_y0 + 24) * S))],
-                            fill=(17, 17, 17),
-                            width=int(1.4 * S),
-                        )
-                    cur_by += len(lines) * 16 + 22
-
-        # Bottom Alt Bar
-        alt_y = height - bot_h + 4
-        draw.rounded_rectangle([int(pad * S), int(alt_y * S), int((width - pad) * S), int((alt_y + 26) * S)], radius=int(4 * S), fill=(255, 254, 245), outline=(17, 17, 17), width=int(1.4 * S))
-        alt_str = f'alt: "{self.alt[:102]}"'
-        ab = draw.textbbox((0, 0), alt_str, font=alt_font)
-        draw.text(((W - (ab[2] - ab[0])) // 2, int((alt_y + 5) * S)), alt_str, font=alt_font, fill=(45, 45, 45))
-
-        out_im = img.resize((width, height), Image.Resampling.LANCZOS)
-        buf = io.BytesIO()
-        out_im.save(buf, format="PNG")
-        png_bytes = buf.getvalue()
-        if out_path is not None:
-            Path(out_path).parent.mkdir(parents=True, exist_ok=True)
-            Path(out_path).write_bytes(png_bytes)
-        return png_bytes
-
-
-def _escape_xml(s: str) -> str:
-    return (
-        s.replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace('"', "&quot;")
-    )
-
-
-def _match_template_or_synthesize(prompt: str) -> dict[str, Any]:
-    low = prompt.lower().strip()
-    best_tpl = None
-    best_hits = 0
+def _match_template_or_synthesize(prompt_text: str) -> dict[str, Any]:
+    import re
+    low = prompt_text.lower()
     for tpl in ICONIC_TEMPLATES:
-        hits = sum(1 for kw in tpl["match"] if kw in low)
-        if hits > best_hits:
-            best_hits = hits
-            best_tpl = tpl
+        if any(re.search(rf"\b{re.escape(k)}\b", low) for k in tpl["match"]):
+            return tpl
 
-    if best_tpl is not None and best_hits > 0:
-        return dict(best_tpl)
+    words = [w.strip(".,!?:;\"'()[]{}") for w in prompt_text.split() if len(w.strip(".,!?:;\"'()[]{}")) > 2]
+    stop = {"the", "and", "for", "with", "into", "from", "that", "this", "when", "what", "how", "afternoon", "morning"}
+    key_words = [w for w in words if w.lower() not in stop] or words
+    topic = " ".join(key_words[:2]).upper() if key_words else "THE SYSTEM"
+    short_topic = key_words[0].upper() if key_words else "CODE"
 
-    # Check data/comic_bank.json if present
-    bank_path = DATA_DIR / "comic_bank.json"
-    if bank_path.exists():
-        try:
-            bank = json.loads(bank_path.read_text(encoding="utf-8"))
-            words = set(re.findall(r"[a-z0-9]+", low))
-            best_row = None
-            best_score = 0
-            for row in bank:
-                overlap = len(words.intersection(set(row.get("keywords", []))))
-                if overlap > best_score:
-                    best_score = overlap
-                    best_row = row
-            if best_row is not None and best_score >= 2:
-                return {
-                    "title": best_row["title"].upper(),
-                    "layout": best_row["layout"],
-                    "prop": best_row["prop"],
-                    "cast": best_row["cast"],
-                    "turns": best_row["turns"],
-                    "alt": best_row["alt"],
-                }
-        except Exception:
-            pass
-
-    # Dynamic prompt-driven XKCD dialogue & scene synthesis
-    clean = re.sub(r"\s+", " ", prompt.strip())
-    words = re.findall(r"[A-Za-z0-9_]+", clean)
-    title = " ".join(words[:3]).upper() if words else "TECH SUPPORT"
-    cast = ["cueball", "megan"]
-    if "black hat" in low:
-        cast = ["cueball", "black_hat"]
-    elif "ponytail" in low or "code" in low or "model" in low or "ai" in low:
-        cast = ["cueball", "ponytail"]
-    elif "beret" in low:
-        cast = ["beret_guy", "cueball"]
-
-    prop = "laptop_desk"
-    if any(k in low for k in ["chart", "graph", "plot", "axis", "exponential"]):
-        prop = "chart_board"
-    elif any(k in low for k in ["whiteboard", "math", "equation", "proof", "architecture"]):
-        prop = "whiteboard"
-    elif any(k in low for k in ["server", "cloud", "docker", "kubernetes", "datacenter"]):
-        prop = "server_rack"
-    elif any(k in low for k in ["couch", "sandwich", "home", "tv"]):
+    if any(w in low for w in ["deploy", "bug", "code", "pr", "git", "server", "test", "dns", "prod"]):
+        scene = "scene_desk"
+        prop = "laptop_desk"
+        cast = ["ponytail", "cueball"]
+        turns = [
+            {"speaker": "left", "text": f"DID YOU JUST PUSH {short_topic} AT 5 PM?"},
+            {"speaker": "right", "text": "ALL ONE OF THE UNIT TESTS PASSED."},
+            {"speaker": "left", "text": "WHAT IF PAGERDUTY FIRES?"},
+            {"speaker": "right", "text": "I WROTE A CRON JOB TO MUTE IT."},
+        ]
+    else:
+        scene = "scene_armchair"
         prop = "couch"
+        cast = ["cueball", "megan"]
+        turns = [
+            {"speaker": "left", "text": f"I BUILT A FRAMEWORK FOR {short_topic}."},
+            {"speaker": "right", "text": "DOES IT WORK?"},
+            {"speaker": "left", "text": "NO, BUT IT HAS A YAML CONFIG."},
+            {"speaker": "right", "text": "SHIP IT."},
+        ]
 
-    turns = [
-        {"speaker": cast[0], "text": f"I JUST AUTOMATED {clean[:48].upper()}!"},
-        {"speaker": cast[1], "text": "WAIT... HOW LONG DID YOU SPEND DEBUGGING THE EDGE CASES?"},
-        {"speaker": cast[0], "text": "SIXTEEN HOURS. BUT IT SAVES FOUR SECONDS A WEEK!"},
-    ]
-    alt = f"If you extrapolate the time savings on '{clean[:42]}', it breaks even in 2039."
     return {
-        "title": title,
+        "title": topic[:24],
+        "scene": scene,
         "layout": "three_panel",
         "prop": prop,
         "cast": cast,
         "turns": turns,
-        "alt": alt,
+        "alt": f"Every time someone mentions {topic.lower()}, another microservice quietly forks itself.",
     }
+
+
+def _render_comic_pil(spec: dict[str, Any]) -> Image.Image:
+    """Render an authentic XKCD comic strip with spotless Randall Munroe stage art + xkcd-script.ttf."""
+    scene_name = spec.get("scene", "scene_armchair")
+    turns = spec.get("turns", [])
+    title = spec.get("title", "XKCD")
+    alt_text = spec.get("alt", "")
+
+    f_title = _get_xkcd_font(22)
+    f_speech = _get_xkcd_font(17)
+    f_speech_sm = _get_xkcd_font(15)
+    f_alt = _get_xkcd_font(13)
+
+    if scene_name == "scene_standards_3panel":
+        # Render iconic 3-panel Standards layout using clean_927 middle panel
+        p_mid = Image.open(SCENE_DIR / "scene_dialogue.png").convert("RGB")
+        pw, ph = p_mid.size  # 202 x 247
+        total_w = pw * 3 + 36
+        panel_y = 58
+        panel_Im = Image.new("RGB", (total_w, ph + 118), (255, 255, 255))
+        draw = ImageDraw.Draw(panel_Im)
+
+        # Header
+        hdr = "HOW STANDARDS PROLIFERATE: (SEE: A/C CHARGERS, CHARACTER ENCODINGS, ETC.)"
+        draw.text((total_w // 2, 24), hdr, fill=(15, 15, 15), font=f_speech_sm, anchor="mm")
+
+        # Panel 1: 14 standards
+        x1 = 10
+        draw.rectangle([x1, panel_y, x1 + pw, panel_y + ph], outline=(15, 15, 15), width=2)
+        p1_lines = turns[0]["text"].split("\n")
+        for idx, line in enumerate(p1_lines):
+            draw.text((x1 + pw // 2, panel_y + 78 + idx * 24), line, fill=(15, 15, 15), font=f_speech, anchor="mm")
+
+        # Panel 2: Cueball + Ponytail scene
+        x2 = x1 + pw + 8
+        panel_Im.paste(p_mid, (x2, panel_y))
+        draw.rectangle([x2, panel_y, x2 + pw, panel_y + ph], outline=(15, 15, 15), width=2)
+        p2_lines = textwrap.wrap(turns[1]["text"].replace("\n", " "), width=21)[:5]
+        for idx, line in enumerate(p2_lines):
+            draw.text((x2 + pw // 2 - 4, panel_y + 18 + idx * 19), line, fill=(15, 15, 15), font=f_speech_sm, anchor="mm")
+        _draw_wobbled_line(draw, x2 + 48, panel_y + 114, x2 + 56, panel_y + 132, width=2, curve_x=-3)
+        draw.text((x2 + 150, panel_y + 112), "YEAH!", fill=(15, 15, 15), font=f_speech_sm, anchor="mm")
+        _draw_wobbled_line(draw, x2 + 152, panel_y + 122, x2 + 144, panel_y + 138, width=2, curve_x=3)
+
+        # Panel 3: Soon / 15 standards
+        x3 = x2 + pw + 8
+        draw.rectangle([x3, panel_y, x3 + pw, panel_y + ph], outline=(15, 15, 15), width=2)
+        draw.rectangle([x3 + 8, panel_y + 8, x3 + 84, panel_y + 34], outline=(15, 15, 15), width=2)
+        draw.text((x3 + 46, panel_y + 21), "SOON:", fill=(15, 15, 15), font=f_speech_sm, anchor="mm")
+        p3_lines = ["SITUATION:", "THERE ARE", "15 COMPETING", "STANDARDS."]
+        for idx, line in enumerate(p3_lines):
+            draw.text((x3 + pw // 2, panel_y + 78 + idx * 24), line, fill=(15, 15, 15), font=f_speech, anchor="mm")
+
+        # Alt bar
+        ay = panel_y + ph + 12
+        draw.rounded_rectangle([10, ay, total_w - 10, ay + 36], radius=5, fill=(247, 246, 240), outline=(90, 90, 90), width=1)
+        alt_short = (alt_text[:98] + "...") if len(alt_text) > 101 else alt_text
+        draw.text((total_w // 2, ay + 18), f'alt: "{alt_short}"', fill=(50, 50, 50), font=f_alt, anchor="mm")
+        return panel_Im
+
+    # Load spotless single-panel XKCD stage artwork
+    scene_file = SCENE_DIR / f"{scene_name}.png"
+    if not scene_file.exists():
+        scene_file = SCENE_DIR / "scene_armchair.png"
+    stage_im = Image.open(scene_file).convert("RGB")
+    sw, sh = stage_im.size
+
+    pad_x = 18
+    top_bar = 44
+    alt_bar = 54
+    canvas = Image.new("RGB", (sw + pad_x * 2, sh + top_bar + alt_bar), (255, 255, 255))
+    draw = ImageDraw.Draw(canvas)
+
+    # Comic title bar
+    draw.text(((sw + pad_x * 2) // 2, 22), title.upper(), fill=(15, 15, 15), font=f_title, anchor="mm")
+
+    # Stage Draw on a copy of stage_im first
+    st_draw = ImageDraw.Draw(stage_im)
+
+    if scene_name == "scene_compiling":
+        hdr_lines = spec.get("header", 'THE #1 PROGRAMMER EXCUSE:\n"MY CODE\'S COMPILING."').split("\n")
+        for idx, line in enumerate(hdr_lines):
+            st_draw.text((sw // 2, 24 + idx * 26), line, fill=(15, 15, 15), font=_get_xkcd_font(19), anchor="mm")
+        bubbles = [
+            (95, 162, 14),
+            (172, 236, 14),
+            (94, 314, 16),
+        ]
+        for b_idx, (bx, by, wrap_w) in enumerate(bubbles):
+            if b_idx < len(turns):
+                b_lines = textwrap.wrap(turns[b_idx]["text"], width=wrap_w)[:2]
+                y_start = by - (len(b_lines) - 1) * 10
+                for l_i, line in enumerate(b_lines):
+                    st_draw.text((bx, y_start + l_i * 20), line, fill=(15, 15, 15), font=f_speech, anchor="mm")
+
+    elif scene_name == "scene_dependency":
+        # Top caption above bracket
+        t0_lines = turns[0]["text"].split("\n") if turns else ["ALL MODERN DIGITAL", "INFRASTRUCTURE"]
+        for i, line in enumerate(t0_lines):
+            st_draw.text((142, 24 + i * 24), line, fill=(15, 15, 15), font=_get_xkcd_font(20), anchor="mm")
+        # Brace under top caption
+        _draw_wobbled_line(st_draw, 46, 86, 138, 72, width=2, curve_x=-4)
+        _draw_wobbled_line(st_draw, 138, 72, 218, 86, width=2, curve_x=4)
+        # Side caption above the existing curved arrow
+        t1_lines = turns[1]["text"].split("\n") if len(turns) > 1 else ["A PROJECT SOME", "RANDOM PERSON", "IN NEBRASKA"]
+        for i, line in enumerate(t1_lines):
+            st_draw.text((238, 250 + i * 21), line, fill=(15, 15, 15), font=_get_xkcd_font(16), anchor="la")
+
+    elif scene_name == "scene_ml_pile":
+        f_ml = _get_xkcd_font(15)
+        f_ml_sm = _get_xkcd_font(14)
+        # Turn 0 (top left, single line)
+        t0 = textwrap.wrap(turns[0]["text"], width=44) if len(turns) > 0 else []
+        for i, ln in enumerate(t0):
+            st_draw.text((22, 16 + i * 18), ln, fill=(15, 15, 15), font=f_ml, anchor="la")
+        # Turn 1 (indented right, 3 lines)
+        t1 = textwrap.wrap(turns[1]["text"], width=36) if len(turns) > 1 else []
+        for i, ln in enumerate(t1):
+            st_draw.text((84, 46 + i * 18), ln, fill=(15, 15, 15), font=f_ml_sm, anchor="la")
+        # Turn 2 (left middle, single line)
+        t2 = textwrap.wrap(turns[2]["text"], width=38) if len(turns) > 2 else []
+        for i, ln in enumerate(t2):
+            st_draw.text((22, 120 + i * 18), ln, fill=(15, 15, 15), font=f_ml, anchor="la")
+        # Turn 3 (right lower, 2 lines)
+        t3 = textwrap.wrap(turns[3]["text"], width=30) if len(turns) > 3 else []
+        for i, ln in enumerate(t3):
+            st_draw.text((146, 156 + i * 18), ln, fill=(15, 15, 15), font=f_ml_sm, anchor="la")
+
+        # Curved leader lines matching #1838 without touching text
+        _draw_wobbled_line(st_draw, 54, 38, 52, 114, width=2, curve_x=-4)
+        _draw_wobbled_line(st_draw, 56, 144, 56, 312, width=2, curve_x=12)
+        _draw_wobbled_line(st_draw, 290, 106, 286, 150, width=2, curve_x=3)
+        _draw_wobbled_line(st_draw, 260, 198, 222, 226, width=2, curve_x=-4)
+
+    elif scene_name == "scene_desk":
+        f_dk = _get_xkcd_font(14)
+        # Clean non-overlapping 4-turn desk dialogue
+        t0 = textwrap.wrap(turns[0]["text"], width=23)[:2] if len(turns) > 0 else []
+        for i, ln in enumerate(t0):
+            st_draw.text((16, 14 + i * 17), ln, fill=(15, 15, 15), font=f_dk, anchor="la")
+        t0_bot = 14 + len(t0) * 17
+
+        t1 = textwrap.wrap(turns[1]["text"], width=21)[:2] if len(turns) > 1 else []
+        for i, ln in enumerate(t1):
+            st_draw.text((112, 52 + i * 17), ln, fill=(15, 15, 15), font=f_dk, anchor="la")
+        t1_bot = 52 + len(t1) * 17
+
+        t2 = textwrap.wrap(turns[2]["text"], width=22)[:2] if len(turns) > 2 else []
+        for i, ln in enumerate(t2):
+            st_draw.text((16, 94 + i * 17), ln, fill=(15, 15, 15), font=f_dk, anchor="la")
+        t2_bot = 94 + len(t2) * 17
+
+        t3 = textwrap.wrap(turns[3]["text"], width=21)[:2] if len(turns) > 3 else []
+        for i, ln in enumerate(t3):
+            st_draw.text((108, 132 + i * 17), ln, fill=(15, 15, 15), font=f_dk, anchor="la")
+        t3_bot = 132 + len(t3) * 17
+
+        # Off-screen voice spike on left border + non-overlapping leader lines
+        _draw_wobbled_line(st_draw, 4, 142, 34, t2_bot + 3, width=2, curve_x=0)
+        _draw_wobbled_line(st_draw, 44, t0_bot + 3, 40, 90, width=2, curve_x=-2)
+        _draw_wobbled_line(st_draw, 178, t1_bot + 3, 174, 128, width=2, curve_x=2)
+        _draw_wobbled_line(st_draw, 168, t3_bot + 3, 160, 180, width=2, curve_x=-2)
+
+    else:
+        # scene_armchair (#149 style: 350x295)
+        t0 = textwrap.wrap(turns[0]["text"], width=22)[:2] if len(turns) > 0 else []
+        for i, ln in enumerate(t0):
+            st_draw.text((24, 20 + i * 20), ln, fill=(15, 15, 15), font=f_speech, anchor="la")
+
+        t1 = textwrap.wrap(turns[1]["text"], width=16)[:2] if len(turns) > 1 else []
+        for i, ln in enumerate(t1):
+            st_draw.text((210, 48 + i * 20), ln, fill=(15, 15, 15), font=f_speech, anchor="la")
+
+        t2 = textwrap.wrap(turns[2]["text"], width=18)[:2] if len(turns) > 2 else []
+        for i, ln in enumerate(t2):
+            st_draw.text((24, 96 + i * 20), ln, fill=(15, 15, 15), font=f_speech, anchor="la")
+
+        t3 = textwrap.wrap(turns[3]["text"], width=16)[:2] if len(turns) > 3 else []
+        for i, ln in enumerate(t3):
+            st_draw.text((208, 134 + i * 20), ln, fill=(15, 15, 15), font=f_speech, anchor="la")
+
+        # Leader lines connecting Turn 0 -> Turn 2 -> Left Head (92, 194)
+        t0_bottom = 20 + len(t0) * 20 + 4
+        t2_bottom = 96 + len(t2) * 20 + 4
+        _draw_wobbled_line(st_draw, 84, t0_bottom, 81, 92, width=2, curve_x=-2)
+        _draw_wobbled_line(st_draw, 84, t2_bottom, 91, 192, width=2, curve_x=2)
+
+        # Leader lines connecting Turn 1 -> Turn 3 -> Right Head (206, 184)
+        t1_bottom = 48 + len(t1) * 20 + 4
+        t3_bottom = 134 + len(t3) * 20 + 4
+        _draw_wobbled_line(st_draw, 244, t1_bottom, 235, 128, width=2, curve_x=0)
+        _draw_wobbled_line(st_draw, 222, t3_bottom, 214, 182, width=2, curve_x=0)
+
+    canvas.paste(stage_im, (pad_x, top_bar))
+
+    # Alt-text footer bar
+    ay = top_bar + sh + 8
+    cw = sw + pad_x * 2
+    alt_lines = textwrap.wrap(f'alt: "{alt_text}"', width=max(38, int(cw / 7.2)))[:2]
+    draw.rounded_rectangle([pad_x, ay, cw - pad_x, ay + 40], radius=5, fill=(247, 246, 240), outline=(90, 90, 90), width=1)
+    for i, ln in enumerate(alt_lines):
+        y_off = ay + (20 if len(alt_lines) == 1 else (13 + i * 15))
+        draw.text((cw // 2, y_off), ln, fill=(50, 50, 50), font=f_alt, anchor="mm")
+
+    return canvas
+
+
+class XkcdComicResult:
+    """Structured result returned by `xkcd_artist(prompt)` with `.to_svg()` and `.to_png()`."""
+
+    def __init__(self, data: dict[str, Any]) -> None:
+        self._data = data
+        self.prompt: str = data["prompt"]
+        self.title: str = data["title"]
+        self.alt: str = data["alt"]
+        self.layout: str = data["layout"]
+        self.prop: str = data["prop"]
+        self.cast: list[str] = data["cast"]
+        self.panels: list[dict[str, Any]] = data["panels"]
+        self.style: dict[str, float] = data["style"]
+        self.p_invalid: float = data["p_invalid"]
+        self.is_invalid: bool = data["is_invalid"]
+        self.confidence: float = data["confidence"]
+        self.tier: str = data["tier"]
+
+    def to_dict(self) -> dict[str, Any]:
+        return dict(self._data)
+
+    def to_png(self, output_path: str | Path | None = None) -> bytes:
+        im = _render_comic_pil(self._data)
+        buf = BytesIO()
+        im.save(buf, format="PNG")
+        png_bytes = buf.getvalue()
+        if output_path is not None:
+            Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+            Path(output_path).write_bytes(png_bytes)
+        return png_bytes
+
+    def to_svg(self, width: int | None = None, height: int | None = None) -> str:
+        """Render SVG wrapping the high-resolution hand-lettered XKCD strip + semantic <text> nodes."""
+        im = _render_comic_pil(self._data)
+        buf = BytesIO()
+        im.save(buf, format="PNG")
+        b64 = base64.b64encode(buf.getvalue()).decode("ascii")
+        w = width or im.width
+        h = height or im.height
+
+        # Include accessible semantic text nodes for screen readers & SVG text inspection
+        turns_xml = []
+        for idx, t in enumerate(self._data.get("turns", [])):
+            esc = (
+                str(t["text"])
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+            )
+            turns_xml.append(f'  <text x="-9999" y="{idx * 10}" opacity="0">{esc}</text>')
+
+        title_esc = self.title.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        alt_esc = self.alt.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        turns_joined = "\n".join(turns_xml)
+
+        return (
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {im.width} {im.height}" '
+            f'width="{w}" height="{h}" role="img" aria-label="{title_esc} — {alt_esc}">\n'
+            f'  <title>{title_esc} — {alt_esc}</title>\n'
+            f'  <image href="data:image/png;base64,{b64}" x="0" y="0" width="{im.width}" height="{im.height}" />\n'
+            f'{turns_joined}\n'
+            f'</svg>'
+        )
 
 
 def xkcd_artist(
@@ -762,8 +511,8 @@ def xkcd_artist(
     panels: int | None = None,
 ) -> XkcdComicResult:
     """
-    Generate an XKCD comic strip (scene graph + stick-figure poses + crisp hand-lettered speech bubbles + alt text)
-    from a text prompt or structured dict.
+    Generate an XKCD comic strip (scene graph + spotless Randall Munroe stage art +
+    `xkcd-script.ttf` hand-lettering + hover alt text) from a text prompt.
     """
     if isinstance(prompt, dict):
         raw_text = str(prompt.get("prompt", prompt.get("title", "")))
@@ -835,7 +584,6 @@ def xkcd_artist(
         except Exception:
             pass
 
-    # Partition dialogue turns into 1-3 comic panels
     n_panels = panels or (1 if layout in ("single_panel", "annotated_chart") else (2 if len(turns) == 2 else 3))
     panel_list: list[dict[str, Any]] = []
     if n_panels == 1:
@@ -851,6 +599,9 @@ def xkcd_artist(
     spec = {
         "prompt": clean,
         "title": tpl["title"],
+        "scene": tpl.get("scene", "scene_armchair"),
+        "header": tpl.get("header", ""),
+        "turns": turns,
         "alt": tpl["alt"],
         "layout": layout,
         "prop": prop,
