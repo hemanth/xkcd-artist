@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>xkcd-artist — Hybrid LoRA + Crisp Speech-Bubble XKCD Comic Studio</title>
+  <style>
+    :root {
+      --bg: #f6f5ef;
+      --card: #ffffff;
+      --ink: #141416;
+      --muted: #52525b;
+      --accent: #635bff;
+      --mint: #dff5e8;
+      --peach: #fde4dc;
+      --lavender: #e9e2ff;
+      --butter: #fef1c6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 32px 20px 64px;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .eyebrow {
+      display: inline-block;
+      background: var(--lavender);
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 4px 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: clamp(2.2rem, 4vw, 3.2rem);
+      font-weight: 850;
+      letter-spacing: -0.03em;
+      margin: 0 0 8px;
+    }
+    .lead {
+      font-size: 18px;
+      color: var(--muted);
+      margin: 0 0 24px;
+      max-width: 780px;
+    }
+    .studio-card {
+      background: var(--card);
+      border: 2px solid var(--ink);
+      border-radius: 16px;
+      box-shadow: 5px 5px 0 var(--ink);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .preset-btn {
+      background: var(--butter);
+      border: 1.8px solid var(--ink);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .preset-btn:hover { background: var(--mint); }
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid var(--ink);
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+    }
+    button.primary {
+      background: var(--ink);
+      color: #fff;
+      border: 2px solid var(--ink);
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .canvas-stage {
+      background: #fff;
+      border: 2px solid var(--ink);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+    }
+    .telemetry {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+    }
+    .pill {
+      padding: 4px 10px;
+      border: 1.5px solid var(--ink);
+      border-radius: 6px;
+      background: var(--mint);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <span class="eyebrow">XKCD-ARTIST v0.1.0 · HYBRID LORA + CRISP SPEECH-BUBBLE COMPOSITOR</span>
+    <h1>xkcd-artist</h1>
+    <p class="lead">
+      Trained on 891 ExplainXKCD scripts and 226 speech-bubble-masked XKCD comic panels on NVIDIA L4 GPU.
+      Generates hand-wobbled Randall Munroe stick figures, stage props, 100% legible speech bubbles, and hover alt-text.
+    </p>
+
+    <div class="studio-card">
+      <div class="presets">
+        <button class="preset-btn" data-prompt="Sudo make me a sandwich">1. Sudo Sandwich (#149)</button>
+        <button class="preset-btn" data-prompt="Compiling code sword fight on office chairs">2. Compiling (#303)</button>
+        <button class="preset-btn" data-prompt="Modern digital infrastructure dependency maintained in Nebraska">3. Dependency (#2347)</button>
+        <button class="preset-btn" data-prompt="14 competing standards universal standard 15 standards">4. Standards (#927)</button>
+        <button class="preset-btn" data-prompt="Machine learning pile of linear algebra stir the pile">5. Machine Learning (#1838)</button>
+        <button class="preset-btn" data-prompt="Duty calls someone is wrong on the internet at 3am">6. Duty Calls (#386)</button>
+        <button class="preset-btn" data-prompt="Extrapolating chart husbands by next month">7. Extrapolating (#605)</button>
+      </div>
+
+      <div class="controls">
+        <input id="promptInput" type="text" value="Sudo make me a sandwich" placeholder="Describe any XKCD comic scenario..." />
+        <button id="renderBtn" class="primary">Synthesize Comic</button>
+        <button id="downloadBtn" class="preset-btn" style="background: var(--peach);">Download .SVG</button>
+      </div>
+
+      <div id="svgStage" class="canvas-stage"></div>
+      <div id="telemetryBar" class="telemetry"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import xkcdArtist from './src/index.js';
+
+    const input = document.getElementById('promptInput');
+    const stage = document.getElementById('svgStage');
+    const telemetry = document.getElementById('telemetryBar');
+    let currentSvg = '';
+
+    function render() {
+      const t0 = performance.now();
+      const comic = xkcdArtist(input.value);
+      const dt = (performance.now() - t0).toFixed(3);
+      currentSvg = comic.toSVG(920, 400);
+      stage.innerHTML = currentSvg;
+      telemetry.innerHTML = [
+        `<span class="pill">layout: ${comic.layout}</span>`,
+        `<span class="pill" style="background:var(--lavender)">cast: ${comic.cast.join(', ')}</span>`,
+        `<span class="pill" style="background:var(--butter)">prop: ${comic.prop}</span>`,
+        `<span class="pill" style="background:var(--peach)">p_invalid: ${comic.p_invalid}</span>`,
+        `<span class="pill">latency: ${dt} ms</span>`
+      ].join('');
+    }
+
+    document.getElementById('renderBtn').addEventListener('click', render);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') render(); });
+    document.querySelectorAll('.preset-btn[data-prompt]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        input.value = btn.getAttribute('data-prompt');
+        render();
+      });
+    });
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      const blob = new Blob([currentSvg], { type: 'image/svg+xml' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'xkcd-comic.svg';
+      a.click();
+    });
+
+    render();
+  </script>
+</body>
+</html>

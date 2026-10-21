@@ -1,0 +1,16 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "xkcd-artist"
+version = "0.1.0"
+description = "Hybrid Fine-Tuned LoRA Stick-Figure Art + Crisp Hand-Lettered Speech Bubble & Alt-Text Comic Generator trained on XKCD & ExplainXKCD."
+readme = "../../README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Hemanth HM", email = "hemanth@h3manth.com" }]
+dependencies = []
+
+[project.optional-dependencies]
+neural = ["torch>=2.0.0", "transformers>=4.38.0", "safetensors>=0.4.0", "onnxruntime>=1.17.0", "pillow>=10.0.0"]

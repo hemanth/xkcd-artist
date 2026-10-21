@@ -1,0 +1,33 @@
+{
+  "name": "xkcd-artist",
+  "version": "0.1.0",
+  "description": "Hybrid Fine-Tuned LoRA Stick-Figure Art + Crisp Hand-Lettered Speech Bubble & Alt-Text Comic Generator trained on XKCD & ExplainXKCD.",
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "scripts": {
+    "test": "node --test test/index.test.js"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "xkcd",
+    "explainxkcd",
+    "comic",
+    "lora",
+    "onnx",
+    "svg",
+    "stick-figure"
+  ],
+  "author": "Hemanth HM <hemanth@h3manth.com> (https://h3manth.com)",
+  "license": "MIT"
+}

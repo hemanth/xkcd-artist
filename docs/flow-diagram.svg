@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 260" width="100%" height="auto" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif">
+  <rect width="980" height="260" fill="#ffffff"/>
+
+  <!-- Stage 1: Prompt & ExplainXKCD Corpus -->
+  <rect x="20" y="36" width="210" height="188" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+  <rect x="34" y="50" width="108" height="20" rx="2" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+  <text x="88" y="64" font-family="'Geist Mono', monospace" font-size="10" font-weight="700" text-anchor="middle" fill="#000000">[ 1. EXPLAINXKCD ]</text>
+  <text x="34" y="94" font-size="14" font-weight="700" fill="#000000">Prompt &amp; Corpus</text>
+  <text x="34" y="116" font-family="'Geist Mono', monospace" font-size="11" fill="#222222">• 891 ExplainXKCD scripts</text>
+  <text x="34" y="136" font-family="'Geist Mono', monospace" font-size="11" fill="#222222">• 226 text-masked PNGs</text>
+  <text x="34" y="156" font-family="'Geist Mono', monospace" font-size="11" fill="#222222">• Stage directions [cast]</text>
+  <text x="34" y="176" font-family="'Geist Mono', monospace" font-size="11" fill="#222222">• Dialogue + alt-text</text>
+  <text x="34" y="198" font-family="'Geist Mono', monospace" font-size="10" fill="#555555">olivierdehaene/xkcd</text>
+
+  <!-- Arrow 1 -> 2 -->
+  <line x1="230" y1="130" x2="268" y2="130" stroke="#000000" stroke-width="1.2"/>
+  <polygon points="268,126 276,130 268,134" fill="#000000"/>
+
+  <!-- Stage 2: Hybrid LoRA & 3-Tier Core (Focal Inverted Black Card) -->
+  <rect x="276" y="36" width="224" height="188" rx="6" fill="#000000" stroke="#000000" stroke-width="1.2"/>
+  <rect x="290" y="50" width="134" height="20" rx="2" fill="#000000" stroke="#ffffff" stroke-width="1.2"/>
+  <text x="357" y="64" font-family="'Geist Mono', monospace" font-size="10" font-weight="700" text-anchor="middle" fill="#ffffff">[ 2. HYBRID LORA CORE ]</text>
+  <text x="290" y="94" font-size="14" font-weight="700" fill="#ffffff">XkcdArtistForGeneration</text>
+  <text x="290" y="116" font-family="'Geist Mono', monospace" font-size="11" fill="#e5e5e5">• SD UNet LoRA (r=16, L4)</text>
+  <text x="290" y="136" font-family="'Geist Mono', monospace" font-size="11" fill="#e5e5e5">• PyTorch FP32 (6.16 MB)</text>
+  <text x="290" y="156" font-family="'Geist Mono', monospace" font-size="11" fill="#e5e5e5">• ONNX Int8 WASM (1.72 MB)</text>
+  <text x="290" y="176" font-family="'Geist Mono', monospace" font-size="11" fill="#e5e5e5">• 1.59M Scene Planner</text>
+  <text x="290" y="198" font-family="'Geist Mono', monospace" font-size="10" fill="#bbbbbb">gnumanth/xkcd-artist</text>
+
+  <!-- Arrow 2 -> 3 -->
+  <line x1="500" y1="130" x2="538" y2="130" stroke="#000000" stroke-width="1.2"/>
+  <polygon points="538,126 546,130 538,134" fill="#000000"/>
+
+  <!-- Stage 3: 5 Joint Structural & Style Heads -->
+  <rect x="546" y="36" width="206" height="188" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+  <rect x="560" y="50" width="112" height="20" rx="2" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+  <text x="616" y="64" font-family="'Geist Mono', monospace" font-size="10" font-weight="700" text-anchor="middle" fill="#000000">[ 3. FIVE HEADS ]</text>
+  <text x="560" y="94" font-size="14" font-weight="700" fill="#000000">Scene &amp; Kinematics</text>
+  <text x="560" y="116" font-family="'Geist Mono', monospace" font-size="11" fill="#222222">1. layout_head (1-4 panels)</text>
+  <text x="560" y="136" font-family="'Geist Mono', monospace" font-size="11" fill="#222222">2. prop_head   (8 props)</text>
+  <text x="560" y="156" font-family="'Geist Mono', monospace" font-size="11" fill="#222222">3. pose_head   (12 joints)</text>
+  <text x="560" y="176" font-family="'Geist Mono', monospace" font-size="11" fill="#222222">4. bubble_head (cy &lt;= 0.48)</text>
+  <text x="560" y="198" font-family="'Geist Mono', monospace" font-size="10" fill="#555555">5. ink_patch + p_invalid</text>
+
+  <!-- Arrow 3 -> 4 -->
+  <line x1="752" y1="130" x2="788" y2="130" stroke="#000000" stroke-width="1.2"/>
+  <polygon points="788,126 796,130 788,134" fill="#000000"/>
+
+  <!-- Stage 4: Crisp Speech Bubble & Alt-Text Compositor -->
+  <rect x="796" y="36" width="164" height="188" rx="6" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+  <rect x="810" y="50" width="110" height="20" rx="2" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+  <text x="865" y="64" font-family="'Geist Mono', monospace" font-size="10" font-weight="700" text-anchor="middle" fill="#000000">[ 4. COMPOSITOR ]</text>
+  <text x="810" y="94" font-size="14" font-weight="700" fill="#000000">Crisp XKCD Strip</text>
+  <text x="810" y="116" font-family="'Geist Mono', monospace" font-size="11" fill="#222222">• Hand-wobbled ink</text>
+  <text x="810" y="136" font-family="'Geist Mono', monospace" font-size="11" fill="#222222">• Crisp speech text</text>
+  <text x="810" y="156" font-family="'Geist Mono', monospace" font-size="11" fill="#222222">• Leader lines</text>
+  <text x="810" y="176" font-family="'Geist Mono', monospace" font-size="11" fill="#222222">• Hover alt-text bar</text>
+  <text x="810" y="196" font-family="'Geist Mono', monospace" font-size="11" fill="#222222">• Vector SVG &amp; PNG</text>
+</svg>

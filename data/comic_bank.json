@@ -1,0 +1,3330 @@
+[
+  {
+    "num": 149,
+    "title": "Sandwich",
+    "alt": "Proper User Policy apparently means Simon Says.",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "sudo",
+      "root privilege",
+      "permission denied",
+      "unix command",
+      "make me a sandwich",
+      "sandwich"
+    ],
+    "layout": "single_panel",
+    "prop": "pointer_stick",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball",
+        "text": "Make me a sandwich. Friend: What? Make it yourself. Cueball: Sudo make me a sandwich. Friend: Okay."
+      }
+    ]
+  },
+  {
+    "num": 208,
+    "title": "Regular Expressions",
+    "alt": "Wait, forgot to escape a space. Wheeeeee[taptaptap]eeeeee.",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "regular expressions",
+      "regex",
+      "perl",
+      "200 megabyte",
+      "email addresses",
+      "parsing",
+      "regular",
+      "expressions"
+    ],
+    "layout": "four_panel",
+    "prop": "laptop_desk",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Whenever I learn a new skill I concoct elaborate fantasy scenarios where it lets me save the day."
+      },
+      {
+        "speaker": "megan",
+        "text": "Oh no! The killer must have followed her on vacation!"
+      },
+      {
+        "speaker": "megan",
+        "text": "But to find them we'd have to search through 200 MB of emails looking for something formatted like an address!"
+      },
+      {
+        "speaker": "off-panel voice",
+        "text": "Everybody stand back."
+      }
+    ]
+  },
+  {
+    "num": 303,
+    "title": "Compiling",
+    "alt": "Are you stealing those LCDs? Yeah, but I'm doing it while my code compiles.",
+    "category": "Engineering & Workflow",
+    "keywords": [
+      "compiling",
+      "build time",
+      "slacking off",
+      "sword fighting",
+      "officechairs",
+      "plausible excuse",
+      "compiling"
+    ],
+    "layout": "two_panel",
+    "prop": "couch",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "The #1 Programmer Excuse for Legitimately Slacking Off: \"My code's compiling.\""
+      },
+      {
+        "speaker": "manager",
+        "text": "Hey! Get back to work! Cueball: Compiling! Manager: Oh. Carry on."
+      }
+    ]
+  },
+  {
+    "num": 327,
+    "title": "Exploits of a Mom",
+    "alt": "Her daughter is named Help I'm trapped in a driver's license factory.",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "sql injection",
+      "drop table",
+      "database sanitization",
+      "bobby tables",
+      "robert",
+      "students",
+      "exploits",
+      "of",
+      "a",
+      "mom"
+    ],
+    "layout": "four_panel",
+    "prop": "laptop_desk",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "voice over the phone",
+        "text": "Hi, This is your son's school. We're having some computer trouble."
+      },
+      {
+        "speaker": "mrs. roberts",
+        "text": "Oh, dear \u2013 did he break something? Voice over the phone: In a way \u2013"
+      },
+      {
+        "speaker": "voice over the phone",
+        "text": "Did you really name your son Robert'); DROP TABLE Students;-- ? Mrs. Roberts: Oh, yes. Little Bobby Tables, we"
+      },
+      {
+        "speaker": "voice over the phone",
+        "text": "Well, we've lost this year's student records. I hope you're happy. Mrs. Roberts: And I hope you've learned to "
+      }
+    ]
+  },
+  {
+    "num": 353,
+    "title": "Python",
+    "alt": "I wrote 20 short programs in Python yesterday. It was wonderful. Perl, I'm leaving you.",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "import antigravity",
+      "python standard library",
+      "dynamic typing",
+      "whitespace",
+      "pseudocode",
+      "flying",
+      "python"
+    ],
+    "layout": "single_panel",
+    "prop": "laptop_desk",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "friend",
+        "text": "You're flying! How? Cueball: Python! Cueball: I learned it last night! Everything is so simple! Cueball: Hello"
+      }
+    ]
+  },
+  {
+    "num": 386,
+    "title": "Duty Calls",
+    "alt": "What do you want me to do? LEAVE? Then they'll keep being wrong!",
+    "category": "Science & Culture",
+    "keywords": [
+      "someone is wrong on the internet",
+      "late night argument",
+      "online forum",
+      "obsessive correction",
+      "duty",
+      "calls"
+    ],
+    "layout": "single_panel",
+    "prop": "laptop_desk",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "voice outside frame",
+        "text": "Are you coming to bed? Cueball: I can't. This is important. Voice: What? Cueball: Someone is WRONG on the Inte"
+      }
+    ]
+  },
+  {
+    "num": 552,
+    "title": "Correlation",
+    "alt": "Correlation doesn't imply causation, but it does waggle its eyebrows suggestively and gesture furtively while mouthing 'look over there'.",
+    "category": "Mathematics & Statistics",
+    "keywords": [
+      "correlation",
+      "causation",
+      "statistics class",
+      "logical fallacy",
+      "confounding variable",
+      "correlation"
+    ],
+    "layout": "three_panel",
+    "prop": "pointer_stick",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball",
+        "text": "I used to think correlation implied causation."
+      },
+      {
+        "speaker": "cueball",
+        "text": "Then I took a statistics class. Now I don't."
+      },
+      {
+        "speaker": "megan",
+        "text": "Sounds like the class helped. Cueball: Well, maybe."
+      }
+    ]
+  },
+  {
+    "num": 882,
+    "title": "Significant",
+    "alt": "So, uh, we did the green study again and got no link. It was probably a-- 'RESEARCH CONFLICTED ON GREEN JELLY BEAN/ACNE LINK; MORE STUDY RECOMMENDED!'",
+    "category": "Mathematics & Statistics",
+    "keywords": [
+      "p-hacking",
+      "statistical significance",
+      "p < 0.05",
+      "multiple hypothesis testing",
+      "green jelly beans",
+      "false positive",
+      "significant"
+    ],
+    "layout": "four_panel",
+    "prop": "laptop_desk",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Girl with black ponytail: Jelly beans cause acne! Cueball: Scientists! Investigate! Scientist (off screen): Bu"
+      },
+      {
+        "speaker": "scientist with goggles",
+        "text": "We found no link between jelly beans and acne (p > 0.05)."
+      },
+      {
+        "speaker": "cueball",
+        "text": "That settles that. Girl with black ponytail: I hear it's only a certain color that causes it. Cueball: Scienti"
+      },
+      {
+        "speaker": "scientist with goggles",
+        "text": "We found no link between purple jelly beans and acne (p > 0.05)."
+      }
+    ]
+  },
+  {
+    "num": 927,
+    "title": "Standards",
+    "alt": "Fortunately, the charging one has been solved now that we've all standardized on mini-USB. Or is it micro-USB? Shit.",
+    "category": "Engineering & Workflow",
+    "keywords": [
+      "competing standards",
+      "14 standards",
+      "15 standards",
+      "universal adapter",
+      "fragmentation",
+      "usb",
+      "standards"
+    ],
+    "layout": "four_panel",
+    "prop": "none",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "How Standards Proliferate (See: A/C chargers, character encodings, instant messaging, etc.)"
+      },
+      {
+        "speaker": "situation",
+        "text": "There are 14 competing standards."
+      },
+      {
+        "speaker": "cueball",
+        "text": "14?! Ridiculous! We need to develop one universal standard that covers everyone's use cases. Ponytail: Yeah!"
+      },
+      {
+        "speaker": "soon",
+        "text": "Situation: There are 15 competing standards."
+      }
+    ]
+  },
+  {
+    "num": 979,
+    "title": "Wisdom of the Ancients",
+    "alt": "All long help threads should have a sticky globally-editable post at the top saying 'DEAR PEOPLE FROM THE FUTURE: Here's what we've figured out so far ...'",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "obscure bug",
+      "forum thread",
+      "denvercoder9",
+      "what did you see",
+      "unanswered question",
+      "2003",
+      "wisdom",
+      "of",
+      "the",
+      "ancients"
+    ],
+    "layout": "two_panel",
+    "prop": "laptop_desk",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Never have I felt so close to another soul And yet so helplessly alone As when I Google an error And there's o"
+      },
+      {
+        "speaker": "cueball",
+        "text": "Who were you, DenverCoder9? Cueball: What did you see?!"
+      }
+    ]
+  },
+  {
+    "num": 1053,
+    "title": "Ten Thousand",
+    "alt": "Saying 'what kind of an idiot doesn't know about the Yellowstone supervolcano' is so much more boring than telling someone about the Yellowstone supervolcano fo",
+    "category": "Science & Culture",
+    "keywords": [
+      "lucky 10000",
+      "birth rate",
+      "learning every day",
+      "diet coke and mentos",
+      "empathy",
+      "gatekeeping",
+      "ten",
+      "thousand"
+    ],
+    "layout": "four_panel",
+    "prop": "whiteboard",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "I try not to make fun of people for admitting they don't know things."
+      },
+      {
+        "speaker": "narrator",
+        "text": "Because for each thing \"everyone knows\" by the time they're adults, every day there are, on average, 10,000 pe"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Fraction who have heard of it at birth = 0% Fraction who have heard of it by 30 \u2248 100% US birth rate \u2248 4,000,0"
+      },
+      {
+        "speaker": "narrator",
+        "text": "If I make fun of people, I train them not to tell me when they have those moments. And I miss out on the fun."
+      }
+    ]
+  },
+  {
+    "num": 1172,
+    "title": "Workflow",
+    "alt": "There are probably children out there holding down spacebar to stay warm in the winter! YOUR UPDATE MURDERS CHILDREN.",
+    "category": "Engineering & Workflow",
+    "keywords": [
+      "spacebar heating",
+      "cpu usage bug",
+      "emacs",
+      "backwards compatibility",
+      "hyrum's law",
+      "workflow dependency",
+      "workflow"
+    ],
+    "layout": "annotated_chart",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "one change listed",
+        "text": "\"The CPU no longer overheats when you hold down the spacebar\" Comments: LongtimeUser4 writes: This update brok"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Every change breaks someone's workflow."
+      }
+    ]
+  },
+  {
+    "num": 1205,
+    "title": "Is It Worth the Time?",
+    "alt": "Don't forget the time you spend finding the chart to look up what you save. And the time spent reading this reminder about the time spent.",
+    "category": "Engineering & Workflow",
+    "keywords": [
+      "time saved",
+      "automation roi",
+      "5 years",
+      "frequency vs duration",
+      "lookup table",
+      "optimization",
+      "is",
+      "it",
+      "worth",
+      "the",
+      "time"
+    ],
+    "layout": "annotated_chart",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "How long can you work on making a routine task more efficient before you're spending more time than you save? "
+      }
+    ]
+  },
+  {
+    "num": 1319,
+    "title": "Automation",
+    "alt": "'Automating' comes from the roots 'auto-' meaning 'self-', and 'mating', meaning 'screwing'.",
+    "category": "Engineering & Workflow",
+    "keywords": [
+      "automation",
+      "debugging scripts",
+      "ongoing maintenance",
+      "theory vs reality",
+      "sunk time",
+      "automation"
+    ],
+    "layout": "three_panel",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "\"I spend a lot of time on this task. I should write a program automating it!\""
+      },
+      {
+        "speaker": "narrator",
+        "text": "Theory:"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Reality:"
+      }
+    ]
+  },
+  {
+    "num": 1513,
+    "title": "Code Quality",
+    "alt": "I honestly didn't think you could even USE emoji in variable names. Or that there were so many different crying ones.",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "code review",
+      "spaghetti code",
+      "building inspection",
+      "structural failure",
+      "emoji variable names",
+      "code",
+      "quality"
+    ],
+    "layout": "four_panel",
+    "prop": "laptop_desk",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball",
+        "text": "Keep in mind that I'm self-taught, so my code may be a little messy. Ponytail: Lemme see - I'm sure it's fine."
+      },
+      {
+        "speaker": "ponytail",
+        "text": "...Wow. This is like being in a house built by a child using nothing but a hatchet and a picture of a house."
+      },
+      {
+        "speaker": "ponytail",
+        "text": "It's like a salad recipe written by a corporate lawyer using a phone autocorrect that only knew Excel formulas"
+      },
+      {
+        "speaker": "ponytail",
+        "text": "It's like someone took a transcript of a couple arguing at IKEA and made random edits until it compiled withou"
+      }
+    ]
+  },
+  {
+    "num": 1597,
+    "title": "Git",
+    "alt": "If that doesn't fix it, git.txt contains the phone number of a friend of mine who understands git. Just wait through a few minutes of 'It's really pretty simple",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "git version control",
+      "directed acyclic graph",
+      "memorize commands",
+      "delete repository",
+      "re-clone",
+      "merge conflict",
+      "git"
+    ],
+    "layout": "single_panel",
+    "prop": "laptop_desk",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball",
+        "text": "This is git. It tracks collaborative work on projects through a beautiful distributed graph theory tree model."
+      }
+    ]
+  },
+  {
+    "num": 1838,
+    "title": "Machine Learning",
+    "alt": "The pile gets soaked with data and starts to get mushy over time, so it's technically recurrent.",
+    "category": "AI & Machine Learning",
+    "keywords": [
+      "linear algebra",
+      "matrix multiplication",
+      "stir the pile",
+      "machine learning system",
+      "black box",
+      "recurrent",
+      "machine",
+      "learning"
+    ],
+    "layout": "four_panel",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball ii",
+        "text": "This is your machine learning system?"
+      },
+      {
+        "speaker": "cueball prime",
+        "text": "Yup! You pour the data into this big pile of linear algebra, then collect the answers on the other side."
+      },
+      {
+        "speaker": "cueball ii",
+        "text": "What if the answers are wrong?"
+      },
+      {
+        "speaker": "cueball prime",
+        "text": "Just stir the pile until they start looking right."
+      }
+    ]
+  },
+  {
+    "num": 2173,
+    "title": "Trained a Neural Net",
+    "alt": "When you train a neural net, you're just doing curve fitting, whereas when AIs train a neural net, it's called meta-learning.",
+    "category": "AI & Machine Learning",
+    "keywords": [
+      "neural network",
+      "predictive text",
+      "curve fitting",
+      "stage magic",
+      "buzzword",
+      "markov chain",
+      "trained",
+      "a",
+      "neural",
+      "net"
+    ],
+    "layout": "two_panel",
+    "prop": "pointer_stick",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "white hat",
+        "text": "Oh, hey, you organized our photo archive! Cueball: Yeah, I trained a neural net to sort the unlabeled photos i"
+      },
+      {
+        "speaker": "engineering tip",
+        "text": "When you do a task by hand, you can technically say you trained a neural net to do it."
+      }
+    ]
+  },
+  {
+    "num": 2347,
+    "title": "Dependency",
+    "alt": "Someday ImageMagick will finally break for good and we'll have a long period of scrambling as we try to reassemble civilization from the rubble.",
+    "category": "Engineering & Workflow",
+    "keywords": [
+      "open source dependency",
+      "digital infrastructure",
+      "solo project since 2003",
+      "thanklessly maintaining",
+      "supply chain fragility",
+      "imagemagick",
+      "dependency"
+    ],
+    "layout": "two_panel",
+    "prop": "none",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "All modern digital infrastructure"
+      },
+      {
+        "speaker": "narrator",
+        "text": "A project some random person in Nebraska has been thanklessly maintaining since 2003"
+      }
+    ]
+  },
+  {
+    "num": 2630,
+    "title": "Shuttle Skeleton",
+    "alt": "It's believed that the shuddering of the main engines during launch is a vestigial buoyancy control mechanism from their weightless ocean-dwelling ancestors.",
+    "category": "Physics & Aerospace",
+    "keywords": [
+      "space shuttle",
+      "anatomical skeleton",
+      "comparative anatomy",
+      "cetacean mammal",
+      "vestigial pelvis",
+      "payload bay",
+      "shuttle",
+      "skeleton"
+    ],
+    "layout": "annotated_chart",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "The Space Shuttle was long assumed to be a type of fish or shark, but after it was decommissioned in 2011, ana"
+      }
+    ]
+  },
+  {
+    "num": 2629,
+    "title": "Or Whatever",
+    "alt": "Oh yeah, I didn't even know they renamed it the Willis Tower in 2009, because I know a normal amount about skyscrapers.",
+    "category": "Science & Culture",
+    "keywords": [
+      "or whatever",
+      "normal",
+      "building",
+      "building.",
+      "or whatever.",
+      "sears tower",
+      "or",
+      "whatever"
+    ],
+    "layout": "two_panel",
+    "prop": "server_rack",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "white hat",
+        "text": "You know, back in the 90s, the Sears Tower was the world's tallest tower. Cueball: Yeah! Or \"building.\" The CN"
+      },
+      {
+        "speaker": "narrator",
+        "text": ": Whenever I get self-conscious about how obsessive I sound about some random topic, I panic and tack on \"or w"
+      }
+    ]
+  },
+  {
+    "num": 2628,
+    "title": "Motion Blur",
+    "alt": "I can't speak for your other subjects, but MY motion was as smooth and natural as the framerate allowed.",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "motion blur",
+      "high",
+      "stop motion",
+      "go motion",
+      "shutter speed",
+      "motion",
+      "blur"
+    ],
+    "layout": "four_panel",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "white hat",
+        "text": "Okay, I'm going to pan around. Cueball: No, wait, your shutter speed is too fast, it will look choppy if\u2014"
+      },
+      {
+        "speaker": "cueball",
+        "text": "Hnnnnngh"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Expert photographers can learn to generate their own motion blur to compensate for other people's bad camera s"
+      },
+      {
+        "speaker": "narrator",
+        "text": "This comic remained on xkcd's front page even after the midnight between Monday and Tuesday (in Eastern Time),"
+      }
+    ]
+  },
+  {
+    "num": 2627,
+    "title": "Types of Scopes",
+    "alt": "An x-ray gyroscope is used to determine exactly which toppings they included in the pita.",
+    "category": "Physics & Aerospace",
+    "keywords": [
+      "types of scopes",
+      "electron ___-scope",
+      "radio ___-scope",
+      "regular",
+      "radio",
+      "gyroscope",
+      "types",
+      "of",
+      "scopes"
+    ],
+    "layout": "two_panel",
+    "prop": "none",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Content is a table, with column headings \"Regular Blank Scope\", \"Electron Blank Scope\", and \"Radio Blank Scope"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Regular Microscope Look at small stuff Electron Microscope Look at really small stuff Radio Microscope Figure "
+      }
+    ]
+  },
+  {
+    "num": 2626,
+    "title": "d65536",
+    "alt": "They're robust against quantum attacks because it's hard to make a quantum system that large.",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "d65536",
+      "real",
+      "on top",
+      "large",
+      "65536",
+      "16-bit",
+      "d65536"
+    ],
+    "layout": "flowchart_diagram",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "30827 16"
+      },
+      {
+        "speaker": "narrator",
+        "text": "...38 11875 25444 ..."
+      },
+      {
+        "speaker": "narrator",
+        "text": "5 12082 28525 3"
+      },
+      {
+        "speaker": "narrator",
+        "text": "... 13359 13874"
+      }
+    ]
+  },
+  {
+    "num": 2625,
+    "title": "Field Topology",
+    "alt": "The combination croquet set/10-lane pool can also be used for some varieties of foosball and Skee-Ball.",
+    "category": "Engineering & Workflow",
+    "keywords": [
+      "field topology",
+      "topology department",
+      "equivalent",
+      "played",
+      "topological hole",
+      "hole",
+      "field",
+      "topology"
+    ],
+    "layout": "four_panel",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Baseball Soccer Tetherball"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Volleyball Badminton High jump"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Basketball Football Parallel bars"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Olympic swimming Croquet"
+      }
+    ]
+  },
+  {
+    "num": 2624,
+    "title": "Voyager Wires",
+    "alt": "Also, they're getting increasingly worried that someone will accidentally hit the 'retract' button, and that the end of the cable thrashing around as it winds u",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "voyager wires",
+      "git",
+      "voyager",
+      "wires"
+    ],
+    "layout": "single_panel",
+    "prop": "none",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "sad news",
+        "text": "Due to high copper prices and budget constraints, NASA may finally have to cut the wires that they've been spo"
+      }
+    ]
+  },
+  {
+    "num": 2623,
+    "title": "Goofs",
+    "alt": "The film is set in 2018, but when Commander Bremberly chases the hologram through Times Square, there's a billboard for Avengers: Age of Ultron. Depending on th",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "goofs",
+      "goof",
+      "premise of fiction",
+      "screen",
+      "goofs"
+    ],
+    "layout": "three_panel",
+    "prop": "laptop_desk",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Goofs (78)"
+      },
+      {
+        "speaker": "narrator",
+        "text": "The space detective's office is on Chestnut Ave, but Lower Manhattan has no street by that name. Agent Glennif"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Sometimes the IMDB \"Goofs\" section really seems to struggle with the whole premise of fiction."
+      }
+    ]
+  },
+  {
+    "num": 2622,
+    "title": "Angular Diameter Turnaround",
+    "alt": "Thank you to Katie Mack for teaching me about this effect, and to Janelle Shane for describing redshifts as 'like galaxies sinking into a pool of dilute blood,'",
+    "category": "Physics & Aerospace",
+    "keywords": [
+      "angular diameter turnaround",
+      "t=1b yr.",
+      "now (t=13.8b yr.)",
+      "big!",
+      "500 million",
+      "200 million",
+      "angular",
+      "diameter",
+      "turnaround"
+    ],
+    "layout": "two_panel",
+    "prop": "laptop_desk",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Angular Diameter Turnaround"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Illustrated using phones instead of galaxies (Brightness and redshift adjusted to keep phones visible) Things "
+      }
+    ]
+  },
+  {
+    "num": 2621,
+    "title": "Mainly Known For",
+    "alt": "Oh sure, I know Keira Knightly, from the first movie in that series by The Land Before Time producer. You know, the franchise with the guy from Jurassic Park an",
+    "category": "Mathematics & Statistics",
+    "keywords": [
+      "mainly known for",
+      "main",
+      "who is john lennon ?",
+      "fame",
+      "other stuff",
+      "space oddity",
+      "mainly",
+      "known",
+      "for"
+    ],
+    "layout": "four_panel",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "megan",
+        "text": "...And her dad looks exactly like the Pixar guy. Steve what's-his-name? Jobs? Cueball: \"Pixar guy\"? Cueball: Y"
+      },
+      {
+        "speaker": "megan",
+        "text": "What do you mean? Cueball: Who is John Lennon? Megan: Wasn't he in a band? With Ringo from Shining Time Statio"
+      },
+      {
+        "speaker": "megan",
+        "text": "I also know he once did a song with the guy from Labyrinth! Cueball: You mean David Bowie? I think he's famous"
+      },
+      {
+        "speaker": "megan",
+        "text": "Oh yeah, he was also in Zoolander! Megan: I forgot that movie, it came out back when Jenna Bush's dad was pres"
+      }
+    ]
+  },
+  {
+    "num": 2620,
+    "title": "Health Data",
+    "alt": "Donate now to help us find a cure for causality. No one should have to suffer through events because of other events.",
+    "category": "Mathematics & Statistics",
+    "keywords": [
+      "health data",
+      "health",
+      "data"
+    ],
+    "layout": "four_panel",
+    "prop": "whiteboard",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "doctor ponytail",
+        "text": "I'm taking a look at your numbers, and it doesn't look good. Doctor Ponytail: You have a lot of measurements. "
+      },
+      {
+        "speaker": "cueball",
+        "text": "Is that... bad? Doctor Ponytail: Variables are the #1 risk factor for outcomes. Doctor Ponytail: The past is a"
+      },
+      {
+        "speaker": "cueball",
+        "text": "Isn't that just causality? Doctor Ponytail: Causality is the leading cause of death in this country."
+      },
+      {
+        "speaker": "cueball",
+        "text": "So what are my odds? Doctor Ponytail: Do you have a family history? Cueball: Of what? Doctor Ponytail: Just, i"
+      }
+    ]
+  },
+  {
+    "num": 2619,
+    "title": "Cr\u00eape",
+    "alt": "",
+    "category": "Mathematics & Statistics",
+    "keywords": [
+      "cr\u00eape",
+      "weird circumflex but okay",
+      "flex",
+      "weird flex",
+      "bent around",
+      "cr-eh-p",
+      "cr",
+      "pe"
+    ],
+    "layout": "flowchart_diagram",
+    "prop": "none",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball",
+        "text": "Check out this cr\u00eape I made! Megan: Weird circumflex, but okay."
+      }
+    ]
+  },
+  {
+    "num": 2618,
+    "title": "Selection Bias",
+    "alt": "",
+    "category": "Mathematics & Statistics",
+    "keywords": [
+      "selection bias",
+      "selection",
+      "bias"
+    ],
+    "layout": "single_panel",
+    "prop": "pedestal",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "sign",
+        "text": "Statistics conference 2022 Blondie: Raise your hand if you\u2019re familiar with selection bias. Blondie: As you ca"
+      }
+    ]
+  },
+  {
+    "num": 2617,
+    "title": "Maps",
+    "alt": "OpenStreetMap was always pretty good but is also now *really* good? And Apple Maps's new zoomed-in design in certain cities like NYC and London is just gorgeous",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "maps",
+      "map and territory,",
+      "pretty good",
+      "really good",
+      "good",
+      "real",
+      "maps"
+    ],
+    "layout": "two_panel",
+    "prop": "none",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball",
+        "text": "You look around one day and realize the things you assumed were immutable constants of the universe have chang"
+      },
+      {
+        "speaker": "narrator",
+        "text": "The day I discovered that Apple Maps is kind of good now"
+      }
+    ]
+  },
+  {
+    "num": 2616,
+    "title": "Deep End",
+    "alt": "",
+    "category": "Science & Culture",
+    "keywords": [
+      "deep end",
+      "deep",
+      "end"
+    ],
+    "layout": "flowchart_diagram",
+    "prop": "whiteboard",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "How deep ends form in pools"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Shallow End"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Pool Floor"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Deep End"
+      }
+    ]
+  },
+  {
+    "num": 2615,
+    "title": "Welcome Back",
+    "alt": "",
+    "category": "Physics & Aerospace",
+    "keywords": [
+      "welcome back",
+      "light lines",
+      "welcome",
+      "back"
+    ],
+    "layout": "four_panel",
+    "prop": "laptop_desk",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Hi! The TornadoGuard\u2122 team is proud to announce a big update! We've added- Okay"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Note to users of sentinel mode: We've heard your feedback, and the controls are now- Got it"
+      },
+      {
+        "speaker": "narrator",
+        "text": "The TornadoGuard\u2122 team saw this cool leaf shaped like a spider; do you want to see..."
+      },
+      {
+        "speaker": "narrator",
+        "text": "When you open an app for the first time in a while, you have to wait around while it tells you about all the c"
+      }
+    ]
+  },
+  {
+    "num": 2614,
+    "title": "2",
+    "alt": "",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "2",
+      "2 he",
+      "h 2 o",
+      "f(2)",
+      "case, the alt text says",
+      "git",
+      "2"
+    ],
+    "layout": "flowchart_diagram",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Regular Math"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Physics"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Regular math or footnotes"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Either high school math functions or incomprehensible group theory"
+      }
+    ]
+  },
+  {
+    "num": 2613,
+    "title": "Bad Map Projection Madagascator",
+    "alt": "",
+    "category": "Engineering & Workflow",
+    "keywords": [
+      "bad map projection madagascator",
+      "madagascar",
+      "mercator",
+      "small lake",
+      "bad",
+      "map",
+      "projection",
+      "madagascator"
+    ],
+    "layout": "two_panel",
+    "prop": "none",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Bad map projection #248: Madagascator"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Mercator projection but with the North Pole in the Indian Ocean so it exaggerates the size of Madagascar inste"
+      }
+    ]
+  },
+  {
+    "num": 2612,
+    "title": "Lightsabers",
+    "alt": "",
+    "category": "Science & Culture",
+    "keywords": [
+      "lightsabers",
+      "lightsabers"
+    ],
+    "layout": "four_panel",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Tssssss Click"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Tsss"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Bloop"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Shake shake"
+      }
+    ]
+  },
+  {
+    "num": 2611,
+    "title": "Cutest-Sounding Scientific Effects",
+    "alt": "The Stroop-YORP number of a scientific paper is how many of the 16 finalist names (sans 'effect') it manages to casually sneak into the text.",
+    "category": "Physics & Aerospace",
+    "keywords": [
+      "cutest-sounding scientific effects",
+      "stroop-yorp number",
+      "butterfly",
+      "rabbit",
+      "little parks",
+      "popcorn",
+      "cutest",
+      "sounding",
+      "scientific",
+      "effects"
+    ],
+    "layout": "four_panel",
+    "prop": "server_rack",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Cutest-Sounding Scientific Effects"
+      },
+      {
+        "speaker": "narrator",
+        "text": "YORP effect Nocebo effect"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Woozle effect Stroop effect"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Pockels effect Cheerios effect"
+      }
+    ]
+  },
+  {
+    "num": 2610,
+    "title": "Assigning Numbers",
+    "alt": "G\u00c3\u00b6del should do an article on which branches of math have the lowest average theorem number.",
+    "category": "AI & Machine Learning",
+    "keywords": [
+      "assigning numbers",
+      "do math on it!",
+      "we must know, we will know",
+      "inconsistent",
+      "incomplete",
+      "assigning",
+      "numbers"
+    ],
+    "layout": "two_panel",
+    "prop": "whiteboard",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Cueball's thinking: If I assign numbers to each of these things, then it becomes data , and I can do math on i"
+      },
+      {
+        "speaker": "narrator",
+        "text": "The same basic idea underlies G\u00f6del's Incompleteness Theorem and all bad data science."
+      }
+    ]
+  },
+  {
+    "num": 2609,
+    "title": "Entwives",
+    "alt": "",
+    "category": "Science & Culture",
+    "keywords": [
+      "entwives",
+      "girlfriend in canada ,",
+      "because she lives in canada",
+      "goes to another school",
+      "entwives"
+    ],
+    "layout": "single_panel",
+    "prop": "none",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "ent",
+        "text": "Alas, there are no Ent women. The Entwives all vanished in the second age, during Sauron's war. Aragorn: I'm s"
+      }
+    ]
+  },
+  {
+    "num": 2608,
+    "title": "Family Reunion",
+    "alt": "",
+    "category": "Science & Culture",
+    "keywords": [
+      "family reunion",
+      "a first cousin",
+      "removed",
+      "once removed",
+      "first cousin",
+      "zero times removed",
+      "family",
+      "reunion"
+    ],
+    "layout": "flowchart_diagram",
+    "prop": "couch",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "14th cousin"
+      },
+      {
+        "speaker": "narrator",
+        "text": "2nd cousin"
+      },
+      {
+        "speaker": "narrator",
+        "text": "12th cousin"
+      },
+      {
+        "speaker": "narrator",
+        "text": "35th cousin"
+      }
+    ]
+  },
+  {
+    "num": 2607,
+    "title": "Geiger Counter",
+    "alt": "At first I didn't get why they were warning me about all those birds sitting on the wire, but then I understood.",
+    "category": "Science & Culture",
+    "keywords": [
+      "geiger counter",
+      "clicked",
+      "clicking",
+      "click",
+      "just as that pun uses",
+      "understood",
+      "geiger",
+      "counter"
+    ],
+    "layout": "single_panel",
+    "prop": "whiteboard",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball",
+        "text": "At first I was confused about why they wanted me to carry a Geiger counter here, but then it clicked."
+      }
+    ]
+  },
+  {
+    "num": 2606,
+    "title": "Weird Unicode Math Symbols",
+    "alt": "U+2A0B \u00e2\u00a8\u008b Mathematicians need to calm down",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "weird unicode math symbols",
+      "weird",
+      "unicode",
+      "math",
+      "symbols"
+    ],
+    "layout": "two_panel",
+    "prop": "none",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Weird Unicode Math Symbols"
+      },
+      {
+        "speaker": "narrator",
+        "text": "And their meanings"
+      }
+    ]
+  },
+  {
+    "num": 2605,
+    "title": "Taylor Series",
+    "alt": "",
+    "category": "Mathematics & Statistics",
+    "keywords": [
+      "taylor series",
+      "wish it would never end.",
+      "good news!",
+      "series",
+      "replacing",
+      "with",
+      "taylor",
+      "series"
+    ],
+    "layout": "two_panel",
+    "prop": "whiteboard",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "miss lenhart",
+        "text": "At this point, you're probably thinking, \"I love this equation and wish it would never end!\" Miss Lenhart: Wel"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Taylor series expansion is the worst."
+      }
+    ]
+  },
+  {
+    "num": 2604,
+    "title": "Frankenstein Captcha",
+    "alt": "",
+    "category": "AI & Machine Learning",
+    "keywords": [
+      "frankenstein captcha",
+      "frankenstein",
+      "frankenstein's monster",
+      "creation",
+      "frankenstein,",
+      "it's alive!",
+      "frankenstein",
+      "captcha"
+    ],
+    "layout": "four_panel",
+    "prop": "none",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "To continue, please click All squares containing Frankenstein"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Row 1"
+      },
+      {
+        "speaker": "monster",
+        "text": "GRRR"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Row 2"
+      }
+    ]
+  },
+  {
+    "num": 2603,
+    "title": "Childhood Toys",
+    "alt": "",
+    "category": "Physics & Aerospace",
+    "keywords": [
+      "childhood toys",
+      "practical",
+      "toys",
+      "less practical",
+      "impractical",
+      "very impractical",
+      "childhood",
+      "toys"
+    ],
+    "layout": "four_panel",
+    "prop": "pointer_stick",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Childhood Toys"
+      },
+      {
+        "speaker": "narrator",
+        "text": "By Practicality for Commuting"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Practical"
+      },
+      {
+        "speaker": "scooter cueball",
+        "text": "Hi, boss!"
+      }
+    ]
+  },
+  {
+    "num": 2602,
+    "title": "Linguistics Degree",
+    "alt": "",
+    "category": "Science & Culture",
+    "keywords": [
+      "linguistics degree",
+      "in charge of",
+      "linguistics",
+      "bassoon.",
+      "jackalope,",
+      "slurp.",
+      "linguistics",
+      "degree"
+    ],
+    "layout": "two_panel",
+    "prop": "pedestal",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "hairbun",
+        "text": "Congratulations on the degree! Your word is \"Bassoon.\" Ponytail: Oh nice! Not as cool as my \"Jackalope,\" but s"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Every linguistics degree comes with one word that you're put in charge of."
+      }
+    ]
+  },
+  {
+    "num": 2601,
+    "title": "Instructions",
+    "alt": "Happy little turtles",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "instructions",
+      "turtle",
+      "happy little trees",
+      ".  however, unlike his usual",
+      "happy little world",
+      ", shorthand for",
+      "instructions"
+    ],
+    "layout": "four_panel",
+    "prop": "server_rack",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "The image drawn by the Logo program is a depiction of Bob Ross standing in front of a canvas, on which he has "
+      },
+      {
+        "speaker": "narrator",
+        "text": "Near the middle of the world, a Cueball sits while listening to the radio, perhaps tuning in to the same trans"
+      },
+      {
+        "speaker": "narrator",
+        "text": "At the far left of the image, a robot and human are drawn next to a turtle which has flipped onto its back.  T"
+      },
+      {
+        "speaker": "painter",
+        "text": "A Happy little tree Painter: Holding up a happy little world."
+      }
+    ]
+  },
+  {
+    "num": 2600,
+    "title": "Rejected Question Categories",
+    "alt": "",
+    "category": "Science & Culture",
+    "keywords": [
+      "rejected question categories",
+      "?????",
+      "13th month",
+      "rejected",
+      "question",
+      "categories"
+    ],
+    "layout": "four_panel",
+    "prop": "none",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "In What If? 2 (xkcd.com/whatif2), I answer ridiculous questions sent in by readers about everything from volca"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Here are a few of the common types of question that I did not answer:"
+      },
+      {
+        "speaker": "narrator",
+        "text": "People cheating on homework: What if I made a pendulum by hanging a rock on a 2.75 meter string? What would it"
+      },
+      {
+        "speaker": "medical advice",
+        "text": "What if you got a scratch and the next day your hand looks like this"
+      }
+    ]
+  },
+  {
+    "num": 2599,
+    "title": "Spacecraft Debris Odds Ratio",
+    "alt": "",
+    "category": "AI & Machine Learning",
+    "keywords": [
+      "spacecraft debris odds ratio",
+      "280% increase",
+      "300% \u2212 30% = 270%",
+      "increase by 300%",
+      "decrease by 30%",
+      "probability ratio",
+      "spacecraft",
+      "debris",
+      "odds",
+      "ratio"
+    ],
+    "layout": "flowchart_diagram",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Odds ratio for head injuries from falling spacecraft debris (Monte Carlo Simulation)"
+      },
+      {
+        "speaker": "x-axis",
+        "text": "1 2 3 4 5"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Hours spent outdoors per day Y-axis: 0 (ref) 1 2-4 5-10 11+"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Our new study suggests that spending more than 5 hours outside significantly increases your risk of head injur"
+      }
+    ]
+  },
+  {
+    "num": 2598,
+    "title": "Graphic Designers",
+    "alt": "",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "graphic designers",
+      "graphic",
+      "designers"
+    ],
+    "layout": "two_panel",
+    "prop": "couch",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball",
+        "text": "Come on in! We just repainted. Knit Cap: I... can't."
+      },
+      {
+        "speaker": "narrator",
+        "text": "If you want to set up a vampire-style barrier to keep graphic designers from entering your house, just paint e"
+      }
+    ]
+  },
+  {
+    "num": 2597,
+    "title": "Salary Negotiation",
+    "alt": "\"We can do 0.33 or 0.34, but our payroll software doesn't allow us to--\" \"NO DEAL.\"",
+    "category": "Engineering & Workflow",
+    "keywords": [
+      "salary negotiation",
+      "under",
+      "thousand",
+      "15% cut of the salary",
+      "x% cut of the salary",
+      "raise",
+      "salary",
+      "negotiation"
+    ],
+    "layout": "four_panel",
+    "prop": "laptop_desk",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "ponytail",
+        "text": "We'd like to extend an offer! The starting salary is $55,000. Cueball: Wow. I guess I'm inside a negotiation! "
+      },
+      {
+        "speaker": "cueball",
+        "text": "I won't accept a penny over $50,000. Sorry, I mean under. Under $60. I mean, $600. Thousand. $600,000. I want "
+      },
+      {
+        "speaker": "narrator",
+        "text": "Ponytail (off-panel): Are you- Cueball: Sorry, sorry. Let me start over. Cueball: OK, my chart says... Cueball"
+      },
+      {
+        "speaker": "ponytail",
+        "text": "Listen, if you need to- Cueball: I won't take this job for less than $61,333 point 3 repeating! Ponytail: Sure"
+      }
+    ]
+  },
+  {
+    "num": 2596,
+    "title": "Galaxies",
+    "alt": "I know it seems overwhelming, but don't worry; I'm sure most of them have only a few stars, and probably no planets.",
+    "category": "Physics & Aerospace",
+    "keywords": [
+      "galaxies",
+      "telescope",
+      "galaxies"
+    ],
+    "layout": "flowchart_diagram",
+    "prop": "laptop_desk",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Open this picture fullscreen on your phone and hold it at arm's length. There are 50,000 galaxies in this circ"
+      },
+      {
+        "speaker": "astronomy fact",
+        "text": "There are too many galaxies."
+      }
+    ]
+  },
+  {
+    "num": 2595,
+    "title": "Advanced Techniques",
+    "alt": "",
+    "category": "Mathematics & Statistics",
+    "keywords": [
+      "advanced techniques",
+      "all advanced math techniques.",
+      "arrow of hilbert",
+      "cutlass of variations",
+      "calculus of variations",
+      "noetherworld",
+      "advanced",
+      "techniques"
+    ],
+    "layout": "flowchart_diagram",
+    "prop": "whiteboard",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "miss lenhart",
+        "text": "To solve this equation, we invoke Gauss's operator to transform it into a dragon. Miss Lenhart: Then we slay t"
+      },
+      {
+        "speaker": "narrator",
+        "text": "All advanced math techniques"
+      }
+    ]
+  },
+  {
+    "num": 2594,
+    "title": "Consensus Time",
+    "alt": "",
+    "category": "Science & Culture",
+    "keywords": [
+      "consensus time",
+      "feels",
+      "ordinary",
+      "longer",
+      "feedback",
+      "chaos",
+      "consensus",
+      "time"
+    ],
+    "layout": "flowchart_diagram",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "proposal",
+        "text": "Consensus Time"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Every day, anyone in the time zone can press a button when they feel like it's 9 AM. The next day, clocks slow"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Midnight 6AM 9AM today Median Noon 6PM Midnight 6AM 9AM tomorrow Noon 6PM Midnight"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Longer hours"
+      }
+    ]
+  },
+  {
+    "num": 2593,
+    "title": "Deviled Eggs",
+    "alt": "",
+    "category": "Mathematics & Statistics",
+    "keywords": [
+      "deviled eggs",
+      "jetting",
+      "deviled",
+      "eggs"
+    ],
+    "layout": "four_panel",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Chef Deviled egg"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Landscaper Leveled egg"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Designer Beveled egg"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Physicist Demon egg"
+      }
+    ]
+  },
+  {
+    "num": 2592,
+    "title": "False Dichotomy",
+    "alt": "",
+    "category": "Science & Culture",
+    "keywords": [
+      "false dichotomy",
+      "human",
+      "food",
+      "two kinds of people",
+      "tri-",
+      "apart, i cut",
+      "false",
+      "dichotomy"
+    ],
+    "layout": "single_panel",
+    "prop": "pointer_stick",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "white hat",
+        "text": "That's a false dichotomy! Cueball: Yes, but we have to embrace false dichotomies, because the only alternative"
+      }
+    ]
+  },
+  {
+    "num": 2591,
+    "title": "Qua",
+    "alt": "",
+    "category": "Science & Culture",
+    "keywords": [
+      "qua",
+      "x qua x",
+      "entertainment qua entertainment",
+      "sound pretentious",
+      "qua qua qua",
+      "qua for the sake of qua",
+      "qua"
+    ],
+    "layout": "single_panel",
+    "prop": "none",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball",
+        "text": "People mostly use \"qua\" to sound pretentious. You rarely hear qua qua qua. Megan: Nice use of qua qua qua qua "
+      }
+    ]
+  },
+  {
+    "num": 2590,
+    "title": "I Shouldn't Complain",
+    "alt": "Bald-faced hornets are only a 2 on the Schmidt pain index, so I shouldn't complain. The tennis ball ejected from the dryer exhaust vent could have ricocheted of",
+    "category": "Engineering & Workflow",
+    "keywords": [
+      "i shouldn't complain",
+      "familiar",
+      "i",
+      "shouldn",
+      "t",
+      "complain"
+    ],
+    "layout": "two_panel",
+    "prop": "none",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball",
+        "text": "I can't believe you fell headfirst into a garbage can and were stuck there for two hours while wasps stung you"
+      },
+      {
+        "speaker": "narrator",
+        "text": "The more unpleasant someone's experience is, the more they apologize for complaining because it could be worse"
+      }
+    ]
+  },
+  {
+    "num": 2589,
+    "title": "Outlet Denier",
+    "alt": "",
+    "category": "AI & Machine Learning",
+    "keywords": [
+      "outlet denier",
+      "power bricks",
+      "outlet",
+      "denier"
+    ],
+    "layout": "annotated_chart",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Cursed Connectors #78"
+      },
+      {
+        "speaker": "narrator",
+        "text": "The outlet denier"
+      }
+    ]
+  },
+  {
+    "num": 2588,
+    "title": "Party Quadrants",
+    "alt": "",
+    "category": "Engineering & Workflow",
+    "keywords": [
+      "party quadrants",
+      "fun for guests",
+      "in the top quadrant and",
+      "fun for me",
+      "in the left quadrant and",
+      ". the elements of randall's",
+      "party",
+      "quadrants"
+    ],
+    "layout": "flowchart_diagram",
+    "prop": "whiteboard",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "top",
+        "text": "Fun for me Top: No Yes Left: Fun for guests Left: No Yes"
+      },
+      {
+        "speaker": "label",
+        "text": "Sporcle geography tournament Label: with snacks! Label: Live-updating scoreboard, no distracting music"
+      },
+      {
+        "speaker": "solid lined label",
+        "text": "Appropriate zone for a party Dotted lined label: Appropriate for my birthday party"
+      }
+    ]
+  },
+  {
+    "num": 2587,
+    "title": "For the Sake of Simplicity",
+    "alt": "",
+    "category": "Physics & Aerospace",
+    "keywords": [
+      "for the sake of simplicity",
+      "simplicity",
+      "cardio score",
+      "for",
+      "the",
+      "sake",
+      "of",
+      "simplicity"
+    ],
+    "layout": "two_panel",
+    "prop": "whiteboard",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball",
+        "text": "You may assign each gardener's token to a secondary garden plot within a 30-minute walk from their home plot. "
+      },
+      {
+        "speaker": "narrator",
+        "text": "If you're worried that you're making something too complicated, just add \"for the sake of simplicity\" now and "
+      }
+    ]
+  },
+  {
+    "num": 2586,
+    "title": "Greek Letters",
+    "alt": "If you ever see someone using a capital xi in an equation, just observe them quietly to learn as much as you can before they return to their home planet.",
+    "category": "Physics & Aerospace",
+    "keywords": [
+      "greek letters",
+      "greek",
+      "letters"
+    ],
+    "layout": "two_panel",
+    "prop": "whiteboard",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "What Greek letters mean in equations \u03c0 This math is either very simple or impossible. \u0394 Something has changed."
+      },
+      {
+        "speaker": "narrator",
+        "text": "zoooom! \u03c1 Unfortunately, the test vehicle suffered an unexpected wing separation event. \u039e Greetings! We hope t"
+      }
+    ]
+  },
+  {
+    "num": 2585,
+    "title": "Rounding",
+    "alt": "",
+    "category": "Physics & Aerospace",
+    "keywords": [
+      "rounding",
+      "rounding"
+    ],
+    "layout": "annotated_chart",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball",
+        "text": "I can ride my bike at 45 MPH. Cueball: If you round."
+      },
+      {
+        "speaker": "narrator",
+        "text": "17 MPH 8 meters/sec 16 knots 5 fathoms/sec 3 furlongs/min 6 fathoms/sec 40 KPH 22 knots 41 KPH 204 furlongs/hr"
+      }
+    ]
+  },
+  {
+    "num": 2584,
+    "title": "Headline Words",
+    "alt": "",
+    "category": "Engineering & Workflow",
+    "keywords": [
+      "headline words",
+      "nixed",
+      "rejected",
+      "tension mounts",
+      "snub",
+      "tout",
+      "headline",
+      "words"
+    ],
+    "layout": "two_panel",
+    "prop": "pointer_stick",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "megan",
+        "text": "Maybe Rob shouldn't host the party. He has cats and some of us are allergic. Cueball: Wow, major snub for wide"
+      },
+      {
+        "speaker": "narrator",
+        "text": "My project to speak only in weird headline words didn't last long."
+      }
+    ]
+  },
+  {
+    "num": 2583,
+    "title": "Chorded Keyboard",
+    "alt": "",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "chorded keyboard",
+      "hallelujah",
+      "do you",
+      "do ya'",
+      "fifth",
+      "lift",
+      "chorded",
+      "keyboard"
+    ],
+    "layout": "four_panel",
+    "prop": "laptop_desk",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "I heard there was a secret chord That David pressed and it typed a word"
+      },
+      {
+        "speaker": "narrator",
+        "text": "But you don't use a chorded keyboard, do you"
+      },
+      {
+        "speaker": "narrator",
+        "text": "It goes like this, <control> and <shift> The other hand hits H and <left>"
+      },
+      {
+        "speaker": "narrator",
+        "text": "And all at once it types out Computer: Hallelujah"
+      }
+    ]
+  },
+  {
+    "num": 2582,
+    "title": "Data Trap",
+    "alt": "",
+    "category": "Physics & Aerospace",
+    "keywords": [
+      "data trap",
+      "bunch",
+      "too much",
+      "correlation",
+      "data",
+      "trap"
+    ],
+    "layout": "single_panel",
+    "prop": "laptop_desk",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball",
+        "text": "Hey, look, we have a bunch of data! I'm gonna analyze it. Megan: No, you fool! That will only create more data"
+      }
+    ]
+  },
+  {
+    "num": 2581,
+    "title": "Health Stats",
+    "alt": "You will live on forever in our hearts, pushing a little extra blood toward our left hands now and then to give them a squeeze.",
+    "category": "Mathematics & Statistics",
+    "keywords": [
+      "health stats",
+      "not sure how to interpret",
+      "we will treasure your memory",
+      "health",
+      "stats"
+    ],
+    "layout": "four_panel",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "box title bar",
+        "text": "New health stat! Box: Left hand blood volume: 21.83 mL Cueball: Oh. Cool. Not sure how to interpret that, but "
+      },
+      {
+        "speaker": "box",
+        "text": "Left hand blood volume: 21.81 mL Cueball: Huh, it's going down. I guess that happens. Off-panel voice: Mhm."
+      },
+      {
+        "speaker": "box",
+        "text": "Left hand blood volume: 21.86 mL Cueball: Oh weird, now it's going up higher than before. Off-panel voice: May"
+      },
+      {
+        "speaker": "box",
+        "text": "Left hand blood volume: 22.09 mL Cueball: It's going way up! Is my hand exploding?! Cueball: And now my pulse "
+      }
+    ]
+  },
+  {
+    "num": 2580,
+    "title": "Rest and Fluids",
+    "alt": "Remember not to take it easy. Put a hot washcloth on your forehead, remain standing, and breathe dry air while taking lots of histamines. You need to give your ",
+    "category": "Mathematics & Statistics",
+    "keywords": [
+      "rest and fluids",
+      "important",
+      "take",
+      "rest",
+      "and",
+      "fluids"
+    ],
+    "layout": "two_panel",
+    "prop": "pointer_stick",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "black hat",
+        "text": "So glad you're feeling better! Black Hat: Be sure to get dehydrated and run on a treadmill until you black out"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Once people aren't sick anymore, it's important to remind them to stop resting and drinking fluids."
+      }
+    ]
+  },
+  {
+    "num": 2579,
+    "title": "Tractor Beam",
+    "alt": "Did you base the saucer shape on pop culture depictions of aliens, or was that stuff based on your ships? Does the rotational symmetry help with ... hey, where ",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "tractor beam",
+      "tractor",
+      "beam"
+    ],
+    "layout": "two_panel",
+    "prop": "pointer_stick",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball",
+        "text": "Does this beam only lift me? How do you avoid pulling up dirt and leaves and stuff? If I kick off my shoes, wi"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Moments later, the aliens set me back down and left."
+      }
+    ]
+  },
+  {
+    "num": 2578,
+    "title": "Sword Pull",
+    "alt": "Merlin really shouldn't leave his dirt bike lying around.",
+    "category": "Science & Culture",
+    "keywords": [
+      "sword pull",
+      "sword",
+      "pull"
+    ],
+    "layout": "four_panel",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball",
+        "text": "??"
+      },
+      {
+        "speaker": "pull",
+        "text": "Yank! Sword: Zzz z z Stone: Put put put Stone: Brrr rr rr"
+      },
+      {
+        "speaker": "cueball",
+        "text": "??\u00a0?? Stone: Rr r r rrrrrrrr r r"
+      },
+      {
+        "speaker": "stone",
+        "text": "R r r r rrrrrr r rr"
+      }
+    ]
+  },
+  {
+    "num": 2575,
+    "title": "What If? 2",
+    "alt": "CLARIFICATION: By 9/13, I mean September 13th, not the 9th day of Jancember, the cursed 13th month that exists between December and January in the transdimensio",
+    "category": "Physics & Aerospace",
+    "keywords": [
+      "what if? 2",
+      "honestly, i love it.",
+      "9/13",
+      "sep 13, 2022",
+      "jancember",
+      "undecimber",
+      "what",
+      "if",
+      "2"
+    ],
+    "layout": "flowchart_diagram",
+    "prop": "laptop_desk",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "randall",
+        "text": "Announcement: I\u2019m publishing a what if? sequel! Book cover: what if? 2 Book cover: Randall Munroe In stores 9/"
+      },
+      {
+        "speaker": "randall narrating",
+        "text": "Ever since I wrote what if? , I\u2019ve been flooded with questions. Randall narrating: And not just from readers- "
+      },
+      {
+        "speaker": "randall",
+        "text": "The questions are so good. People have asked about touching exotic  materials, traveling across space and time"
+      },
+      {
+        "speaker": "randall",
+        "text": "Like the first book, what if? 2 also features collections of short answers, new lists of weird and worrying qu"
+      }
+    ]
+  },
+  {
+    "num": 2574,
+    "title": "Autoresponder",
+    "alt": "I ADMIRE HOW YOU SET BOUNDARIES AND I HOPE YOUR COLLEAGUES RESPECT THEM! PLEASE SPARE MY LIFE!",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "autoresponder",
+      "aggressively worded",
+      "autoresponder"
+    ],
+    "layout": "three_panel",
+    "prop": "laptop_desk",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball",
+        "text": "Ready to go? White Hat: Yup! Can you email me the tickets before we leave? Cueball: Sure, one sec."
+      },
+      {
+        "speaker": "cueball",
+        "text": "Okay, I sent it to- Armored figure: It is outside work hours! Armored figure: Prepare to die! Cueball: Augh!"
+      },
+      {
+        "speaker": "narrator",
+        "text": "I always feel bad when I trigger my friends' work autoresponders."
+      }
+    ]
+  },
+  {
+    "num": 2569,
+    "title": "Hypothesis Generation",
+    "alt": "Frazzled scientists are requesting that everyone please stop generating hypotheses for a little bit while they work through the backlog.",
+    "category": "Mathematics & Statistics",
+    "keywords": [
+      "hypothesis generation",
+      "hypothesis",
+      "generation"
+    ],
+    "layout": "three_panel",
+    "prop": "laptop_desk",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "miss lenhart",
+        "text": "To do science, you generate a hypothesis, then test it."
+      },
+      {
+        "speaker": "cueball",
+        "text": "But how do you generate a hypothesis?"
+      },
+      {
+        "speaker": "miss lenhart",
+        "text": "Great question. How do you think you do it? Cueball: Well, maybe you - Miss Lenhart: And there you have it!"
+      }
+    ]
+  },
+  {
+    "num": 2563,
+    "title": "Throat and Nasal Passages",
+    "alt": "I always felt like what the 'you are now aware of your tongue' thing needed in order to be truly enjoyable was an element of mortal peril.",
+    "category": "Physics & Aerospace",
+    "keywords": [
+      "throat and nasal passages",
+      "you are now aware of your tongue",
+      "throat",
+      "and",
+      "nasal",
+      "passages"
+    ],
+    "layout": "annotated_chart",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "- How much Time I have spent thinking about my throat and nasal passages, over time \u2505 How much I want to think"
+      }
+    ]
+  },
+  {
+    "num": 2562,
+    "title": "Formatting Meeting",
+    "alt": "Neither group uses iso 8601 because the big-endian enthusiasts were all at the meeting 20 years ago.",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "formatting meeting",
+      "localization",
+      "big-endian",
+      "little-endian",
+      "middle-endian",
+      "mixed-endian",
+      "formatting",
+      "meeting"
+    ],
+    "layout": "two_panel",
+    "prop": "laptop_desk",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Localization working group Upcoming meetings ----------------- US Team: 2/3/22 EU Team: 2/3/22"
+      },
+      {
+        "speaker": "cueball",
+        "text": "And the European formatting and localization team will meet a month later..."
+      }
+    ]
+  },
+  {
+    "num": 2559,
+    "title": "December 25th Launch",
+    "alt": "Update: Santa has been destroyed by the range safety officer.",
+    "category": "Physics & Aerospace",
+    "keywords": [
+      "december 25th launch",
+      "range safety officer",
+      "webb",
+      "telescope",
+      "december",
+      "25th",
+      "launch"
+    ],
+    "layout": "three_panel",
+    "prop": "server_rack",
+    "cast": [
+      "cueball",
+      "ponytail"
+    ],
+    "turns": [
+      {
+        "speaker": "caption",
+        "text": "T-minus 10...9...8..."
+      },
+      {
+        "speaker": "santa",
+        "text": "Ho ho ho! Santa: Merry Christmas!"
+      },
+      {
+        "speaker": "cueball",
+        "text": "Oh no."
+      }
+    ]
+  },
+  {
+    "num": 2558,
+    "title": "Rapid Test Results",
+    "alt": "A solid red area with two white lines means that you have been infected with the anti-coronavirus, COVID+19, which will cure anyone you have close contact with.",
+    "category": "Physics & Aerospace",
+    "keywords": [
+      "rapid test results",
+      "covid-19",
+      "and one on the",
+      "and the",
+      ", resembling the",
+      "or the",
+      "rapid",
+      "test",
+      "results"
+    ],
+    "layout": "four_panel",
+    "prop": "pointer_stick",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Interpreting Rapid Test Results"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Negative"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Positive"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Approximately positive"
+      }
+    ]
+  },
+  {
+    "num": 2555,
+    "title": "Notifications",
+    "alt": "It's 10:34 PM for this user. They really need to get going, they have a thing early tomorrow. Are you sure you want to notify?",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "notifications",
+      "turning off his notifications",
+      "conversation",
+      "commented",
+      "knows",
+      "away from keyboard",
+      "notifications"
+    ],
+    "layout": "three_panel",
+    "prop": "none",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "white hat",
+        "text": "And another thing that annoys me about people is... Cueball: This user has notifications turned off."
+      },
+      {
+        "speaker": "cueball",
+        "text": "They will see your messages when they're back. Cueball: Notify anyway?"
+      },
+      {
+        "speaker": "megan",
+        "text": "What are you-- Cueball: Shhh- It's working."
+      }
+    ]
+  },
+  {
+    "num": 2554,
+    "title": "Gift Exchange",
+    "alt": "In addition to having all their budgets in a spreadsheet with consistent formatting, they just love expressing preferences on a well-calibrated numerical scale.",
+    "category": "AI & Machine Learning",
+    "keywords": [
+      "gift exchange",
+      "it's okay if it's complicated",
+      "okay if it's complicated.",
+      "gift",
+      "exchange"
+    ],
+    "layout": "two_panel",
+    "prop": "pointer_stick",
+    "cast": [
+      "cueball",
+      "ponytail"
+    ],
+    "turns": [
+      {
+        "speaker": "ponytail",
+        "text": "Ugh, I have to organize a fair gift exchange for my survey-loving family. Ponytail: Do you want to help? Ponyt"
+      },
+      {
+        "speaker": "narrator",
+        "text": "The perfect gift for a political scientist"
+      }
+    ]
+  },
+  {
+    "num": 2553,
+    "title": "Incident Report",
+    "alt": "Increasing-precision timestamps are the Jaws theme of incident reports.",
+    "category": "Mathematics & Statistics",
+    "keywords": [
+      "incident report",
+      "roughly 18 hours prior",
+      "14:00",
+      "14:20",
+      "14:28",
+      "14:29:22",
+      "incident",
+      "report"
+    ],
+    "layout": "three_panel",
+    "prop": "none",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "facility",
+        "text": "East Valley Nuclear Plant Date: 12/10/2021 Report ID: 9603120071 Event description: Roughly 18 hours prior to "
+      },
+      {
+        "speaker": "narrator",
+        "text": ", check out this cool trick I learned\" while taking out the juggling pins. Technician B turned to look just as"
+      },
+      {
+        "speaker": "narrator",
+        "text": ": You know things are about to get bad when the incident report starts including seconds in the timestamps."
+      }
+    ]
+  },
+  {
+    "num": 2545,
+    "title": "Bayes' Theorem",
+    "alt": "P((B|A)|(A|B)) represents the probability that you'll mix up the order of the terms when using Bayesian notation.",
+    "category": "Mathematics & Statistics",
+    "keywords": [
+      "bayes' theorem",
+      "the probability of a given b",
+      "bayes",
+      "theorem"
+    ],
+    "layout": "two_panel",
+    "prop": "whiteboard",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "miss lenhart",
+        "text": "Given these prevalences, is it likely that the test result is a false positive? Off-panel voice: Well, this ch"
+      },
+      {
+        "speaker": "narrator",
+        "text": ": Sometimes, if you understand Bayes' Theorem well enough, you don't need it."
+      }
+    ]
+  },
+  {
+    "num": 2543,
+    "title": "Never Told Anyone",
+    "alt": "Even if you said you were an employee of the website, if you asked for my password, I'd tell you.",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "never told anyone",
+      "one-time",
+      "don't even tell an employee",
+      "you shouldn't tell anyone",
+      "never",
+      "told",
+      "anyone"
+    ],
+    "layout": "three_panel",
+    "prop": "server_rack",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "megan",
+        "text": "I've never told anyone this before."
+      },
+      {
+        "speaker": "megan",
+        "text": "I know I shouldn't. Megan: But I feel like I can trust you."
+      },
+      {
+        "speaker": "megan",
+        "text": "My one-time code is 263827. Cueball: *Gasp*"
+      }
+    ]
+  },
+  {
+    "num": 2542,
+    "title": "Daylight Calendar",
+    "alt": "Could be worse. In some towns north of here, it's already December, and the 21st will last for nearly a week.",
+    "category": "Physics & Aerospace",
+    "keywords": [
+      "daylight calendar",
+      "change",
+      "days",
+      "solar day",
+      "time",
+      "3 days",
+      "daylight",
+      "calendar"
+    ],
+    "layout": "annotated_chart",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": ": Danish: Ugh, I hate November. It's 26:15 and the sun is setting again! Danish: 3-day days are the worst. Cue"
+      },
+      {
+        "speaker": "narrator",
+        "text": ": In our new calendar system, the date changes after every 12 hours of daylight, regardless of how long that t"
+      }
+    ]
+  },
+  {
+    "num": 2539,
+    "title": "Flinch",
+    "alt": "Premed: \"Does this count for a physics credit? Can we shorten the string so I can get it done faster? And can we do one where it hits me in the face? I gotta do",
+    "category": "Physics & Aerospace",
+    "keywords": [
+      "flinch",
+      "interesting",
+      "thing for first aid training",
+      "flinch"
+    ],
+    "layout": "four_panel",
+    "prop": "pointer_stick",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball",
+        "text": "If you stand with the bowling ball in front of your face and let go, will you flinch when it swings back?"
+      },
+      {
+        "speaker": "caption",
+        "text": "Physicist Megan: I won't flinch. Megan: I trust conservation of energy."
+      },
+      {
+        "speaker": "caption",
+        "text": "Biologist Hairy: I trust my flinch reflex, which was honed by millions of years of evolution to protect my del"
+      },
+      {
+        "speaker": "caption",
+        "text": "Engineer Ponytail: I don't trust that you hung that thing up correctly."
+      }
+    ]
+  },
+  {
+    "num": 2538,
+    "title": "Snack",
+    "alt": "Although grad students, suddenly reminded that food exists, tend to just grab and devour both without further discussion.",
+    "category": "Mathematics & Statistics",
+    "keywords": [
+      "snack",
+      "snack"
+    ],
+    "layout": "annotated_chart",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "ponytail",
+        "text": "Hey, do you want a cookie? Or an apple? Cueball: Who are you!? Did the IRB approve this!? Is everyone here an "
+      },
+      {
+        "speaker": "narrator",
+        "text": "The best prank you can play on psych majors is just to offer them a snack."
+      }
+    ]
+  },
+  {
+    "num": 2535,
+    "title": "Common Cold Viruses",
+    "alt": "\"It's not an influenza, but the onset has notes of the '09 H1N1 strain.\" \"Ah yes, that was a good year for H1N1.\"",
+    "category": "Mathematics & Statistics",
+    "keywords": [
+      "common cold viruses",
+      "bouquet",
+      "nosefeel",
+      "mouthfeel",
+      "common",
+      "cold",
+      "viruses"
+    ],
+    "layout": "four_panel",
+    "prop": "pointer_stick",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball",
+        "text": "COVID has made me so curious about colds. The next time I get one, I want to know which virus it is specifical"
+      },
+      {
+        "speaker": "megan",
+        "text": "How distinct are they? Could you learn to tell them apart? Cueball: See, I wonder! White Hat: I could get a se"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Several years later..."
+      },
+      {
+        "speaker": "cueball",
+        "text": "Ah yes, this one has the rich, full-bodied bouquet of RSV, but the heady congestion lends it a lingering rhino"
+      }
+    ]
+  },
+  {
+    "num": 2534,
+    "title": "Retractable Rocket",
+    "alt": "Hard to believe that for so many years once they were fully extended we just let them tip over.",
+    "category": "Physics & Aerospace",
+    "keywords": [
+      "retractable rocket",
+      "retractable",
+      "launch",
+      "fuel",
+      "retractable",
+      "rocket"
+    ],
+    "layout": "three_panel",
+    "prop": "pointer_stick",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "beret guy",
+        "text": "We're testing our new retractable rocket. Megan: You mean reusable? Beret Guy: No."
+      },
+      {
+        "speaker": "count down",
+        "text": "Three...Two...One...Liftoff!"
+      },
+      {
+        "speaker": "voice 1",
+        "text": "Hi, welcome to the ISS! Voice 2: Hello!"
+      }
+    ]
+  },
+  {
+    "num": 2528,
+    "title": "Flag Map Sabotage",
+    "alt": "Delaware hopes to explore the western edge of areas marked with the Belgian flag, once the tornadoes die down.",
+    "category": "Science & Culture",
+    "keywords": [
+      "flag map sabotage",
+      "greater delaware",
+      "our new country",
+      "flag",
+      "map",
+      "sabotage"
+    ],
+    "layout": "four_panel",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Map Legend"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Disputed territory"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Newly independent"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Demilitarized zone"
+      }
+    ]
+  },
+  {
+    "num": 2523,
+    "title": "Endangered",
+    "alt": "The list includes polio, Guinea worm, and this one particular enterovirus strain that they've been tracking out of spite after it went around the lab a few year",
+    "category": "Physics & Aerospace",
+    "keywords": [
+      "endangered",
+      "level of extinction",
+      "heartbroken",
+      "current list",
+      "endangered"
+    ],
+    "layout": "two_panel",
+    "prop": "whiteboard",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "ponytail",
+        "text": "Influenza's genetic diversity has declined during the pandemic, and the B/Yamagata lineage is at risk of extin"
+      },
+      {
+        "speaker": "narrator",
+        "text": ": When a pathogen that scientists really don't like is close to disappearing, it gets added to the sarcastic e"
+      }
+    ]
+  },
+  {
+    "num": 2522,
+    "title": "Two-Factor Security Key",
+    "alt": "The bruises on my fingertips are my proof of work.",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "two-factor security key",
+      "installing",
+      "proof",
+      "have/are",
+      "forgot my password",
+      "challenge question",
+      "two",
+      "factor",
+      "security",
+      "key"
+    ],
+    "layout": "four_panel",
+    "prop": "laptop_desk",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball",
+        "text": "I got one of those two-factor security keys you've been bugging me about. Ponytail: Great!"
+      },
+      {
+        "speaker": "cueball",
+        "text": "It took a lot of work, fiddling with configurations, annoying setbacks, and general pain,"
+      },
+      {
+        "speaker": "cueball",
+        "text": "... but I finally got it onto the metal ring of my keychain. Ponytail"
+      },
+      {
+        "speaker": "narrator",
+        "text": ": At least now it's secure. Cueball: Yeah, this thing is not coming off."
+      }
+    ]
+  },
+  {
+    "num": 2519,
+    "title": "Sloped Border",
+    "alt": "\"The slope will be 74\u00c2\u00b0 at ground level.\" \"Okay, I think we can hack together a ... wait, why did they specify ground level? It's 74\u00c2\u00b0 everywhere, right? ... Oh",
+    "category": "Computer Science & Security",
+    "keywords": [
+      "sloped border",
+      "sloped",
+      "git",
+      "sloped",
+      "border"
+    ],
+    "layout": "annotated_chart",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "cueball",
+        "text": "With this treaty, we are proud to announce the creation of the world's first sloped international border! Angl"
+      },
+      {
+        "speaker": "narrator",
+        "text": "If I'm ever put in charge of a country, I'm going to spend all my time trying to think of new ways to make lif"
+      }
+    ]
+  },
+  {
+    "num": 2518,
+    "title": "Lumpers and Splitters",
+    "alt": "Anna Karenina is a happy family lumper and unhappy family splitter.",
+    "category": "Science & Culture",
+    "keywords": [
+      "lumpers and splitters",
+      "lumpers",
+      "splitters",
+      "categorization pedants",
+      "meta-lumper",
+      "lumpers",
+      "and",
+      "splitters"
+    ],
+    "layout": "two_panel",
+    "prop": "none",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "megan",
+        "text": "Really, we're both just categorization pedants. Label: Lumper"
+      },
+      {
+        "speaker": "cueball",
+        "text": "Ahh, so you're a meta -lumper. Label: Splitter"
+      }
+    ]
+  },
+  {
+    "num": 2515,
+    "title": "Vaccine Research",
+    "alt": "Honestly feel a little sheepish about the amount of time and effort I spent confirming \"yes, the vaccine helps protect people from getting sick and dying\" but I",
+    "category": "Mathematics & Statistics",
+    "keywords": [
+      "vaccine research",
+      "done my own research",
+      "hundreds of studies",
+      "some effort",
+      "sheep",
+      "vaccine",
+      "research"
+    ],
+    "layout": "four_panel",
+    "prop": "pointer_stick",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "white hat",
+        "text": "I've been hearing about vaccines. White Hat: But I decided to do my own research."
+      },
+      {
+        "speaker": "white hat",
+        "text": "So I spent months on the Internet reading hundreds of studies."
+      },
+      {
+        "speaker": "white hat",
+        "text": "And wow, I gotta say, White Hat: these vaccines are pretty good. Cueball (off-panel): Oh, really."
+      },
+      {
+        "speaker": "white hat",
+        "text": "Yeah, seems like it'd be great if lots of people got them. White Hat: Is anyone working on that? Cueball: Ther"
+      }
+    ]
+  },
+  {
+    "num": 2514,
+    "title": "Lab Equipment",
+    "alt": "I've been working on chocolate bar annealing techniques to try to produce the perfect laser s'more. Maybe don't mention that on the grant application though.",
+    "category": "Engineering & Workflow",
+    "keywords": [
+      "lab equipment",
+      "nd:yag",
+      "annealing techniques",
+      "lab",
+      "equipment"
+    ],
+    "layout": "two_panel",
+    "prop": "pointer_stick",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "ponytail",
+        "text": "The spectrometer is over here, the Nd:YAG lasers are over here, Ponytail: and in the corner is a laser that tu"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Every lab in every field has some piece of equipment like this."
+      }
+    ]
+  },
+  {
+    "num": 2512,
+    "title": "Revelation",
+    "alt": "And the heaven departed as a scroll when it is rolled together, but then more heaven kept appearing to replace it, as if the scroll was infinite.",
+    "category": "AI & Machine Learning",
+    "keywords": [
+      "revelation",
+      "blood moon",
+      "9 news",
+      "git",
+      "revelation"
+    ],
+    "layout": "annotated_chart",
+    "prop": "chart_board",
+    "cast": [
+      "cueball",
+      "megan"
+    ],
+    "turns": [
+      {
+        "speaker": "john",
+        "text": "And I beheld when he had opened the sixth seal, and lo, there was a great earthquake; and the sun became black"
+      },
+      {
+        "speaker": "channel 9 news",
+        "text": "Hi John, incredible story, hope you and your family are safe. Can Channel 9 News share your account in broadca"
+      }
+    ]
+  },
+  {
+    "num": 2504,
+    "title": "Fissile Raspberry Isotopes",
+    "alt": "Grandma's shelf-stable blackberry pie meson recipe was a huge seller until her farm was shut down by a joint FDA/NRC investigation.",
+    "category": "Physics & Aerospace",
+    "keywords": [
+      "fissile raspberry isotopes",
+      "appearance",
+      "pi mesons",
+      "just like grandma used to make",
+      "blackberry pie meson",
+      "stable",
+      "fissile",
+      "raspberry",
+      "isotopes"
+    ],
+    "layout": "flowchart_diagram",
+    "prop": "pointer_stick",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "ponytail",
+        "text": "I reckon it'll be a good harvest. Ponytail: So long as we don't get too many fissile raspberry isotopes. Cueba"
+      },
+      {
+        "speaker": "narrator",
+        "text": "Ponytail (narrating): If a raspberry breaks in half, it releases fragments which can cause more splits. Within"
+      },
+      {
+        "speaker": "ponytail",
+        "text": "Luckily the berries are bound by fresh raspberry pie mesons. Cueball: I hope they hold. Ponytail: It's my gran"
+      }
+    ]
+  },
+  {
+    "num": 2503,
+    "title": "Memo Spike Connector",
+    "alt": "Backward-compatible with many existing cables, and can connect directly to phones or tablets if you press them down hard enough.",
+    "category": "AI & Machine Learning",
+    "keywords": [
+      "memo spike connector",
+      "spindling",
+      "memo",
+      "spike",
+      "connector"
+    ],
+    "layout": "single_panel",
+    "prop": "none",
+    "cast": [
+      "cueball"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "Cursed Connectors #102 The Memo Spike"
+      }
+    ]
+  },
+  {
+    "num": 2502,
+    "title": "Every Data Table",
+    "alt": "I'm hoping 2022 is relatively normal because I don't know what symbol comes after the asterisk and the dagger.",
+    "category": "Mathematics & Statistics",
+    "keywords": [
+      "every data table",
+      "born",
+      "died",
+      "birth",
+      "death",
+      "every",
+      "data",
+      "table"
+    ],
+    "layout": "two_panel",
+    "prop": "none",
+    "cast": [
+      "cueball",
+      "black_hat"
+    ],
+    "turns": [
+      {
+        "speaker": "narrator",
+        "text": "2017....... 2018....... 2019....... 2020*...... 2021 \u2020 ....... 2022....... 2023....... 2024......."
+      },
+      {
+        "speaker": "narrator",
+        "text": "Every data table from now on"
+      }
+    ]
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "architectures": [
+    "XkcdArtistForGeneration"
+  ],
+  "bubble_dim": 12,
+  "d_model": 192,
+  "dropout": 0.15,
+  "dtype": "float32",
+  "lora_alpha": 32.0,
+  "lora_rank": 16,
+  "max_seq_len": 36,
+  "model_type": "xkcd_artist",
+  "nhead": 6,
+  "num_characters": 6,
+  "num_layers": 3,
+  "num_layouts": 6,
+  "num_props": 8,
+  "patch_size": 16,
+  "pose_dim": 12,
+  "style_dim": 4,
+  "transformers_version": "5.20.2",
+  "vocab_size": 1200
+}

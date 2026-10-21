@@ -1,0 +1,11 @@
+{
+  "base_model": "segmind/tiny-sd",
+  "device": "cuda",
+  "gpu_name": "NVIDIA L4",
+  "num_clean_panels": 226,
+  "steps": 140,
+  "trainable_lora_params": 1726464,
+  "initial_mse_loss": 0.1741,
+  "final_mse_loss": 0.0868,
+  "elapsed_sec": 33.28
+}
