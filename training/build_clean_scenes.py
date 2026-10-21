@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 """
-Build spotless text-free XKCD stage scenes from the real XKCD dataset using
-connected-component glyph & leader-line removal, and record exact speaker head
-and speech-bubble anchors for crisp hand-lettered `xkcd-script.ttf` compositing.
+Build spotless text-free single-panel AND multi-panel XKCD stage canvases from
+the real XKCD dataset using connected-component glyph & leader-line removal.
 """
 from __future__ import annotations
 
 import base64
 import json
-from io import BytesIO
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw
@@ -68,15 +66,13 @@ def build_canonical_scenes() -> dict[str, dict]:
     # 2. Scene: Machine Learning Linear Algebra Pile (#1838, 391x466)
     im1838 = np.array(Image.open(RAW_DIR / "1838.png").convert("RGB"))
     im1838 = clean_glyphs_in_region(im1838, 4, 224, 4, im1838.shape[1] - 4, max_glyph_h=27, remove_leaders=True)
-    # Also remove the long left leader line above the left character's head (head top is at y=318)
     im1838 = clean_glyphs_in_region(im1838, 140, 314, 35, 95, max_glyph_h=25, remove_leaders=True)
-    # Also remove the short right leader tail above the right character's head (head top is at y=226)
     im1838[200:225, 220:280] = 255
     Image.fromarray(im1838).save(SCENE_DIR / "scene_ml_pile.png")
 
     # 3. Scene: Compiling Sword Fight on Office Chairs (#303, 402x369)
     im303 = np.array(Image.open(RAW_DIR / "303.png").convert("RGB"))
-    im303[4:120, 4:-4] = 255  # top banner
+    im303[4:120, 4:-4] = 255
     im303 = clean_glyphs_in_region(im303, 120, 360, 15, 250, max_glyph_h=26, remove_leaders=False)
     Image.fromarray(im303).save(SCENE_DIR / "scene_compiling.png")
 
@@ -101,8 +97,8 @@ def build_canonical_scenes() -> dict[str, dict]:
     # 5. Scene: Duty Calls Computer Desk (#386, 300x330)
     im386 = np.array(Image.open(RAW_DIR / "386.png").convert("RGB"))
     im386 = clean_glyphs_in_region(im386, 4, 178, 4, im386.shape[1] - 4, max_glyph_h=26, remove_leaders=True)
-    im386[4:240, 4:135] = 255  # off-screen voice line on left
-    im386[220:246, 178:198] = 255  # 'CLICK' above keyboard without touching Cueball's face
+    im386[4:240, 4:135] = 255
+    im386[220:246, 178:198] = 255
     Image.fromarray(im386).save(SCENE_DIR / "scene_desk.png")
 
     # 6. Scene: Cueball + Ponytail Dialogue Panel (#927 middle panel, 202x247)
@@ -111,72 +107,105 @@ def build_canonical_scenes() -> dict[str, dict]:
     p927 = clean_glyphs_in_region(p927, 4, 162, 4, p927.shape[1] - 4, max_glyph_h=22, remove_leaders=False)
     Image.fromarray(p927).save(SCENE_DIR / "scene_dialogue.png")
 
-    # Also clean all 226 panels in data/clean_panels for training/dataset consistency
-    for p in sorted(RAW_DIR.glob("*.png")):
-        try:
-            im = np.array(Image.open(p).convert("RGB"))
-            H, W, _ = im.shape
-            im_c = clean_glyphs_in_region(im, 4, int(H * 0.52), 4, W - 4, max_glyph_h=23, remove_leaders=True)
-            Image.fromarray(im_c).resize((256, 256), Image.Resampling.LANCZOS).save(CLEAN_DIR / f"panel_{p.stem}.png")
-        except Exception:
-            pass
+    # 7. Multi-Panel Scene: 3-Panel Megan & Cueball Debate Strip (#552, expanded height to 240px for roomy dialogue)
+    im552_raw = np.array(Image.open(RAW_DIR / "552.png").convert("RGB"))
+    col_dark = (im552_raw.mean(axis=2) < 100).mean(axis=0)
+    for x in range(im552_raw.shape[1]):
+        if col_dark[x] < 0.7:
+            im552_raw[4:75, x] = [255, 255, 255]
+    im552_raw[4:88, 345:454] = [255, 255, 255]
+    im552_raw[70:85, 225:255] = [255, 255, 255]
+    im552_raw[70:85, 330:355] = [255, 255, 255]
+    # Add 55px of clean upper headroom inside each of the 3 panels so 3-4 lines of dialogue fit effortlessly
+    extra_h = 56
+    H5, W5, _ = im552_raw.shape
+    im552 = np.full((H5 + extra_h, W5, 3), 255, dtype=np.uint8)
+    im552[:4, :] = im552_raw[:4, :]
+    for y in range(4, extra_h + 4):
+        im552[y, :] = im552_raw[10, :]
+    im552[extra_h + 4 :, :] = im552_raw[4:, :]
+    Image.fromarray(im552).save(SCENE_DIR / "scene_552_3panel.png")
 
-    scenes_meta = {
-        "scene_armchair": {
-            "file": "scene_armchair.png",
-            "width": int(im149.shape[1]),
-            "height": int(im149.shape[0]),
-            "left_head": [93, 198],
-            "right_head": [206, 184],
-        },
-        "scene_ml_pile": {
-            "file": "scene_ml_pile.png",
-            "width": int(im1838.shape[1]),
-            "height": int(im1838.shape[0]),
-            "left_head": [54, 332],
-            "right_head": [212, 246],
-        },
-        "scene_compiling": {
-            "file": "scene_compiling.png",
-            "width": int(im303.shape[1]),
-            "height": int(im303.shape[0]),
-            "header_box": [200, 56],
-            "bubbles": [
-                {"cx": 96, "cy": 168, "max_chars": 15},
-                {"cx": 175, "cy": 240, "max_chars": 14},
-                {"cx": 92, "cy": 332, "max_chars": 16},
-            ],
-        },
-        "scene_dependency": {
-            "file": "scene_dependency.png",
-            "width": int(im2347.shape[1]),
-            "height": int(im2347.shape[0]),
-            "top_caption": [138, 36],
-            "side_caption": [292, 310],
-        },
-        "scene_desk": {
-            "file": "scene_desk.png",
-            "width": int(im386.shape[1]),
-            "height": int(im386.shape[0]),
-            "left_voice": [75, 195],
-            "right_head": [162, 182],
-        },
-        "scene_dialogue": {
-            "file": "scene_dialogue.png",
-            "width": int(p927.shape[1]),
-            "height": int(p927.shape[0]),
-            "left_head": [66, 134],
-            "right_head": [126, 142],
-        },
-    }
+    # 8. Multi-Panel Scene: 4-Panel Laptop Code/System Review Strip (#1513, 740x258)
+    im1513 = np.array(Image.open(RAW_DIR / "1513.png").convert("RGB"))
+    col_dark1513 = (im1513.mean(axis=2) < 100).mean(axis=0)
+    for x in range(im1513.shape[1]):
+        if col_dark1513[x] < 0.7:
+            im1513[4:134, x] = [255, 255, 255]
+    im1513[96:152, 20:54] = [255, 255, 255]
+    im1513[126:139, 50:115] = [255, 255, 255]
+    im1513[126:148, 95:130] = [255, 255, 255]
+    im1513[128:158, 195:230] = [255, 255, 255]
+    im1513[128:158, 382:418] = [255, 255, 255]
+    im1513[128:158, 565:605] = [255, 255, 255]
+    im1513[128:154, 635:732] = [255, 255, 255]
+    Image.fromarray(im1513).save(SCENE_DIR / "scene_1513_4panel.png")
 
-    # Embed base64 data URIs so JS and Python SVG/PNG engines work standalone
-    for k, v in scenes_meta.items():
-        raw_bytes = (SCENE_DIR / v["file"]).read_bytes()
-        v["data_uri"] = "data:image/png;base64," + base64.b64encode(raw_bytes).decode("ascii")
+    # 9. Multi-Panel Scene: 3-Panel Debugging Escalation Strip (Calm Desk -> Team Consult -> Shaking Monitor)
+    # Panel A: Calm Cueball at desk (cropped from scene_desk, 220x260)
+    pA = np.full((260, 220, 3), 255, dtype=np.uint8)
+    desk_crop = im386[80:326, 95:295]  # 246x200
+    pA[10:256, 10:210] = desk_crop
+    # Panel B: Ponytail & Cueball consulting at laptop (from panel 2 of #1513, 154x250)
+    pB = np.full((260, 220, 3), 255, dtype=np.uint8)
+    consult_crop = im1513[4:254, 188:342]  # 250x154 without right border line
+    pB[6:256, 33:187] = consult_crop
+    # Panel C: Cueball shaking monitor in despair (from #979 right panel, 252x270)
+    im979 = np.array(Image.open(RAW_DIR / "979.png").convert("RGB"))
+    p979 = im979[4:266, 236:481].copy()
+    p979[:88, :] = 255
+    p979[76:100, :96] = 255
+    p979[90:108, 60:86] = 255
+    pC_img = Image.fromarray(p979).resize((220, 252), Image.Resampling.LANCZOS)
+    pC = np.full((260, 220, 3), 255, dtype=np.uint8)
+    pC[4:256, :] = np.array(pC_img)
+
+    # Stitch Panel A, B, C into a 3-panel strip (684x264)
+    strip_debug = Image.new("RGB", (220 * 3 + 24, 264), (255, 255, 255))
+    d_draw = ImageDraw.Draw(strip_debug)
+    for idx, panel_arr in enumerate([pA, pB, pC]):
+        px = 4 + idx * 228
+        strip_debug.paste(Image.fromarray(panel_arr), (px, 2))
+        d_draw.rectangle([px, 2, px + 220, 261], outline=(15, 15, 15), width=2)
+    strip_debug.save(SCENE_DIR / "scene_debug_3panel.png")
+
+    # 10. Scene: Git / Distributed Systems Team (#1597, 330x420)
+    im1597 = np.array(Image.open(RAW_DIR / "1597.png").convert("RGB"))
+    im1597[4:288, 4:-4] = 255
+    im1597[280:304, 210:250] = 255
+    im1597_crop = im1597[60:, :].copy()
+    im1597_crop[:3, :] = 0
+    Image.fromarray(im1597_crop).save(SCENE_DIR / "scene_1597_team.png")
+
+    scenes_meta = {}
+    for fname in [
+        "scene_armchair.png",
+        "scene_ml_pile.png",
+        "scene_compiling.png",
+        "scene_dependency.png",
+        "scene_desk.png",
+        "scene_dialogue.png",
+        "scene_552_3panel.png",
+        "scene_1513_4panel.png",
+        "scene_debug_3panel.png",
+        "scene_1597_team.png",
+    ]:
+        fpath = SCENE_DIR / fname
+        im = Image.open(fpath)
+        key = fpath.stem
+        scenes_meta[key] = {
+            "file": fname,
+            "width": im.width,
+            "height": im.height,
+            "data_uri": "data:image/png;base64," + base64.b64encode(fpath.read_bytes()).decode("ascii"),
+        }
 
     (SCENE_DIR / "scenes_meta.json").write_text(json.dumps(scenes_meta, indent=2))
-    print(f"Built {len(scenes_meta)} spotless canonical XKCD scenes in {SCENE_DIR}")
+    js_code = "export const SCENES_META = " + json.dumps(scenes_meta, indent=2) + ";\n"
+    (ROOT / "js" / "src" / "scenes_data.js").write_text(js_code)
+    (ROOT / "docs" / "src").mkdir(parents=True, exist_ok=True)
+    (ROOT / "docs" / "src" / "scenes_data.js").write_text(js_code)
+    print(f"Built {len(scenes_meta)} spotless single & multi-panel XKCD scenes!")
     return scenes_meta
 
 

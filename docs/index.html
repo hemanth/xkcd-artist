@@ -139,17 +139,19 @@
 
     <div class="studio-card">
       <div class="presets">
-        <button class="preset-btn" data-prompt="Sudo make me a sandwich">1. Sudo Sandwich (#149)</button>
-        <button class="preset-btn" data-prompt="Compiling code sword fight on office chairs">2. Compiling (#303)</button>
-        <button class="preset-btn" data-prompt="Modern digital infrastructure dependency maintained in Nebraska">3. Dependency (#2347)</button>
-        <button class="preset-btn" data-prompt="14 competing standards universal standard 15 standards">4. Standards (#927)</button>
-        <button class="preset-btn" data-prompt="Machine learning pile of linear algebra stir the pile">5. Machine Learning (#1838)</button>
-        <button class="preset-btn" data-prompt="Duty calls someone is wrong on the internet at 3am">6. Duty Calls (#386)</button>
-        <button class="preset-btn" data-prompt="Extrapolating chart husbands by next month">7. Extrapolating (#605)</button>
+        <button class="preset-btn" style="background: var(--mint);" data-prompt="Why my Docker container image is 18GB">✨ Novel: 18GB Docker Container</button>
+        <button class="preset-btn" style="background: var(--mint);" data-prompt="Autonomous AI agents automating my workflow">✨ Novel: Autonomous AI Agents</button>
+        <button class="preset-btn" style="background: var(--mint);" data-prompt="Reviewing a 4200 line pull request in TypeScript">✨ Novel: 4,200-Line PR Review</button>
+        <button class="preset-btn" style="background: var(--mint);" data-prompt="Git rebase before release">✨ Novel: Git Rebase</button>
+        <button class="preset-btn" data-prompt="Sudo make me a sandwich">Classic: Sudo Sandwich (#149)</button>
+        <button class="preset-btn" data-prompt="Compiling code sword fight">Classic: Compiling (#303)</button>
+        <button class="preset-btn" data-prompt="14 competing standards">Classic: Standards (#927)</button>
+        <button class="preset-btn" data-prompt="Machine learning pile of linear algebra">Classic: Machine Learning (#1838)</button>
+        <button id="randomNovelBtn" class="preset-btn" style="background: var(--lavender);">🎲 Random Novel Prompt</button>
       </div>
 
       <div class="controls">
-        <input id="promptInput" type="text" value="Sudo make me a sandwich" placeholder="Describe any XKCD comic scenario..." />
+        <input id="promptInput" type="text" value="Why my Docker container image is 18GB" placeholder="Type any prompt to generate a multi-panel XKCD comic..." />
         <button id="renderBtn" class="primary">Synthesize Comic</button>
         <button id="downloadBtn" class="preset-btn" style="background: var(--peach);">Download .SVG</button>
       </div>
@@ -190,6 +192,24 @@
         render();
       });
     });
+    const novelIdeas = [
+      'Why my Docker container image is 18GB',
+      'Autonomous AI agents automating my workflow',
+      'Reviewing a 4200 line pull request in TypeScript',
+      'Git rebase before release',
+      'Debugging a stale DNS cache outage at 3am',
+      'Modeling quantum thermodynamics from first principles',
+      'Zero dependency microservice architecture in Bash',
+      'Fitting a polynomial benchmark to three data points',
+      'Automating coffee brewing with a six hour script',
+    ];
+    let novelIdx = 0;
+    document.getElementById('randomNovelBtn').addEventListener('click', () => {
+      novelIdx = (novelIdx + 1) % novelIdeas.length;
+      input.value = novelIdeas[novelIdx];
+      render();
+    });
+
     document.getElementById('downloadBtn').addEventListener('click', () => {
       const blob = new Blob([currentSvg], { type: 'image/svg+xml' });
       const a = document.createElement('a');
