@@ -1,6 +1,6 @@
-# xkcd-artist — Monochrome Stick-Figure Comic Synthesis (ONNX WASM + xkcd-script)
+# xkcd-artist — Prompt to Stick-Figure Comic in 3ms
 
-> Monochrome stick-figure synthesis with crisp xkcd-script speech bubbles and hover alt-text, powered in JavaScript, Python, and Browser WebAssembly ONNX (`gnumanth/xkcd-artist`).
+> Prompt to stick-figure comic in 3ms — monochrome procedural SVG synthesis with crisp xkcd-script speech bubbles and hover alt-text, powered in JavaScript, Python, and Browser WebAssembly ONNX (`gnumanth/xkcd-artist`).
 
 - Canonical Studio: https://h3manth.com/fun/xkcd-artist/
 - Architecture Blueprint: https://h3manth.com/fun/xkcd-artist/architecture.html
