@@ -583,7 +583,7 @@
   </header>
 
   <main id="middleContainer" class="xkcd-box">
-    <h2 id="ctitle">WASM TOASTER</h2>
+    <h2 id="ctitle">SMART TOASTER</h2>
 
     <ul class="comicNav" aria-label="Comic navigation top">
       <li><button type="button" class="xkcd-btn" data-nav="first" aria-label="First comic">|&lt;</button></li>
@@ -604,7 +604,7 @@
     </ul>
 
     <div id="altReadout" class="alt-readout">
-      <strong>Title text: </strong>If Wi-Fi drops mid-bagel, the firmware falls back to deterministic carbonization.
+      <strong>Title text: </strong>Settings 5 and 6 exist strictly for tungsten annealing and voiding your renter's insurance.
     </div>
 
     <div class="meta-bar">
@@ -837,31 +837,39 @@
   </footer>
 
   <script type="module">
-    import xkcdArtist, { loadOnnxPlanner, runOnnxPlanner } from './src/index.js?v=2';
-    import { registerXkcdAgentCapabilities } from './src/agent_ready.js?v=2';
+    import xkcdArtist, { loadOnnxPlanner, runOnnxPlanner } from './src/index.js?v=3';
+    import { registerXkcdAgentCapabilities } from './src/agent_ready.js?v=3';
 
     const DECK = [
-      { label: 'WASM Toaster', prompt: 'Running a quantized neural network inside a smart toaster via WebAssembly', layout: 'three_panel' },
-      { label: 'MCP Calendar Loop', prompt: 'Giving two browser MCP agents write access to my calendar and inbox', layout: 'four_panel' },
-      { label: 'KV Cache Rent', prompt: 'Calculating H100 VRAM rent per square millimeter for a 2M token KV cache', layout: 'two_panel' },
+      { label: 'Smart Toaster', prompt: 'Running a quantized neural network inside a smart toaster via WebAssembly', layout: 'three_panel' },
+      { label: 'Email Agents', prompt: 'Giving two browser MCP agents write access to my calendar and inbox', layout: 'four_panel' },
+      { label: 'Context Window', prompt: 'Calculating H100 VRAM rent per square millimeter for a 2M token KV cache', layout: 'two_panel' },
       { label: 'Quantization Cliff', prompt: 'Quantization curve from FP32 down to 0.5 bits per weight', layout: 'annotated_chart' },
-      { label: 'Local WASM Flowchart', prompt: 'Flowchart for deciding whether a model belongs in browser WebAssembly', layout: 'flowchart_diagram' },
+      { label: 'Automation Loop', prompt: 'Flowchart for deciding whether a model belongs in browser WebAssembly', layout: 'flowchart_diagram' },
       { label: 'Vibe Audit', prompt: 'Security auditing a production SaaS app vibe-coded in fourteen minutes', layout: 'three_panel' },
-      { label: 'Mars Tzdata', prompt: 'Adding Mars Sol time UTC+24h39m35s to POSIX tzdata', layout: 'single_panel' },
-      { label: 'CRISPR Sourdough', prompt: 'Bio-engineering a sourdough starter that ferments in O(log n) time', layout: 'three_panel' },
+      { label: 'Mars Timezones', prompt: 'Adding Mars Sol time UTC+24h39m35s to POSIX tzdata', layout: 'single_panel' },
+      { label: 'Sourdough Pet', prompt: 'Bio-engineering a sourdough starter that ferments in O(log n) time', layout: 'three_panel' },
       { label: 'USB-C Roulette', prompt: 'Bimodal capability chart of identical matte black USB-C cables in my desk drawer', layout: 'annotated_chart' },
       { label: 'Hallucinated RFC', prompt: 'Three cloud vendors implementing an IETF RFC number an LLM made up', layout: 'two_panel' },
-      { label: 'LiDAR Cat Tectonics', prompt: 'Robot vacuum LiDAR SLAM map classifying a sleeping cat as a moving tectonic plate', layout: 'single_panel' },
+      { label: 'LiDAR Tectonics', prompt: 'Robot vacuum LiDAR SLAM map classifying a sleeping cat as a moving tectonic plate', layout: 'single_panel' },
       { label: 'GPU Thermostat', prompt: 'Thermostat flowchart for heating an apartment with local LoRA fine-tuning', layout: 'flowchart_diagram' },
     ];
 
     const EXTRA_RANDOM_PROMPTS = [
-      'Isolating acoustic espresso turbulence inside a Faraday cage',
-      'Modeling sourdough hydration from relativistic first principles',
-      'Replacing twelve enterprise SaaS microservices with one static HTML file',
-      'Benchmarking zero-knowledge proofs on a solar calculator',
-      'Flowchart for deciding whether to rewrite a shell script in Zig',
-      'Chart of acoustic mechanical keyboard decibels vs coworker proximity',
+      'Trying to fold a fitted bedsheet using algebraic topology',
+      'Fixing a jammed office printer right before a board meeting',
+      'Reading a recipe blog that starts with a 3,000-word childhood memoir',
+      'Dialing in morning espresso grind size with a laser micrometer',
+      'Explaining daylight saving time to a hungry golden retriever',
+      'Centering a div in CSS without breaking the footer on mobile Safari',
+      'Chart of excitement about a side project vs days since buying the domain',
+      'Graph of probability of spotting a typo vs milliseconds after clicking send',
+      'Flowchart for deciding whether to reply-all or fake a power outage',
+      'Decision tree for touching a family router during Thanksgiving',
+      'Replacing three enterprise microservices with one SQLite file',
+      'Buying a $900 ergonomic chair vs sitting like a gargoyle anyway',
+      'Password policy requiring hieroglyphs, a prime number, and a haiku',
+      'Avocado ripeness window lasting eleven picoseconds while you blink',
     ];
 
     const input = document.getElementById('promptInput');

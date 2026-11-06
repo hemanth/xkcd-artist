@@ -1,0 +1,106 @@
+{
+  "golden_120": {
+    "n_prompts": 120,
+    "unique_skeletons": 118,
+    "structural_uniqueness_pct": 98.33,
+    "within_domain_diversity_pct": 99.76,
+    "substring_trap_accuracy_pct": 100,
+    "grammar_slot_clean_pct": {
+      "mean": 98.33,
+      "ci95": [
+        95.83,
+        100
+      ]
+    },
+    "semantic_concept_recall_pct": {
+      "mean": 94.44,
+      "ci95": [
+        92.22,
+        96.67
+      ]
+    },
+    "wit_rubric_score": {
+      "mean": 96.12,
+      "ci95": [
+        94.86,
+        97.36
+      ]
+    },
+    "latency_p50_ms": 0.528,
+    "latency_p95_ms": 0.941,
+    "top_repeated_skeletons": [
+      {
+        "count": 2,
+        "skeleton": "two_panel:TRIAL AND ERROR PRESERVES THE THRILL OF DISCOVERY AND WASTES AN ENTIRE TUESDAY."
+      },
+      {
+        "count": 2,
+        "skeleton": "flowchart_diagram:MY AUNT STILL BLAMES ME <SLOT> A PRINTER JAM FROM 2019. | OPEN 192.168.1"
+      },
+      {
+        "count": 1,
+        "skeleton": "three_panel:IT HAS A CORTISOL SENSOR AIMED AT HUMANS, DOESNT IT?"
+      },
+      {
+        "count": 1,
+        "skeleton": "three_panel:I WEIGHED THE BEANS TO 0.1 GRAMS AND FORGOT TO PUT A MUG UNDER THE SPOUT."
+      },
+      {
+        "count": 1,
+        "skeleton": "three_panel:YES, BUT STANDING IN A CROWDED JETBRIDGE FEELS EXCLUSIVE."
+      }
+    ]
+  },
+  "ood_unseen_20": {
+    "n_prompts": 20,
+    "unique_skeletons": 16,
+    "structural_uniqueness_pct": 80,
+    "within_domain_diversity_pct": 97.89,
+    "substring_trap_accuracy_pct": null,
+    "grammar_slot_clean_pct": {
+      "mean": 100,
+      "ci95": [
+        100,
+        100
+      ]
+    },
+    "semantic_concept_recall_pct": {
+      "mean": 86.67,
+      "ci95": [
+        80,
+        93.33
+      ]
+    },
+    "wit_rubric_score": {
+      "mean": 92.67,
+      "ci95": [
+        88.42,
+        96.33
+      ]
+    },
+    "latency_p50_ms": 0.667,
+    "latency_p95_ms": 0.893,
+    "top_repeated_skeletons": [
+      {
+        "count": 2,
+        "skeleton": "three_panel:NO, LINEAR CHARTS GET WAY MORE FUNDING."
+      },
+      {
+        "count": 2,
+        "skeleton": "three_panel:PLEASE DO NOT GET ME MENTIONED IN A SAFETY BRIEFING AGAIN."
+      },
+      {
+        "count": 2,
+        "skeleton": "four_panel:WATCHING A 2012 YOUTUBE TUTORIAL AT 2X SPEED IN SILENT DESPAIR."
+      },
+      {
+        "count": 2,
+        "skeleton": "single_panel:100% OF RESPONDENTS HATE ANSWERING SURVEYS DURING DINNER."
+      },
+      {
+        "count": 1,
+        "skeleton": "two_panel:STEP 2 IS DOING ALL THE IMPOSSIBLE PARTS WITHOUT DROPPING ANYTHING."
+      }
+    ]
+  }
+}

@@ -545,16 +545,16 @@ export function renderKinematicComic(spec, helpers) {
     } else {
       const turn = turns[pIdx];
       if (turn) {
-        const fSize = panelCount === 4 ? 13.5 : 14.5;
-        const lineStep = panelCount === 4 ? 15.5 : 17;
         const hasReply = Boolean(turn.reply && figR);
+        const fSize = hasReply ? (panelCount === 4 ? 12.6 : 13.6) : (panelCount === 4 ? 13.5 : 14.5);
+        const lineStep = hasReply ? (panelCount === 4 ? 14.5 : 15.5) : (panelCount === 4 ? 15.5 : 17);
         const spkIsRight = turn.speaker === 'right' && figR;
         const primaryFig = spkIsRight ? figR : figL;
 
-        const maxPrimaryW = hasReply ? Math.round(panelW * 0.78) : panelW - 20;
+        const maxPrimaryW = hasReply ? Math.round(panelW * 0.80) : panelW - 20;
         const pLines = wrapTextPx(turn.text, maxPrimaryW, fSize).slice(0, hasReply ? 3 : 4);
         const pxText = hasReply
-          ? Math.round(panelW * (spkIsRight ? 0.56 : 0.44))
+          ? Math.round(panelW * (spkIsRight ? 0.55 : 0.45))
           : Math.round(panelW / 2);
 
         pLines.forEach((ln, li) => {
@@ -582,12 +582,12 @@ export function renderKinematicComic(spec, helpers) {
           }
 
           // Place reply utterance in the replying speaker's opposite horizontal lane so leaders never cross text
-          const rY0 = Math.max(82, pBot + 16);
+          const rY0 = Math.max(76, pBot + 15);
           const maxReplyW = Math.round(panelW * 0.58);
-          const rLines = wrapTextPx(turn.reply, maxReplyW, fSize).slice(0, 2);
+          const rLines = wrapTextPx(turn.reply, maxReplyW, fSize).slice(0, 4);
           const rxText = spkIsRight
-            ? Math.round(panelW * 0.36)
-            : Math.round(panelW * 0.65);
+            ? Math.round(panelW * 0.34)
+            : Math.round(panelW * 0.66);
           rLines.forEach((rln, ri) => {
             inner.push(
               `<text x="${rxText}" y="${rY0 + ri * lineStep}" text-anchor="middle" font-size="${fSize}" fill="#0a0a0a">${escapeXml(rln)}</text>`
@@ -696,12 +696,57 @@ function renderAnnotatedChart(spec, helpers) {
     els.push(`<text x="412" y="112" text-anchor="middle" font-size="12.5" fill="#2d2d2d">${escapeXml(meta.projected || 'CLAIMED BENCHMARK')}</text>`);
     els.push(wobbledCurvePath(406, 186, 356, 218, { width: 1.85, curveY: -8, wobble: 0.35, seed: 6.2 }));
     els.push(arrowheadPaths(372, 208, 356, 218, 6.0));
-    String(meta.callout || 'OUTPUTS ONLY\nMEDIEVAL SOUP RECIPES')
-      .split('\n')
-      .forEach((ln, idx) => {
-        els.push(`<text x="424" y="${168 + idx * 16}" text-anchor="middle" font-size="13" fill="#0a0a0a">${escapeXml(ln)}</text>`);
-      });
-  } else {
+      String(meta.callout || 'OUTPUTS ONLY\nMEDIEVAL SOUP RECIPES')
+        .split('\n')
+        .forEach((ln, idx) => {
+          els.push(`<text x="424" y="${168 + idx * 16}" text-anchor="middle" font-size="13" fill="#0a0a0a">${escapeXml(ln)}</text>`);
+        });
+    } else if (variant === 'hockey_stick') {
+      // Flat near-zero baseline followed by sudden vertical spike at the right
+      const curvePts = [
+        [88, 258],
+        [176, 257],
+        [264, 256],
+        [346, 254],
+        [394, 242],
+        [424, 148],
+        [446, 56],
+      ];
+      els.push(wobbledPolylinePath(curvePts, { width: 2.4, wobble: 0.68 }));
+      els.push(wobbledCurvePath(324, 96, 430, 74, { width: 1.85, curveY: -8, wobble: 0.35, seed: 4.9 }));
+      els.push(arrowheadPaths(408, 78, 430, 74, 6.0));
+      String(meta.callout || 'SUDDEN PANIC AT 11:58 PM')
+        .trim()
+        .split('\n')
+        .forEach((ln, idx) => {
+          els.push(`<text x="212" y="${94 + idx * 16}" text-anchor="middle" font-size="12.5" fill="#0a0a0a">${escapeXml(ln)}</text>`);
+        });
+      if (meta.left_peak) {
+        els.push(`<text x="214" y="240" text-anchor="middle" font-size="12" fill="#2d2d2d">${escapeXml(meta.left_peak)}</text>`);
+      }
+    } else if (variant === 'inverse_decay') {
+      // Steep drop from confident start to asymptotic floor with small Dunning-Kruger bump
+      const curvePts = [
+        [88, 66],
+        [124, 186],
+        [168, 236],
+        [236, 248],
+        [318, 252],
+        [404, 246],
+        [466, 242],
+      ];
+      els.push(wobbledPolylinePath(curvePts, { width: 2.4, wobble: 0.68 }));
+      els.push(wobbledCurvePath(194, 82, 102, 72, { width: 1.85, curveY: -7, wobble: 0.35, seed: 3.7 }));
+      els.push(arrowheadPaths(124, 75, 102, 72, 6.0));
+      els.push(`<text x="202" y="86" text-anchor="start" font-size="12.5" fill="#0a0a0a">${escapeXml(meta.projected || 'DAY 1: HOW HARD CAN IT BE?')}</text>`);
+      els.push(wobbledCurvePath(346, 192, 308, 244, { width: 1.85, curveY: -6, wobble: 0.35, seed: 5.8 }));
+      els.push(arrowheadPaths(320, 228, 308, 244, 6.0));
+      String(meta.callout || 'QUIET ACCEPTANCE')
+        .split('\n')
+        .forEach((ln, idx) => {
+          els.push(`<text x="372" y="${168 + idx * 16}" text-anchor="middle" font-size="13" fill="#0a0a0a">${escapeXml(ln)}</text>`);
+        });
+    } else {
     const curvePts = [
       [86, 250],
       [136, 212],
