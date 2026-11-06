@@ -1,0 +1,59 @@
+# xkcd-artist — Complete Technical & Empirical Specification
+
+- **Canonical URL**: https://h3manth.com/fun/xkcd-artist/
+- **Hugging Face Hub**: https://huggingface.co/gnumanth/xkcd-artist
+- **GitHub Repository**: https://github.com/hemanth/xkcd-artist
+- **npm Package**: `xkcd-artist`
+- **PyPI Package**: `xkcd-artist`
+- **Author**: Hemanth HM (https://h3manth.com)
+
+## 1. Hybrid Neural + Vector/FreeType Architecture
+
+Standard image diffusion models hallucinate garbled, illegible characters inside comic speech bubbles. `xkcd-artist` decouples **monochrome stick-figure stage & stroke style** from **typographic speech-bubble layout**:
+
+- **Speech-Bubble-Masked Corpus**: Trained on `891` ExplainXKCD transcripts and `226` real XKCD comic panels on NVIDIA L4 (`24 GB VRAM`) after masking upper-panel speech glyphs so `XkcdArtistForGeneration` (`model.safetensors`, `6.16 MB` FP32 -> `onnx/model_quantized.onnx`, `1.72 MB` Int8) and the Stable Diffusion UNet LoRA (`sd_xkcd_lora/adapter_model.safetensors`, `6.60 MB`, `r=16`) learn clean monochrome stick-figure ink geometry.
+- **Exact Cross-Language Tokenizer Parity**: Both Python (`generate_dataset.py:encode_prompt_tokens`) and JavaScript/Browser (`onnx_planner.js:encodePromptTokens`) encode prompts into deterministic 36-token `int64` tensors over a 1,200-entry vocabulary (160 core XKCD domain tokens + RFC 1321 MD5 hash buckets `[160..1199]`).
+- **Live Browser ONNX Runtime WASM Execution**: `docs/index.html` loads `./model_quantized.onnx` (falling back to `https://huggingface.co/gnumanth/xkcd-artist/resolve/main/onnx/model_quantized.onnx`) via `onnxruntime-web` WASM and feeds the predicted `style_vec` (`wobble_amp_px`, `stroke_width_px`) and `invalid_logit` (`p_invalid`) directly into the hand-wobbled SVG path renderer.
+
+## 2. Supported Layouts, Cast & Stage Props
+
+- **Layouts (`LAYOUT_TYPES`)**: `single_panel`, `two_panel`, `three_panel`, `four_panel`, `annotated_chart`, `flowchart_diagram`
+- **Cast (`CHARACTERS`)**: `cueball`, `megan`, `black_hat`, `beret_guy`, `ponytail`, `hairbun`
+- **Props (`PROPS`)**: `none`, `laptop_desk`, `whiteboard`, `server_rack`, `pointer_stick`, `couch`, `chart_board`, `pedestal`
+
+## 3. Empirical Benchmark (`B = 1,000` Non-Parametric Bootstrap on Held-Out `N = 119` Test Split)
+
+| Runtime | Artifact Size | Layout Acc | Stage Prop Acc | Kinematic Pose MAE | Bubble Clearance | Abstention AUROC | Latency `p50` |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| PyTorch FP32 + Diffusion LoRA | 6.16 MB | 100.0% [100.0, 100.0] | 100.0% [100.0, 100.0] | 0.0051 | 100.0% | 1.0 | 0.62 ms |
+| Browser ONNX Int8 (WASM SIMD) | 1.72 MB | 100.0% [100.0, 100.0] | 100.0% [100.0, 100.0] | 0.0053 | 100.0% | 1.0 | 0.55 ms |
+
+## 4. SDK Quickstart
+
+### JavaScript / Browser ESM
+```javascript
+import xkcdArtist, { xkcdArtistAsync } from 'xkcd-artist';
+
+// Synchronous deterministic synthesis (< 0.5 ms)
+const fastComic = xkcdArtist('Reviewing a 4200 line pull request in TypeScript');
+const svg = fastComic.toSVG();
+
+// Live ONNX Int8 WASM neural synthesis (< 1.5 ms warm)
+const neuralComic = await xkcdArtistAsync('Flowchart for deciding whether to touch legacy DNS');
+console.log(neuralComic.style, neuralComic.neural);
+```
+
+### Python
+```python
+from xkcd_artist import xkcd_artist
+
+comic = xkcd_artist("Why my Docker container image is 18GB", backend="onnx")
+comic.to_png("docker_comic.png")
+```
+
+## 5. WebMCP Tool Definitions (`navigator.modelContext`)
+
+1. `synthesize_xkcd_comic({ prompt: string })`: Synthesizes and renders a new comic strip, chart, or flowchart and returns full structured metadata + neural telemetry.
+2. `list_xkcd_presets({ layout?: string })`: Lists all curated novel & classic XKCD presets and supported enums.
+3. `get_xkcd_model_telemetry()`: Returns active `gnumanth/xkcd-artist` WASM ONNX session status, style vector, and confidence.
+4. `export_xkcd_svg({ embedFont?: boolean })`: Returns standalone SVG markup with optional base64-embedded `xkcd-script.ttf`.

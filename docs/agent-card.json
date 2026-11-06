@@ -1,0 +1,87 @@
+{
+  "$schema": "https://a2a-protocol.org/schemas/agent-card/v1.0.0.json",
+  "schemaVersion": "1.0.0",
+  "name": "xkcd-artist Webcomic Synthesis Studio",
+  "description": "Synthesizes authentic monochrome XKCD multi-panel strips, annotated charts, and decision flowcharts using the gnumanth/xkcd-artist ONNX Int8 WebAssembly planner and xkcd-script hand-lettering.",
+  "url": "https://h3manth.com/fun/xkcd-artist/",
+  "version": "0.1.0",
+  "provider": {
+    "organization": "Hemanth HM",
+    "url": "https://h3manth.com"
+  },
+  "model": {
+    "repository": "https://huggingface.co/gnumanth/xkcd-artist",
+    "artifact": "https://h3manth.com/fun/xkcd-artist/model_quantized.onnx",
+    "format": "ONNX Int8 (WebAssembly SIMD)",
+    "sizeBytes": 1796581
+  },
+  "documentationUrl": "https://h3manth.com/fun/xkcd-artist/llms-full.txt",
+  "capabilities": {
+    "streaming": false,
+    "webmcp": true,
+    "tools": [
+      {
+        "name": "synthesize_xkcd_comic",
+        "description": "Synthesize an authentic monochrome XKCD strip, annotated chart, or flowchart from a text prompt.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "prompt": {
+              "type": "string",
+              "description": "Scenario, chart, or flowchart prompt."
+            }
+          },
+          "required": ["prompt"]
+        }
+      },
+      {
+        "name": "list_xkcd_presets",
+        "description": "List curated XKCD presets across all 6 layout families.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "layout": {
+              "type": "string",
+              "enum": [
+                "single_panel",
+                "two_panel",
+                "three_panel",
+                "four_panel",
+                "annotated_chart",
+                "flowchart_diagram"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "name": "get_xkcd_model_telemetry",
+        "description": "Return live gnumanth/xkcd-artist ONNX Int8 WASM planner telemetry.",
+        "parameters": {
+          "type": "object",
+          "properties": {}
+        }
+      },
+      {
+        "name": "export_xkcd_svg",
+        "description": "Export the active comic as standalone SVG markup.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "embedFont": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "communication": {
+    "preferredChannel": "https",
+    "endpoints": {
+      "studio": "https://h3manth.com/fun/xkcd-artist/",
+      "queryParam": "https://h3manth.com/fun/xkcd-artist/?q={prompt}",
+      "llmsTxt": "https://h3manth.com/fun/xkcd-artist/llms.txt"
+    }
+  }
+}

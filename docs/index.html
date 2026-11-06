@@ -3,222 +3,741 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>xkcd-artist — Hybrid LoRA + Crisp Speech-Bubble XKCD Comic Studio</title>
+  <title>xkcd-artist — Webcomic Synthesis Studio</title>
+  <meta
+    name="description"
+    content="Synthesize authentic monochrome XKCD multi-panel comic strips, annotated charts, and flowcharts in your browser with the gnumanth/xkcd-artist ONNX Int8 WASM planner and xkcd-script hand-lettering."
+  />
+  <meta name="author" content="Hemanth HM" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#96A8C8" />
+  <link rel="canonical" href="https://h3manth.com/fun/xkcd-artist/" />
+
+  <!-- Open Graph / Social -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="h3manth.com" />
+  <meta property="og:title" content="xkcd-artist — Webcomic Synthesis Studio" />
+  <meta
+    property="og:description"
+    content="Generate authentic monochrome XKCD multi-panel strips, annotated charts, and decision flowcharts powered in-browser by gnumanth/xkcd-artist (ONNX Int8 WASM) and xkcd-script."
+  />
+  <meta property="og:url" content="https://h3manth.com/fun/xkcd-artist/" />
+  <meta property="og:image" content="https://h3manth.com/fun/xkcd-artist/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="xkcd-artist — Authentic monochrome XKCD multi-panel comic studio" />
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:creator" content="@GNUmanth" />
+  <meta name="twitter:title" content="xkcd-artist — Webcomic Synthesis Studio" />
+  <meta
+    name="twitter:description"
+    content="Generate authentic monochrome XKCD multi-panel strips, annotated charts, and decision flowcharts in-browser via ONNX Int8 WASM + xkcd-script."
+  />
+  <meta name="twitter:image" content="https://h3manth.com/fun/xkcd-artist/og-image.png" />
+
+  <!-- Agent & LLM Discovery (Level 5 Agent-Native / RFC 9727 / A2A / MCP / llms.txt) -->
+  <link rel="llms" href="https://h3manth.com/fun/xkcd-artist/llms.txt" type="text/plain" title="LLM Summary Specification" />
+  <link rel="describedby" href="https://h3manth.com/fun/xkcd-artist/llms.txt" type="text/plain" />
+  <link rel="describedby" href="https://h3manth.com/fun/xkcd-artist/llms-full.txt" type="text/plain" />
+  <link rel="describedby" href="https://h3manth.com/fun/xkcd-artist/agent-card.json" type="application/json" />
+  <link rel="api-catalog" href="/.well-known/api-catalog" type="application/linkset+json" />
+  <link rel="service-desc" href="/.well-known/agent-skills/index.json" type="application/json" />
+  <link rel="describedby" href="/.well-known/mcp/server-card.json" type="application/json" />
+  <link rel="describedby" href="/.well-known/agent-card.json" type="application/json" />
+
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23ffffff' stroke='%23071419' stroke-width='2'/%3E%3Ccircle cx='16' cy='11' r='6' fill='none' stroke='%230a0a0a' stroke-width='2'/%3E%3Cpath d='M16 17v8M16 19l-5 5M16 19l5 5M16 25l-4 5M16 25l4 5' fill='none' stroke='%230a0a0a' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"
+  />
+  <link rel="preload" href="./fonts/xkcd-script.ttf" as="font" type="font/ttf" crossorigin />
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "xkcd-artist — Webcomic Synthesis Studio",
+      "url": "https://h3manth.com/fun/xkcd-artist/",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All",
+      "author": {
+        "@type": "Person",
+        "name": "Hemanth HM",
+        "url": "https://h3manth.com"
+      },
+      "description": "Synthesize authentic monochrome XKCD multi-panel comic strips, annotated charts, and flowcharts in your browser using the gnumanth/xkcd-artist ONNX Int8 WebAssembly planner and xkcd-script hand-lettering.",
+      "isBasedOn": "https://huggingface.co/gnumanth/xkcd-artist"
+    }
+  </script>
+
   <style>
     @font-face {
       font-family: 'xkcd-script';
       src: url('./fonts/xkcd-script.ttf') format('truetype');
       font-weight: normal;
       font-style: normal;
+      font-display: swap;
     }
+
     :root {
-      --bg: #f6f5ef;
-      --card: #ffffff;
-      --ink: #141416;
-      --muted: #52525b;
-      --accent: #635bff;
-      --mint: #dff5e8;
-      --peach: #fde4dc;
-      --lavender: #e9e2ff;
-      --butter: #fef1c6;
+      --xkcd-bg: #96A8C8;
+      --xkcd-box: #FFFFFF;
+      --xkcd-border: #071419;
+      --xkcd-btn: #58657A;
+      --xkcd-btn-border: #262E38;
+      --xkcd-ink: #0A0A0A;
+      --xkcd-muted: #34404E;
     }
-    * { box-sizing: border-box; }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      padding: 32px 20px 64px;
-      background: var(--bg);
-      color: var(--ink);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 14px 10px 36px;
+      background-color: var(--xkcd-bg);
+      color: var(--xkcd-ink);
+      font-family: Lucida, Helvetica, Arial, sans-serif;
+      text-align: center;
+      font-variant: small-caps;
+      -webkit-font-smoothing: antialiased;
     }
-    .container { max-width: 1080px; margin: 0 auto; }
-    .eyebrow {
-      display: inline-block;
-      background: var(--lavender);
-      border: 2px solid var(--ink);
-      border-radius: 8px;
-      padding: 4px 12px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 12px;
-      font-weight: 700;
-      margin-bottom: 12px;
+
+    .xkcd-box {
+      width: 100%;
+      max-width: 820px;
+      margin: 0 auto 12px;
+      background: var(--xkcd-box);
+      border: 1.5px solid var(--xkcd-border);
+      border-radius: 12px;
+      padding: 16px 20px;
     }
-    h1 {
-      font-size: clamp(2.2rem, 4vw, 3.2rem);
-      font-weight: 850;
-      letter-spacing: -0.03em;
-      margin: 0 0 8px;
+
+    #topContainer {
+      padding: 14px 20px 16px;
     }
-    .lead {
-      font-size: 18px;
-      color: var(--muted);
-      margin: 0 0 24px;
-      max-width: 780px;
-    }
-    .studio-card {
-      background: var(--card);
-      border: 2px solid var(--ink);
-      border-radius: 16px;
-      box-shadow: 5px 5px 0 var(--ink);
-      padding: 24px;
-      margin-bottom: 24px;
-    }
-    .presets {
+
+    .masthead {
       display: flex;
+      align-items: baseline;
+      justify-content: space-between;
       flex-wrap: wrap;
       gap: 8px;
-      margin-bottom: 16px;
+      border-bottom: 1px solid #D5DCE6;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
     }
-    .preset-btn {
-      background: var(--butter);
-      border: 1.8px solid var(--ink);
-      border-radius: 8px;
-      padding: 6px 12px;
-      font-family: ui-monospace, monospace;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
+
+    .brand-title {
+      font-family: 'xkcd-script', Lucida, Helvetica, sans-serif;
+      font-size: 30px;
+      font-variant: normal;
+      letter-spacing: 0.02em;
+      margin: 0;
+      line-height: 1;
+      color: var(--xkcd-ink);
     }
-    .preset-btn:hover { background: var(--mint); }
-    .controls {
-      display: grid;
-      grid-template-columns: 1fr auto auto;
-      gap: 12px;
-      margin-bottom: 18px;
+
+    .brand-slogan {
+      margin: 0;
+      font-size: 14px;
+      font-style: italic;
+      font-variant: normal;
+      color: var(--xkcd-muted);
     }
-    input[type="text"] {
-      width: 100%;
-      padding: 12px 14px;
-      border: 2px solid var(--ink);
-      border-radius: 10px;
-      font-size: 15px;
-      font-family: inherit;
-    }
-    button.primary {
-      background: var(--ink);
-      color: #fff;
-      border: 2px solid var(--ink);
-      border-radius: 10px;
-      padding: 12px 20px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .canvas-stage {
-      background: #fff;
-      border: 2px solid var(--ink);
-      border-radius: 12px;
-      padding: 16px;
+
+    .prompt-form {
       display: flex;
-      justify-content: center;
-      overflow-x: auto;
+      gap: 8px;
+      margin-bottom: 10px;
     }
-    .telemetry {
+
+    .prompt-form input[type="text"] {
+      flex: 1;
+      min-width: 0;
+      padding: 7px 11px;
+      border: 1.5px solid var(--xkcd-btn-border);
+      border-radius: 3px;
+      font-family: Lucida, Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      font-variant: normal;
+      color: var(--xkcd-ink);
+      background: #FFFFFF;
+    }
+
+    .prompt-form input[type="text"]:focus {
+      outline: 2px solid var(--xkcd-btn);
+      outline-offset: 1px;
+    }
+
+    .xkcd-btn {
+      background-color: var(--xkcd-btn);
+      color: #FFFFFF;
+      border: 1.5px solid var(--xkcd-btn-border);
+      border-radius: 3px;
+      padding: 5px 13px;
+      font-family: Lucida, Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      font-variant: small-caps;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.12);
+      transition: background-color 0.1s ease, color 0.1s ease;
+      white-space: nowrap;
+    }
+
+    .xkcd-btn:hover,
+    .xkcd-btn:focus-visible {
+      background-color: #FFFFFF;
+      color: var(--xkcd-btn);
+    }
+
+    .xkcd-btn:disabled {
+      background-color: #DFE5EE;
+      color: #465364;
+      border-color: #8C99AB;
+      box-shadow: none;
+      cursor: default;
+    }
+
+    .preset-strip {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 14px;
-      font-family: ui-monospace, monospace;
-      font-size: 12px;
+      justify-content: center;
+      gap: 4px 10px;
+      font-size: 13px;
+      line-height: 1.5;
     }
-    .pill {
-      padding: 4px 10px;
-      border: 1.5px solid var(--ink);
-      border-radius: 6px;
-      background: var(--mint);
+
+    .preset-link {
+      background: none;
+      border: none;
+      padding: 2px 4px;
+      color: #1E2E42;
+      font-family: Lucida, Helvetica, Arial, sans-serif;
+      font-size: 13px;
+      font-variant: small-caps;
       font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .preset-link:hover,
+    .preset-link.active {
+      color: #000000;
+      background-color: #E4ECF7;
+      border-radius: 2px;
+    }
+
+    #middleContainer {
+      padding: 20px 18px 18px;
+    }
+
+    #ctitle {
+      margin: 2px 0 10px;
+      font-size: 22px;
+      font-weight: 800;
+      font-variant: small-caps;
+      letter-spacing: 0.03em;
+      color: var(--xkcd-ink);
+    }
+
+    ul.comicNav {
+      list-style-type: none;
+      margin: 10px 0 14px;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    ul.comicNav li {
+      display: inline-block;
+    }
+
+    #comic {
+      margin: 12px auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 220px;
+      cursor: default;
+    }
+
+    #comic svg {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .alt-readout {
+      max-width: 680px;
+      margin: 12px auto 10px;
+      padding: 8px 12px;
+      border-top: 1px solid #DCE2EC;
+      border-bottom: 1px solid #DCE2EC;
+      font-size: 13px;
+      font-variant: normal;
+      line-height: 1.45;
+      color: #1F262E;
+    }
+
+    .alt-readout strong {
+      font-variant: small-caps;
+      font-size: 13.5px;
+      color: var(--xkcd-ink);
+    }
+
+    .meta-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 8px 14px;
+      margin-top: 10px;
+      font-size: 12.5px;
+      color: var(--xkcd-muted);
+    }
+
+    .model-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 8px;
+      border: 1px solid #B7C4D6;
+      border-radius: 3px;
+      background: #F4F7FB;
+      color: #1E2E42;
+      font-size: 12px;
+      font-variant: normal;
+      text-decoration: none;
+    }
+
+    .model-badge:hover {
+      background: #E6EEF8;
+      text-decoration: underline;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #6B7787;
+      display: inline-block;
+    }
+
+    .status-dot.live {
+      background: #1B7F3B;
+    }
+
+    .export-group {
+      display: inline-flex;
+      gap: 6px;
+    }
+
+    .xkcd-btn-sm {
+      font-size: 13px;
+      padding: 3px 10px;
+    }
+
+    #bottomContainer {
+      padding: 12px 18px;
+      font-size: 13px;
+      font-variant: normal;
+      color: #242E3A;
+      line-height: 1.65;
+    }
+
+    #bottomContainer code {
+      background: #EEF2F8;
+      border: 1px solid #C8D3E3;
+      border-radius: 3px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    #bottomContainer a {
+      color: #182C47;
+      font-weight: 600;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 8px 6px 24px;
+      }
+      .xkcd-box {
+        padding: 12px 10px;
+        border-radius: 9px;
+      }
+      .masthead {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .prompt-form {
+        flex-direction: column;
+      }
+      .prompt-form .xkcd-btn {
+        width: 100%;
+        padding: 8px 12px;
+      }
+      ul.comicNav {
+        gap: 5px;
+      }
+      .xkcd-btn {
+        padding: 5px 10px;
+        font-size: 14px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <span class="eyebrow">XKCD-ARTIST v0.1.0 · HYBRID LORA + CRISP SPEECH-BUBBLE COMPOSITOR</span>
-    <h1>xkcd-artist</h1>
-    <p class="lead">
-      Trained on 891 ExplainXKCD scripts and 226 speech-bubble-masked XKCD comic panels on NVIDIA L4 GPU.
-      Generates hand-wobbled Randall Munroe stick figures, stage props, 100% legible speech bubbles, and hover alt-text.
-    </p>
-
-    <div class="studio-card">
-      <div class="presets">
-        <button class="preset-btn" style="background: var(--mint);" data-prompt="Why my Docker container image is 18GB">✨ Novel: 18GB Docker Container</button>
-        <button class="preset-btn" style="background: var(--mint);" data-prompt="Autonomous AI agents automating my workflow">✨ Novel: Autonomous AI Agents</button>
-        <button class="preset-btn" style="background: var(--mint);" data-prompt="Reviewing a 4200 line pull request in TypeScript">✨ Novel: 4,200-Line PR Review</button>
-        <button class="preset-btn" style="background: var(--mint);" data-prompt="Git rebase before release">✨ Novel: Git Rebase</button>
-        <button class="preset-btn" data-prompt="Sudo make me a sandwich">Classic: Sudo Sandwich (#149)</button>
-        <button class="preset-btn" data-prompt="Compiling code sword fight">Classic: Compiling (#303)</button>
-        <button class="preset-btn" data-prompt="14 competing standards">Classic: Standards (#927)</button>
-        <button class="preset-btn" data-prompt="Machine learning pile of linear algebra">Classic: Machine Learning (#1838)</button>
-        <button id="randomNovelBtn" class="preset-btn" style="background: var(--lavender);">🎲 Random Novel Prompt</button>
-      </div>
-
-      <div class="controls">
-        <input id="promptInput" type="text" value="Why my Docker container image is 18GB" placeholder="Type any prompt to generate a multi-panel XKCD comic..." />
-        <button id="renderBtn" class="primary">Synthesize Comic</button>
-        <button id="downloadBtn" class="preset-btn" style="background: var(--peach);">Download .SVG</button>
-      </div>
-
-      <div id="svgStage" class="canvas-stage"></div>
-      <div id="telemetryBar" class="telemetry"></div>
+  <header id="topContainer" class="xkcd-box">
+    <div class="masthead">
+      <h1 class="brand-title">xkcd-artist</h1>
+      <p class="brand-slogan">A webcomic synthesis engine of romance, sarcasm, math, and language.</p>
     </div>
-  </div>
+
+    <form id="promptForm" class="prompt-form" autocomplete="off">
+      <input
+        id="promptInput"
+        type="text"
+        aria-label="Comic synthesis prompt"
+        value="Why my Docker container image is 18GB"
+        placeholder="Describe any engineering scenario, chart, or flowchart..."
+      />
+      <button id="renderBtn" type="submit" class="xkcd-btn">Synthesize</button>
+    </form>
+
+    <div id="presetStrip" class="preset-strip" role="navigation" aria-label="Preset comics"></div>
+  </header>
+
+  <main id="middleContainer" class="xkcd-box">
+    <h2 id="ctitle">DOCKER CONTAINER</h2>
+
+    <ul class="comicNav" aria-label="Comic navigation top">
+      <li><button type="button" class="xkcd-btn" data-nav="first" aria-label="First comic">|&lt;</button></li>
+      <li><button type="button" class="xkcd-btn" data-nav="prev">&lt; Prev</button></li>
+      <li><button type="button" class="xkcd-btn" data-nav="random">Random</button></li>
+      <li><button type="button" class="xkcd-btn" data-nav="next">Next &gt;</button></li>
+      <li><button type="button" class="xkcd-btn" data-nav="last" aria-label="Latest comic">&gt;|</button></li>
+    </ul>
+
+    <div id="comic" role="region" aria-label="Rendered XKCD comic"></div>
+
+    <ul class="comicNav" aria-label="Comic navigation bottom">
+      <li><button type="button" class="xkcd-btn" data-nav="first" aria-label="First comic">|&lt;</button></li>
+      <li><button type="button" class="xkcd-btn" data-nav="prev">&lt; Prev</button></li>
+      <li><button type="button" class="xkcd-btn" data-nav="random">Random</button></li>
+      <li><button type="button" class="xkcd-btn" data-nav="next">Next &gt;</button></li>
+      <li><button type="button" class="xkcd-btn" data-nav="last" aria-label="Latest comic">&gt;|</button></li>
+    </ul>
+
+    <div id="altReadout" class="alt-readout">
+      <strong>Title text: </strong>If you run docker system prune, the docker cluster achieves negative mass and floats out of the rack.
+    </div>
+
+    <div class="meta-bar">
+      <span id="telemetryText"></span>
+      <a
+        id="modelBadge"
+        class="model-badge"
+        href="https://huggingface.co/gnumanth/xkcd-artist"
+        target="_blank"
+        rel="noopener"
+        title="Open gnumanth/xkcd-artist ONNX + Diffusion LoRA repository on Hugging Face"
+      >
+        <span id="modelDot" class="status-dot" aria-hidden="true"></span>
+        <span id="modelStatusText">gnumanth/xkcd-artist · loading onnx wasm…</span>
+      </a>
+      <span class="export-group">
+        <button id="downloadSvgBtn" type="button" class="xkcd-btn xkcd-btn-sm">Download .SVG</button>
+        <button id="downloadPngBtn" type="button" class="xkcd-btn xkcd-btn-sm">Download .PNG</button>
+      </span>
+    </div>
+  </main>
+
+  <footer id="bottomContainer" class="xkcd-box">
+    <div>
+      Permanent link to this prompt: <code id="permalinkCode">https://h3manth.com/fun/xkcd-artist/</code>
+    </div>
+    <div>
+      SDK: <code>npm install xkcd-artist</code> · <code>pip install xkcd-artist</code> ·
+      Model: <a href="https://huggingface.co/gnumanth/xkcd-artist" target="_blank" rel="noopener">gnumanth/xkcd-artist</a> ·
+      Font: <a href="https://github.com/ipython/xkcd-font" target="_blank" rel="noopener">xkcd-script</a> (CC BY-NC 2.5) ·
+      Specs: <a href="./llms.txt">llms.txt</a> · <a href="./agent-card.json">agent-card.json</a>
+    </div>
+  </footer>
 
   <script type="module">
-    import xkcdArtist from './src/index.js';
+    import xkcdArtist, { loadOnnxPlanner, runOnnxPlanner } from './src/index.js';
+    import { registerXkcdAgentCapabilities } from './src/agent_ready.js';
+
+    const DECK = [
+      { label: '18GB Docker', prompt: 'Why my Docker container image is 18GB', layout: 'three_panel' },
+      { label: '4,200-Line PR', prompt: 'Reviewing a 4200 line pull request in TypeScript', layout: 'four_panel' },
+      { label: 'AI Agents', prompt: 'Autonomous AI agents automating my workflow', layout: 'three_panel' },
+      { label: 'Friday 5PM', prompt: 'Deploying a config tweak on Friday at 5pm', layout: 'two_panel' },
+      { label: 'Git Rebase', prompt: 'Git rebase before release', layout: 'single_panel' },
+      { label: 'Webpack Chart', prompt: 'Annotated chart of time spent tuning webpack config', layout: 'annotated_chart' },
+      { label: 'DNS Flowchart', prompt: 'Flowchart for deciding whether to touch legacy DNS', layout: 'flowchart_diagram' },
+      { label: '#149 Sandwich', prompt: 'Sudo make me a sandwich', layout: 'single_panel' },
+      { label: '#303 Compiling', prompt: 'Compiling code sword fight', layout: 'single_panel' },
+      { label: '#927 Standards', prompt: '14 competing standards', layout: 'three_panel' },
+      { label: '#1838 ML Pile', prompt: 'Machine learning pile of linear algebra', layout: 'single_panel' },
+      { label: '#2347 Dependency', prompt: 'Modern digital infrastructure maintained in Nebraska', layout: 'single_panel' },
+      { label: '#386 Duty Calls', prompt: 'Someone is wrong on the internet', layout: 'single_panel' },
+    ];
+
+    const EXTRA_RANDOM_PROMPTS = [
+      'Debugging a stale Redis cache outage at 3am',
+      'Modeling quantum espresso thermodynamics from first principles',
+      'Zero dependency billing architecture written in Bash',
+      'Fitting a polynomial benchmark curve to three data points',
+      'Flowchart for deciding whether to clear Kubernetes cache',
+      'Automating coffee brewing with a six hour Rust script',
+      'Correlation chart between YAML indentation and despair',
+    ];
 
     const input = document.getElementById('promptInput');
-    const stage = document.getElementById('svgStage');
-    const telemetry = document.getElementById('telemetryBar');
-    let currentSvg = '';
+    const ctitle = document.getElementById('ctitle');
+    const comicEl = document.getElementById('comic');
+    const altReadout = document.getElementById('altReadout');
+    const telemetryText = document.getElementById('telemetryText');
+    const modelDot = document.getElementById('modelDot');
+    const modelStatusText = document.getElementById('modelStatusText');
+    const presetStrip = document.getElementById('presetStrip');
+    const permalinkCode = document.getElementById('permalinkCode');
 
-    function render() {
-      const t0 = performance.now();
-      const comic = xkcdArtist(input.value);
-      const dt = (performance.now() - t0).toFixed(3);
-      currentSvg = comic.toSVG(920, 400);
-      stage.innerHTML = currentSvg;
-      telemetry.innerHTML = [
-        `<span class="pill">layout: ${comic.layout}</span>`,
-        `<span class="pill" style="background:var(--lavender)">cast: ${comic.cast.join(', ')}</span>`,
-        `<span class="pill" style="background:var(--butter)">prop: ${comic.prop}</span>`,
-        `<span class="pill" style="background:var(--peach)">p_invalid: ${comic.p_invalid}</span>`,
-        `<span class="pill">latency: ${dt} ms</span>`
-      ].join('');
+    let currentIdx = 0;
+    let currentComic = null;
+    let renderToken = 0;
+    let onnxReady = false;
+    let embeddedFontCssCache = null;
+
+    async function getEmbeddedFontCss() {
+      if (embeddedFontCssCache !== null) return embeddedFontCssCache;
+      try {
+        const res = await fetch('./fonts/xkcd-script.ttf');
+        const buf = await res.arrayBuffer();
+        const bytes = new Uint8Array(buf);
+        let bin = '';
+        for (let i = 0; i < bytes.length; i++) {
+          bin += String.fromCharCode(bytes[i]);
+        }
+        embeddedFontCssCache = `@font-face{font-family:'xkcd-script';src:url('data:font/ttf;base64,${btoa(bin)}') format('truetype');}`;
+      } catch {
+        embeddedFontCssCache = '';
+      }
+      return embeddedFontCssCache;
     }
 
-    document.getElementById('renderBtn').addEventListener('click', render);
-    input.addEventListener('keydown', e => { if (e.key === 'Enter') render(); });
-    document.querySelectorAll('.preset-btn[data-prompt]').forEach(btn => {
+    DECK.forEach((item, idx) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'preset-link';
+      btn.textContent = item.label;
+      btn.dataset.idx = String(idx);
       btn.addEventListener('click', () => {
-        input.value = btn.getAttribute('data-prompt');
-        render();
+        currentIdx = idx;
+        input.value = item.prompt;
+        renderPrompt(item.prompt, true);
+      });
+      presetStrip.appendChild(btn);
+    });
+
+    function syncActivePreset(promptStr) {
+      const matchIdx = DECK.findIndex(d => d.prompt.toLowerCase() === promptStr.trim().toLowerCase());
+      if (matchIdx !== -1) currentIdx = matchIdx;
+      presetStrip.querySelectorAll('.preset-link').forEach((btn, i) => {
+        btn.classList.toggle('active', i === matchIdx);
+      });
+      document.querySelectorAll('[data-nav="first"], [data-nav="prev"]').forEach(b => {
+        b.disabled = matchIdx === 0;
+      });
+      document.querySelectorAll('[data-nav="last"], [data-nav="next"]').forEach(b => {
+        b.disabled = matchIdx === DECK.length - 1;
+      });
+      return matchIdx;
+    }
+
+    function updateDomFromComic(comic, numLabel, dtStr) {
+      ctitle.textContent = comic.title;
+      comicEl.innerHTML = comic.toSVG();
+      comicEl.title = comic.alt;
+
+      altReadout.innerHTML = '';
+      const strong = document.createElement('strong');
+      strong.textContent = 'Title text: ';
+      altReadout.appendChild(strong);
+      altReadout.appendChild(document.createTextNode(comic.alt));
+
+      telemetryText.textContent = `${numLabel} · layout: ${comic.layout} · cast: ${comic.cast.join(', ')} · prop: ${comic.prop} · ${dtStr} ms`;
+
+      if (comic.neural) {
+        modelDot.classList.add('live');
+        modelStatusText.textContent = `gnumanth/xkcd-artist · onnx int8 (${comic.neural.latency_ms}ms · wobble ${comic.style.wobble_amp_px.toFixed(2)}px)`;
+      }
+    }
+
+    async function renderPrompt(promptText, updateUrl = false) {
+      const myToken = ++renderToken;
+      input.value = promptText;
+      const t0 = performance.now();
+      const comic = xkcdArtist(promptText);
+      const fastDt = (performance.now() - t0).toFixed(2);
+      currentComic = comic;
+
+      const deckMatch = syncActivePreset(promptText);
+      const numLabel = deckMatch !== -1 ? `#${deckMatch + 1}` : 'custom';
+      updateDomFromComic(comic, numLabel, fastDt);
+
+      const url = new URL(window.location.href);
+      url.searchParams.set('q', promptText);
+      permalinkCode.textContent = url.toString();
+      if (updateUrl && window.history?.replaceState) {
+        window.history.replaceState(null, '', url.toString());
+      }
+
+      // Execute live gnumanth/xkcd-artist ONNX Int8 WASM inference when session is ready
+      if (onnxReady && !comic.is_invalid) {
+        try {
+          const enriched = `turns_${comic.turns.length} ${comic.layout} ${comic.prop} ${comic.title} ${comic.prompt}`;
+          const neuralOut = await runOnnxPlanner(enriched, comic.cast);
+          if (myToken === renderToken) {
+            comic.applyNeural(neuralOut);
+            updateDomFromComic(comic, numLabel, neuralOut.latency_ms.toFixed(2));
+          }
+        } catch {
+          // Keep deterministic render if WASM session unavailable
+        }
+      }
+      return comic;
+    }
+
+    document.getElementById('promptForm').addEventListener('submit', e => {
+      e.preventDefault();
+      renderPrompt(input.value, true);
+    });
+
+    document.querySelectorAll('[data-nav]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const action = btn.dataset.nav;
+        if (action === 'first') {
+          currentIdx = 0;
+          input.value = DECK[0].prompt;
+        } else if (action === 'prev') {
+          currentIdx = (currentIdx - 1 + DECK.length) % DECK.length;
+          input.value = DECK[currentIdx].prompt;
+        } else if (action === 'next') {
+          currentIdx = (currentIdx + 1) % DECK.length;
+          input.value = DECK[currentIdx].prompt;
+        } else if (action === 'last') {
+          currentIdx = DECK.length - 1;
+          input.value = DECK[currentIdx].prompt;
+        } else if (action === 'random') {
+          const pool = [...DECK.map(d => d.prompt), ...EXTRA_RANDOM_PROMPTS].filter(
+            p => p.toLowerCase() !== input.value.trim().toLowerCase()
+          );
+          input.value = pool[Math.floor(Math.random() * pool.length)];
+        }
+        renderPrompt(input.value, true);
       });
     });
-    const novelIdeas = [
-      'Why my Docker container image is 18GB',
-      'Autonomous AI agents automating my workflow',
-      'Reviewing a 4200 line pull request in TypeScript',
-      'Git rebase before release',
-      'Debugging a stale DNS cache outage at 3am',
-      'Modeling quantum thermodynamics from first principles',
-      'Zero dependency microservice architecture in Bash',
-      'Fitting a polynomial benchmark to three data points',
-      'Automating coffee brewing with a six hour script',
-    ];
-    let novelIdx = 0;
-    document.getElementById('randomNovelBtn').addEventListener('click', () => {
-      novelIdx = (novelIdx + 1) % novelIdeas.length;
-      input.value = novelIdeas[novelIdx];
-      render();
-    });
 
-    document.getElementById('downloadBtn').addEventListener('click', () => {
-      const blob = new Blob([currentSvg], { type: 'image/svg+xml' });
+    async function buildExportSvg(embedFont = true) {
+      if (!currentComic) return '';
+      const embedFontCss = embedFont ? await getEmbeddedFontCss() : '';
+      return currentComic.toSVG({ embedFontCss });
+    }
+
+    document.getElementById('downloadSvgBtn').addEventListener('click', async () => {
+      if (!currentComic) return;
+      const svgText = await buildExportSvg(true);
+      const blob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'xkcd-comic.svg';
+      a.download = `xkcd-${currentComic.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.svg`;
       a.click();
+      URL.revokeObjectURL(a.href);
     });
 
-    render();
+    document.getElementById('downloadPngBtn').addEventListener('click', async () => {
+      if (!currentComic) return;
+      const svgText = await buildExportSvg(true);
+      const svgEl = comicEl.querySelector('svg');
+      const vb = svgEl?.viewBox?.baseVal;
+      const w = vb?.width || 600;
+      const h = vb?.height || 320;
+      const scale = 2;
+
+      const img = new Image();
+      const svgBlob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = w * scale;
+        canvas.height = h * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(pngBlob => {
+          if (!pngBlob) return;
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(pngBlob);
+          a.download = `xkcd-${currentComic.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.png`;
+          a.click();
+          URL.revokeObjectURL(a.href);
+        }, 'image/png');
+      };
+      img.src = url;
+    });
+
+    // Register Level 5 Agent-Native + WebMCP API (`window.xkcdArtistStudio` + `navigator.modelContext`)
+    registerXkcdAgentCapabilities({
+      deck: DECK,
+      getCurrentComic: () => currentComic,
+      synthesizePrompt: (q, updateUrl = true) => renderPrompt(q, updateUrl),
+      getEmbeddedSvg: embedFont => buildExportSvg(embedFont),
+    });
+
+    // Immediate first render for sub-second LCP
+    const initialQ = new URLSearchParams(window.location.search).get('q');
+    if (initialQ && initialQ.trim()) {
+      input.value = initialQ.trim();
+    }
+    renderPrompt(input.value, false);
+
+    // Non-blocking background warm-up of `model_quantized.onnx` (1.72 MB Int8 WASM)
+    const scheduleIdle = window.requestIdleCallback || (fn => setTimeout(fn, 120));
+    scheduleIdle(async () => {
+      try {
+        await loadOnnxPlanner();
+        onnxReady = true;
+        if (currentComic && !currentComic.is_invalid) {
+          const enriched = `turns_${currentComic.turns.length} ${currentComic.layout} ${currentComic.prop} ${currentComic.title} ${currentComic.prompt}`;
+          const neuralOut = await runOnnxPlanner(enriched, currentComic.cast);
+          currentComic.applyNeural(neuralOut);
+          const deckMatch = syncActivePreset(currentComic.prompt);
+          const numLabel = deckMatch !== -1 ? `#${deckMatch + 1}` : 'custom';
+          updateDomFromComic(currentComic, numLabel, neuralOut.latency_ms.toFixed(2));
+        }
+      } catch {
+        modelStatusText.textContent = 'gnumanth/xkcd-artist · deterministic svg mode';
+      }
+    });
   </script>
 </body>
 </html>

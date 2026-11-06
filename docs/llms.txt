@@ -1,0 +1,27 @@
+# xkcd-artist — Webcomic Synthesis Engine (Browser ONNX WASM + xkcd-script)
+
+> Synthesize authentic monochrome Randall Munroe XKCD multi-panel comic strips, annotated charts, and decision flowcharts from any prompt in JavaScript, Python, and Browser WebAssembly ONNX (`gnumanth/xkcd-artist`).
+
+- Canonical Studio: https://h3manth.com/fun/xkcd-artist/
+- GitHub Pages Mirror: https://hemanth.github.io/xkcd-artist/
+- Hugging Face Model & LoRA: https://huggingface.co/gnumanth/xkcd-artist
+- Source Repository: https://github.com/hemanth/xkcd-artist
+- Full Specification: https://h3manth.com/fun/xkcd-artist/llms-full.txt
+- A2A Agent Card: https://h3manth.com/fun/xkcd-artist/agent-card.json
+
+## Architecture & Capabilities
+
+1. **In-Browser ONNX Int8 Neural Planner (`model_quantized.onnx`, `1.72 MB`)**:
+   - Runs `XkcdArtistForGeneration` (`1.59M` parameters, 3-layer Transformer trained on 891 ExplainXKCD transcripts + 226 speech-bubble-masked real XKCD panels) directly in the browser via `onnxruntime-web` WebAssembly SIMD (`p50` latency `< 1 ms`).
+   - Predicts 7 joint outputs: `layout_logits` (6 layouts), `prop_logits` (8 stage props), `poses` (12-DOF stick-figure joints), `bubbles` (upper-panel speech zones `cy + h/2 <= 0.48`), `style_vec` (`wobble_amp_px`, `stroke_width_px`, `bubble_zone_ratio`, `ink_contrast`), `ink_patch` (`16x16` LoRA ink density), and `invalid_logit` (calibrated abstention `AUROC = 1.0`).
+2. **6 XKCD Layout Archetypes**:
+   - `single_panel`, `two_panel`, `three_panel`, `four_panel`, `annotated_chart`, and `flowchart_diagram`.
+3. **Spotless Monochrome Stage Art + Crisp `xkcd-script` Compositing**:
+   - Connected-component cleaned stick-figure stage art paired with organic hand-wobbled `#0A0A0A` pen paths, `xkcd-script.ttf` hand-lettering, native hover `title` alt-text, and standalone `.SVG` / 2x `.PNG` export.
+
+## WebMCP & Browser Agent API (`window.xkcdArtistStudio`)
+
+- `await window.xkcdArtistStudio.synthesizeComic({ prompt })`
+- `window.xkcdArtistStudio.listPresets({ layout })`
+- `window.xkcdArtistStudio.getModelTelemetry()`
+- `await window.xkcdArtistStudio.exportSvg({ embedFont: true })`

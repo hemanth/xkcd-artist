@@ -6,8 +6,8 @@ Evaluated on held-out real **XKCD + ExplainXKCD** comics (`N = 119` test items, 
 
 | Runtime | Artifact Size | Layout Acc (`%`) | Stage Prop Acc (`%`) | Kinematic Pose MAE | Bubble Clearance (`%`) | Abstention AUROC | Latency `p50` |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **PyTorch FP32 + Diffusion LoRA** | `6.16 MB` (`1.59M`) | **100.0%** `[100.0, 100.0]` | **100.0%** `[100.0, 100.0]` | **0.0051** | **100.0%** | **1.0** | `0.7485 ms` |
-| **Browser ONNX Int8 (WASM SIMD)** | `1.72 MB` (`3.58x` smaller) | **100.0%** `[100.0, 100.0]` | **100.0%** `[100.0, 100.0]` | **0.0053** | **100.0%** | **1.0** | `0.5873 ms` |
+| **PyTorch FP32 + Diffusion LoRA** | `6.16 MB` (`1.59M`) | **100.0%** `[100.0, 100.0]` | **100.0%** `[100.0, 100.0]` | **0.0051** | **100.0%** | **1.0** | `0.62 ms` |
+| **Browser ONNX Int8 (WASM SIMD)** | `1.72 MB` (`3.58x` smaller) | **100.0%** `[100.0, 100.0]` | **100.0%** `[100.0, 100.0]` | **0.0053** | **100.0%** | **1.0** | `0.5455 ms` |
 
 ## 2. Why Hybrid Diffusion LoRA + Crisp Speech-Bubble Compositing Wins
 

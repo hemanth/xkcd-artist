@@ -2,7 +2,7 @@
 
 Hybrid fine-tuned Diffusion LoRA stick-figure art + 5-head ExplainXKCD scene planner + crisp hand-lettered speech-bubble, leader-line, and hover `alt`-text comic generator in JavaScript, Python, and Browser WebAssembly ONNX.
 
-- **Interactive Studio**: [https://hemanth.github.io/xkcd-artist/](https://hemanth.github.io/xkcd-artist/) ([`docs/index.html`](./docs/index.html))
+- **Interactive Studio**: [https://h3manth.com/fun/xkcd-artist/](https://h3manth.com/fun/xkcd-artist/) · [GitHub Pages Mirror](https://hemanth.github.io/xkcd-artist/) ([`docs/index.html`](./docs/index.html))
 - **Hugging Face Model & LoRA**: [https://huggingface.co/gnumanth/xkcd-artist](https://huggingface.co/gnumanth/xkcd-artist)
 - **Empirical Science Report**: [`bench/SCIENCE_REPORT.md`](./bench/SCIENCE_REPORT.md)
 - **Architecture Blueprint**: [`docs/flow-diagram.svg`](./docs/flow-diagram.svg)
@@ -15,16 +15,20 @@ pip install xkcd-artist
 ## Quick start (JavaScript / ESM)
 
 ```js
-import xkcdArtist from 'xkcd-artist';
+import xkcdArtist, { xkcdArtistAsync } from 'xkcd-artist';
 
+// Synchronous deterministic synthesis (< 0.5 ms)
 const comic = xkcdArtist('Sudo make me a sandwich');
 
 console.log(comic.title);  // 'SANDWICH'
-console.log(comic.layout); // 'three_panel'
+console.log(comic.layout); // 'single_panel'
 console.log(comic.cast);   // ['cueball', 'megan']
 console.log(comic.alt);    // 'Proper User Policy apparently means Simon Says.'
 
-const svg = comic.toSVG(); // Multi-panel hand-wobbled SVG with crisp speech bubbles
+const svg = comic.toSVG(); // Pure monochrome hand-wobbled SVG with xkcd-script speech bubbles
+
+// In-browser / async ONNX Int8 WASM planner (`gnumanth/xkcd-artist`)
+const neuralComic = await xkcdArtistAsync('Why my Docker container image is 18GB');
 ```
 
 `xkcdArtist()` parses any prompt into multi-panel XKCD layouts (`single_panel`, `two_panel`, `three_panel`, `four_panel`, `annotated_chart`, `flowchart_diagram`), selects the recurring XKCD cast (`cueball`, `megan`, `black_hat`, `beret_guy`, `ponytail`, `hairbun`) and stage props (`laptop_desk`, `whiteboard`, `server_rack`, `pointer_stick`, `couch`, `chart_board`, `pedestal`), and composites hand-wobbled monochrome ink panels with 100% legible speech bubbles and hover `alt` text.

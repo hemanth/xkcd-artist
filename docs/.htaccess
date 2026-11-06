@@ -1,0 +1,22 @@
+<IfModule mod_headers.c>
+  Header set Access-Control-Allow-Origin "*"
+  Header set content-signal "ai-train=yes, search=yes, ai-input=yes"
+  Header append Vary "Accept"
+  Header add Link "</fun/xkcd-artist/llms.txt>; rel=\"describedby\"; type=\"text/plain\", </fun/xkcd-artist/llms-full.txt>; rel=\"describedby\"; type=\"text/plain\", </fun/xkcd-artist/agent-card.json>; rel=\"describedby\"; type=\"application/json\""
+</IfModule>
+
+<Files "llms.txt">
+  ForceType "text/plain; charset=utf-8"
+</Files>
+
+<Files "llms-full.txt">
+  ForceType "text/plain; charset=utf-8"
+</Files>
+
+<Files "agent-card.json">
+  ForceType "application/json; charset=utf-8"
+</Files>
+
+<Files "model_quantized.onnx">
+  ForceType "application/octet-stream"
+</Files>

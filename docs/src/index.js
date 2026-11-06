@@ -1,7 +1,17 @@
 /**
- * xkcd-artist — Multi-Panel Generative XKCD Engine + Spotless Stage Art + `xkcd-script` Compositor
+ * xkcd-artist — Multi-Panel & Diagram Generative XKCD Engine
+ * Pure monochrome Randall Munroe stage art + organic hand-wobbled SVG pen strokes + `xkcd-script` lettering.
  */
 import { SCENES_META } from './scenes_data.js';
+import {
+  encodePromptTokens,
+  HF_MODEL_REPO,
+  HF_ONNX_URL,
+  loadOnnxPlanner,
+  runOnnxPlanner,
+} from './onnx_planner.js';
+
+export { encodePromptTokens, HF_MODEL_REPO, HF_ONNX_URL, loadOnnxPlanner, runOnnxPlanner };
 
 export const LAYOUT_TYPES = [
   'single_panel',
@@ -37,7 +47,7 @@ const ICONIC_TEMPLATES = [
     match: ['sudo', 'sandwich'],
     title: 'SANDWICH',
     scene: 'scene_armchair',
-    layout: 'three_panel',
+    layout: 'single_panel',
     prop: 'couch',
     cast: ['cueball', 'megan'],
     turns: [
@@ -100,7 +110,7 @@ const ICONIC_TEMPLATES = [
   {
     match: ['14 competing', '15 standards', 'universal standard'],
     title: 'STANDARDS',
-    scene: 'scene_dialogue',
+    scene: 'scene_standards_3panel',
     layout: 'three_panel',
     prop: 'whiteboard',
     cast: ['cueball', 'ponytail'],
@@ -139,29 +149,131 @@ function escapeXml(str) {
     .replace(/"/g, '&quot;');
 }
 
-function wrapText(text, maxChars) {
+/**
+ * Width-calibrated word wrapper accounting for narrow (`I`, `1`, `'`, `.`) vs wide (`W`, `M`) glyphs in `xkcd-script`.
+ */
+function measureGlyphUnits(str) {
+  let u = 0;
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
+    if ("I1!|.,:;'` ".includes(ch)) u += 0.56;
+    else if ('MW@#%&'.includes(ch)) u += 1.28;
+    else u += 0.96;
+  }
+  return u;
+}
+
+function wrapTextPx(text, maxPx, fontSize = 15) {
+  const maxUnits = maxPx / (fontSize * 0.50);
   const paragraphs = String(text).split('\n');
   const lines = [];
   for (const para of paragraphs) {
     const words = para.trim().split(/\s+/).filter(Boolean);
-    let current = '';
-    for (const w of words) {
-      if ((current + ' ' + w).trim().length <= maxChars) {
-        current = (current + ' ' + w).trim();
+    if (!words.length) continue;
+    let cur = words[0];
+    for (let i = 1; i < words.length; i++) {
+      const cand = `${cur} ${words[i]}`;
+      if (measureGlyphUnits(cand) <= maxUnits) {
+        cur = cand;
       } else {
-        if (current) lines.push(current);
-        current = w;
+        lines.push(cur);
+        cur = words[i];
       }
     }
-    if (current) lines.push(current);
+    lines.push(cur);
   }
   return lines;
 }
 
-function curvedLinePath(x0, y0, x1, y1, curveX = 0) {
-  const mx = (x0 + x1) * 0.5 + curveX;
-  const my = (y0 + y1) * 0.5;
-  return `<path d="M ${x0} ${y0} Q ${mx} ${my} ${x1} ${y1}" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round"/>`;
+function fmt(n) {
+  return Number(n).toFixed(2);
+}
+
+/**
+ * Hand-wobbled Randall Munroe SVG pen stroke (`#0a0a0a`, smooth organic jitter).
+ */
+function wobbledCurvePoints(x0, y0, x1, y1, { curveX = 0, curveY = 0, wobble = 0.65, seed = 1.0 } = {}) {
+  const dist = Math.hypot(x1 - x0, y1 - y0);
+  const steps = Math.max(16, Math.round(dist * 0.55));
+  const nx = -(y1 - y0) / (dist + 1e-6);
+  const ny = (x1 - x0) / (dist + 1e-6);
+  const pts = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const env = Math.sin(t * Math.PI);
+    const jitter =
+      env *
+      wobble *
+      (0.65 * Math.sin(t * 9.4 + seed * 1.7) + 0.35 * Math.cos(t * 17.3 + seed * 3.1));
+    const bx = x0 + (x1 - x0) * t + env * curveX + nx * jitter;
+    const by = y0 + (y1 - y0) * t + env * curveY + ny * jitter;
+    pts.push([bx, by]);
+  }
+  return pts;
+}
+
+let _activeWobbleScale = 1.0;
+let _activeStrokeScale = 1.0;
+
+function wobbledCurvePath(x0, y0, x1, y1, opts = {}) {
+  const { width = 2.0, wobble = 0.65, dashed = false } = opts;
+  const scaledWobble = wobble * _activeWobbleScale;
+  const scaledWidth = Number((width * _activeStrokeScale).toFixed(2));
+  const pts = wobbledCurvePoints(x0, y0, x1, y1, { ...opts, wobble: scaledWobble });
+  const d = pts.map(([x, y], idx) => `${idx === 0 ? 'M' : 'L'} ${fmt(x)} ${fmt(y)}`).join(' ');
+  const dashAttr = dashed ? ' stroke-dasharray="6 6"' : '';
+  return `<path d="${d}" fill="none" stroke="#0a0a0a" stroke-width="${scaledWidth}" stroke-linecap="round" stroke-linejoin="round"${dashAttr}/>`;
+}
+
+function wobbledPolylinePath(points, { width = 2.0, wobble = 0.65, closed = false } = {}) {
+  const scaledWobble = wobble * _activeWobbleScale;
+  const scaledWidth = Number((width * _activeStrokeScale).toFixed(2));
+  const seq = closed && points.length > 2 ? [...points, points[0]] : [...points];
+  const allPts = [];
+  for (let idx = 0; idx < seq.length - 1; idx++) {
+    const seg = wobbledCurvePoints(seq[idx][0], seq[idx][1], seq[idx + 1][0], seq[idx + 1][1], {
+      wobble: scaledWobble,
+      seed: idx * 2.3 + 0.7,
+    });
+    if (idx > 0) seg.shift();
+    allPts.push(...seg);
+  }
+  const d = allPts.map(([x, y], idx) => `${idx === 0 ? 'M' : 'L'} ${fmt(x)} ${fmt(y)}`).join(' ');
+  return `<path d="${d}${closed ? ' Z' : ''}" fill="none" stroke="#0a0a0a" stroke-width="${scaledWidth}" stroke-linecap="round" stroke-linejoin="round"/>`;
+}
+
+function wobbledRectPath(x0, y0, x1, y1, { width = 2.1, wobble = 0.45, fill = 'none' } = {}) {
+  const scaledWobble = wobble * _activeWobbleScale;
+  const scaledWidth = Number((width * _activeStrokeScale).toFixed(2));
+  const seq = [
+    [x0, y0],
+    [x1, y0],
+    [x1, y1],
+    [x0, y1],
+    [x0, y0],
+  ];
+  const allPts = [];
+  for (let idx = 0; idx < seq.length - 1; idx++) {
+    const seg = wobbledCurvePoints(seq[idx][0], seq[idx][1], seq[idx + 1][0], seq[idx + 1][1], {
+      wobble: scaledWobble,
+      seed: idx * 2.3 + 0.7,
+    });
+    if (idx > 0) seg.shift();
+    allPts.push(...seg);
+  }
+  const d = allPts.map(([x, y], idx) => `${idx === 0 ? 'M' : 'L'} ${fmt(x)} ${fmt(y)}`).join(' ') + ' Z';
+  return `<path d="${d}" fill="${fill}" stroke="#0a0a0a" stroke-width="${scaledWidth}" stroke-linecap="round" stroke-linejoin="round"/>`;
+}
+
+function arrowheadPaths(xFrom, yFrom, xTip, yTip, size = 6.5) {
+  const ang = Math.atan2(yTip - yFrom, xTip - xFrom);
+  return [2.58, -2.58]
+    .map(delta => {
+      const ax = xTip + size * Math.cos(ang + delta);
+      const ay = yTip + size * Math.sin(ang + delta);
+      return wobbledCurvePath(xTip, yTip, ax, ay, { width: 1.9, wobble: 0.25, seed: delta });
+    })
+    .join('\n  ');
 }
 
 function hashPrompt(str) {
@@ -173,6 +285,45 @@ function hashPrompt(str) {
   return Math.abs(h >>> 0);
 }
 
+function extractPromptKeywords(promptText) {
+  const stop = new Set([
+    'the', 'and', 'for', 'with', 'into', 'from', 'that', 'this', 'when', 'what',
+    'why', 'how', 'about', 'like', 'make', 'making', 'trying', 'explained',
+    'explain', 'cueball', 'megan', 'ponytail', 'black', 'hat', 'beret', 'guy',
+    'comic', 'xkcd', 'panel', 'strip', 'someone', 'every', 'time', 'after',
+    'before', 'my', 'our', 'your', 'is', 'are', 'was', 'in', 'on', 'to', 'at',
+    'of', 'by', 'reviewing', 'automating', 'autonomous', 'line', 'lines',
+    'chart', 'graph', 'plot', 'flowchart', 'diagram', 'guide', 'decide',
+    'deciding', 'whether', 'touch', 'touching', 'annotated', 'spent', 'tuning',
+    'push', 'pushing', 'deploying', 'running', 'writing', 'building', 'using',
+    'tweak', 'tiny', 'one', 'two', 'three', 'four', 'five', 'stale', 'friday',
+  ]);
+  const rawWords = promptText
+    .split(/\s+/)
+    .map(w => w.replace(/^[.,!?:;"'`()[\]{}]+|[.,!?:;"'`()[\]{}]+$/g, ''))
+    .filter(w => w.length >= 2);
+
+  let filtered = rawWords.filter(
+    w => !stop.has(w.toLowerCase()) && !/^\d+[a-z]*$/i.test(w)
+  );
+  if (!filtered.length) {
+    filtered = rawWords.filter(w => !/^\d+$/.test(w));
+    if (!filtered.length) filtered = ['SYSTEM'];
+  }
+
+  const genericNouns = new Set([
+    'pull', 'request', 'pr', 'container', 'image', 'code', 'script',
+    'workflow', 'release', 'before', 'legacy', 'modern', 'custom', 'simple',
+  ]);
+  const specific = filtered.filter(w => !genericNouns.has(w.toLowerCase()));
+
+  const title = filtered.slice(0, 2).join(' ').toUpperCase().slice(0, 26);
+  const subject = (specific.length ? specific : filtered).slice(0, 2).join(' ').toUpperCase().slice(0, 22);
+  const focus = (specific[0] || filtered[0]).toUpperCase();
+  const second = (specific[1] || filtered[1] || 'PRODUCTION').toUpperCase();
+  return { title, subject, focus, second };
+}
+
 function synthesizeNovelComic(promptText) {
   const low = promptText.toLowerCase();
   for (const tpl of ICONIC_TEMPLATES) {
@@ -181,25 +332,69 @@ function synthesizeNovelComic(promptText) {
     }
   }
 
-  const stop = new Set([
-    'the', 'and', 'for', 'with', 'into', 'from', 'that', 'this', 'when', 'what',
-    'why', 'how', 'about', 'like', 'make', 'making', 'trying', 'explained',
-    'explain', 'cueball', 'megan', 'ponytail', 'black', 'hat', 'beret', 'guy',
-    'comic', 'xkcd', 'panel', 'strip', 'someone', 'every', 'time', 'after',
-    'before', 'my', 'our', 'your', 'is', 'are', 'was', 'in', 'on', 'to', 'at',
-    'of', 'by', 'reviewing', 'automating', 'autonomous', 'line', 'lines',
-  ]);
-  const words = promptText
-    .replace(/[^a-zA-Z0-9\s]/g, ' ')
-    .split(/\s+/)
-    .filter(w => w.length >= 2 && !stop.has(w.toLowerCase()) && !/^\d+$/.test(w));
+  const { title, subject, focus, second } = extractPromptKeywords(promptText);
 
-  const kw = words.length ? words : ['SYSTEM'];
-  const title = kw.slice(0, 2).join(' ').toUpperCase().slice(0, 26);
-  const subject = kw.slice(0, 2).join(' ').toUpperCase().slice(0, 20);
-  const focus = kw[0].toUpperCase();
-  const second = (kw[1] || 'PRODUCTION').toUpperCase();
+  // A. Flowchart / Decision Tree -> `flowchart_diagram` (#627 / #518 style)
+  if (['flowchart', 'flow chart', 'decision tree', 'cheat sheet', 'how to decide', 'workflow diagram'].some(w => low.includes(w))) {
+    return {
+      title,
+      scene: 'scene_flowchart',
+      layout: 'flowchart_diagram',
+      prop: 'chart_board',
+      cast: ['cueball'],
+      chart_meta: {
+        start: `TOUCHING ${title}`,
+        diamond: 'DOES IT WORK?',
+        yes_box: 'DO NOT TOUCH IT',
+        no_box: `CLEAR ${focus} CACHE`,
+      },
+      turns: [
+        { speaker: 'left', text: `START: TOUCHING ${title}` },
+        { speaker: 'right', text: `DOES IT WORK? -> YES: DO NOT TOUCH IT / NO: CLEAR ${focus} CACHE` },
+      ],
+      alt: `80% of senior engineering is knowing which box in the ${title.toLowerCase()} flowchart is load-bearing.`,
+    };
+  }
 
+  // B. Annotated Chart / Graph / Plot / Extrapolation -> `annotated_chart` (#605 / #2048 style)
+  if (['chart', 'graph', 'plot', 'axis', 'axes', 'correlation', 'extrapolat', 'regression', 'curve'].some(w => low.includes(w))) {
+    return {
+      title,
+      scene: 'scene_chart',
+      layout: 'annotated_chart',
+      prop: 'chart_board',
+      cast: ['cueball'],
+      chart_meta: {
+        x_label: `TIME SPENT TUNING ${focus}`,
+        y_label: 'ACTUAL OUTPUT',
+        callout: 'POINT WHERE YOU REWRITE\nIT ALL IN A SHELL SCRIPT',
+      },
+      turns: [
+        { speaker: 'left', text: `Y-AXIS: ACTUAL OUTPUT / X-AXIS: TIME SPENT TUNING ${focus}` },
+        { speaker: 'right', text: 'INFLECTION: POINT WHERE YOU REWRITE IT ALL IN A SHELL SCRIPT.' },
+      ],
+      alt: `If you fit a cubic spline to ${subject.toLowerCase()}, productivity briefly becomes complex-valued around 2 AM.`,
+    };
+  }
+
+  // C. Friday Deploy / 3AM Incident / Outage -> 2-Panel Setup -> Despair (`two_panel`, #979 stage)
+  if (['friday', '5pm', '5 pm', '3am', '3 am', 'pagerduty', 'incident', 'outage', 'denvercoder'].some(w => low.includes(w))) {
+    const cfgNoun = focus === 'CONFIG' ? 'PROD' : focus;
+    return {
+      title: title === 'CONFIG' ? 'FRIDAY DEPLOY' : title,
+      scene: 'scene_979_2panel',
+      layout: 'two_panel',
+      prop: 'laptop_desk',
+      cast: ['cueball'],
+      turns: [
+        { speaker: 'left', text: `4:58 PM FRIDAY: ONE TINY ${cfgNoun} CONFIG TWEAK. ZERO RISK.` },
+        { speaker: 'right', text: `3:14 AM: WHO WROTE THIS ${focus} PARSER IN 2016 AND WHAT DID THEY SEE?!` },
+      ],
+      alt: `The post-mortem action item was simply 'never perceive ${subject.toLowerCase()} after 4 PM on Thursdays'.`,
+    };
+  }
+
+  // 1. Docker / Containers / Kubernetes / Cloud / YAML -> 3-Panel Debugging Escalation
   if (['docker', 'container', 'kubernetes', 'k8s', 'yaml', 'helm', 'cloud', 'aws', 'gcp', 'microservice'].some(w => low.includes(w))) {
     return {
       title,
@@ -216,23 +411,26 @@ function synthesizeNovelComic(promptText) {
     };
   }
 
+  // 2. Git / Merge / Rebase / Branch / Commit -> Team Laptop Demo (#1597 stage)
   if (['git', 'rebase', 'merge', 'branch', 'commit', 'cherry-pick', 'force push'].some(w => low.includes(w))) {
     return {
       title,
       scene: 'scene_1597_team',
-      layout: 'three_panel',
+      layout: 'single_panel',
       prop: 'laptop_desk',
       cast: ['cueball', 'ponytail', 'black_hat'],
       turns: [
-        { speaker: 'left', text: `I RAN INTERACTIVE ${subject} TO CLEAN UP OUR COMMIT HISTORY BEFORE THE RELEASE.` },
+        { speaker: 'left', text: `I RAN INTERACTIVE ${title} TO CLEAN UP OUR COMMIT HISTORY BEFORE RELEASE.` },
         { speaker: 'right', text: 'DID IT WORK?' },
-        { speaker: 'left', text: "HEAD IS DETACHED, MAIN IS IN 1970, AND EVERYONE JUST CLONED A FRESH REPO INTO `PROJECT_FINAL_V3`." },
+        { speaker: 'left', text: "HEAD IS DETACHED, MAIN IS IN 1970, AND EVERYONE JUST CLONED A FRESH COPY INTO 'PROJECT_FINAL_V3'." },
       ],
       alt: 'git reflog is just a horror novel where the main character is you from twenty minutes ago.',
     };
   }
 
+  // 3. Code Review / PR / Pull Request / Refactor / Legacy / TypeScript -> 4-Panel Laptop Review (#1513 stage)
   if (['review', 'pr', 'pull request', 'refactor', 'legacy', 'messy', 'lint', 'type', 'typescript', 'css'].some(w => low.includes(w))) {
+    const prLabel = ['PR', 'PULL', 'REQUEST', 'REVIEW'].includes(focus) ? 'CODE' : focus;
     return {
       title,
       scene: 'scene_1513_4panel',
@@ -240,16 +438,18 @@ function synthesizeNovelComic(promptText) {
       prop: 'laptop_desk',
       cast: ['cueball', 'ponytail'],
       turns: [
-        { speaker: 'left', text: `CAN YOU REVIEW MY ${focus} PR? IT'S ONLY 4,200 LINES.` },
+        { speaker: 'left', text: `CAN YOU REVIEW MY ${prLabel} PR? IT'S ONLY 4,200 LINES.` },
         { speaker: 'right', text: 'WHY DOES ONE REGEX PARSE BOTH HTML AND TAXES?' },
-        { speaker: 'right', text: `AND WHY IS ${focus} IMPORTING A DEPRECATED GAME ENGINE FOR DATE MATH?` },
-        { speaker: 'left', text: 'LGTM, MERGING WITH `--NO-VERIFY`.' },
+        { speaker: 'right', text: `AND WHY DOES ${prLabel} IMPORT A DEPRECATED GAME ENGINE FOR DATE MATH?` },
+        { speaker: 'left', text: 'LGTM, MERGING WITH --NO-VERIFY.' },
       ],
       alt: `Every comment in the ${subject.toLowerCase()} codebase just says '// DO NOT TOUCH OR THE BILLING CRON DIES'.`,
     };
   }
 
+  // 4. AI / LLM / Agents -> 3-Panel Megan & Cueball Debate (#552 stage)
   if (['llm', 'agent', 'agents', 'gpt', 'prompt', 'ai', 'chatbot', 'hallucinat', 'token', 'transformer'].some(w => low.includes(w))) {
+    const agentNoun = subject.includes('AGENT') ? subject : `${focus} AGENTS`;
     return {
       title,
       scene: 'scene_552_3panel',
@@ -257,15 +457,16 @@ function synthesizeNovelComic(promptText) {
       prop: 'none',
       cast: ['megan', 'cueball'],
       turns: [
-        { speaker: 'right', text: `I DEPLOYED TWO ${subject} TO AUTOMATE MY WORKFLOW.` },
+        { speaker: 'right', text: `I DEPLOYED TWO ${agentNoun} TO AUTOMATE MY WORKFLOW.` },
         { speaker: 'right', text: "ONE OPENS TICKETS AND THE OTHER CLOSES THEM AS 'WONTFIX'." },
         { speaker: 'left', text: 'SO NOTHING GETS DONE?', reply: 'AT 40,000 TOKENS/SEC.' },
       ],
-      alt: `We added a third ${focus.toLowerCase()} agent to mediate, and now all three are in a series-A fundraising call.`,
+      alt: `We added a third ${focus.toLowerCase()} agent to mediate, and now all three are in a Series-A fundraising call.`,
     };
   }
 
-  if (['debug', 'dns', 'bug', 'prod', 'deploy', 'server', 'sql', 'database', 'vim', 'error', 'outage', 'cache'].some(w => low.includes(w))) {
+  // 5. Debugging / DNS / Bug / Prod / Server / SQL / Database -> 3-Panel Debugging Escalation
+  if (['debug', 'dns', 'bug', 'prod', 'deploy', 'server', 'sql', 'database', 'vim', 'error', 'cache'].some(w => low.includes(w))) {
     return {
       title,
       scene: 'scene_debug_3panel',
@@ -281,6 +482,7 @@ function synthesizeNovelComic(promptText) {
     };
   }
 
+  // 6. General Arbitrary Prompts -> Multi-panel XKCD archetypes
   const archetypes = [
     {
       scene: 'scene_552_3panel',
@@ -312,7 +514,7 @@ function synthesizeNovelComic(promptText) {
       prop: 'laptop_desk',
       cast: ['cueball', 'ponytail'],
       turns: [
-        { speaker: 'left', text: `CHECK OUT MY NEW ${subject} BENCHMARK.` },
+        { speaker: 'left', text: `CHECK OUT MY NEW ${subject} MODEL.` },
         { speaker: 'right', text: 'YOUR ERROR BARS ARE WIDER THAN THE Y-AXIS.' },
         { speaker: 'right', text: `AND DID YOU FIT A 9TH-DEGREE POLYNOMIAL TO THREE ${focus} POINTS?` },
         { speaker: 'left', text: 'R-SQUARED IS 1.000 THOUGH.' },
@@ -321,12 +523,12 @@ function synthesizeNovelComic(promptText) {
     },
     {
       scene: 'scene_1597_team',
-      layout: 'three_panel',
+      layout: 'single_panel',
       prop: 'laptop_desk',
       cast: ['cueball', 'ponytail', 'black_hat'],
       turns: [
         { speaker: 'left', text: `OUR NEW ${subject} ARCHITECTURE USES ZERO EXTERNAL DEPENDENCIES.` },
-        { speaker: 'right', text: `HOW DID YOU IMPLEMENT ${focus}?` },
+        { speaker: 'right', text: `HOW DID YOU BUILD ${focus}?` },
         { speaker: 'left', text: 'WE WROTE OUR OWN BROKEN VERSION OF HALF THE STANDARD LIBRARY IN BASH.' },
       ],
       alt: `Eventually every ${subject.toLowerCase()} project invents its own Lisp interpreter by accident.`,
@@ -335,208 +537,430 @@ function synthesizeNovelComic(promptText) {
   return { title, ...archetypes[hashPrompt(promptText) % archetypes.length] };
 }
 
-export function renderXkcdSVG(spec) {
-  const fontStack = `'xkcd-script', 'Humor Sans', 'Comic Sans MS', cursive, sans-serif`;
+function renderCoreElements(spec) {
   const sceneName = spec.scene || 'scene_armchair';
   const turns = spec.turns || [];
-  const parts = [];
+  const els = [];
 
-  if (spec.title === 'STANDARDS') {
+  if (sceneName === 'scene_chart') {
+    const W = 520;
+    const H = 340;
+    const ox = 74;
+    const oy = 272;
+    const topY = 40;
+    const rightX = 476;
+    const meta = spec.chart_meta || {};
+
+    els.push(wobbledRectPath(4, 4, W - 5, H - 5, { width: 2.2, wobble: 0.5, fill: '#ffffff' }));
+    els.push(wobbledCurvePath(ox, oy + 8, ox, topY, { width: 2.1, wobble: 0.65, seed: 1.2 }));
+    els.push(arrowheadPaths(ox, oy, ox, topY, 7.0));
+    els.push(wobbledCurvePath(ox - 8, oy, rightX, oy, { width: 2.1, wobble: 0.65, seed: 2.4 }));
+    els.push(arrowheadPaths(ox, oy, rightX, oy, 7.0));
+
+    [150, 230, 310, 390].forEach(tx => {
+      els.push(wobbledCurvePath(tx, oy - 4, tx, oy + 5, { width: 1.8, wobble: 0.2, seed: tx }));
+    });
+    [216, 160, 104].forEach(ty => {
+      els.push(wobbledCurvePath(ox - 5, ty, ox + 4, ty, { width: 1.8, wobble: 0.2, seed: ty }));
+    });
+
+    const curvePts = [
+      [84, 250],
+      [132, 212],
+      [182, 146],
+      [228, 108],
+      [264, 114],
+      [296, 178],
+      [334, 238],
+      [392, 254],
+      [454, 258],
+    ];
+    els.push(wobbledPolylinePath(curvePts, { width: 2.4, wobble: 0.75 }));
+    els.push(wobbledCurvePath(228, 108, 452, 62, { width: 1.7, wobble: 0.45, seed: 5.5, dashed: true }));
+    els.push(wobbledCurvePath(336, 134, 274, 116, { width: 1.9, curveY: -10, wobble: 0.4, seed: 7.1 }));
+    els.push(arrowheadPaths(296, 118, 274, 116, 6.0));
+
+    els.push(`<text x="${(ox + rightX) / 2}" y="308" text-anchor="middle" font-size="15" fill="#0a0a0a">${escapeXml(meta.x_label || 'EFFORT INVESTED')}</text>`);
+    els.push(`<text x="374" y="46" text-anchor="middle" font-size="13" fill="#2d2d2d">NAIVE EXTRAPOLATION</text>`);
+    String(meta.callout || 'CRITICAL CLIFF')
+      .split('\n')
+      .forEach((ln, idx) => {
+        els.push(`<text x="392" y="${150 + idx * 16}" text-anchor="middle" font-size="13" fill="#0a0a0a">${escapeXml(ln)}</text>`);
+      });
+    const yMid = (topY + oy) / 2;
+    els.push(
+      `<text x="36" y="${yMid}" text-anchor="middle" font-size="15" fill="#0a0a0a" transform="rotate(-90 36 ${yMid})">${escapeXml(meta.y_label || 'ACTUAL OUTPUT')}</text>`
+    );
+    return { width: W, height: H, body: els.join('\n  ') };
+  }
+
+  if (sceneName === 'scene_flowchart') {
+    const W = 540;
+    const H = 356;
+    const meta = spec.chart_meta || {};
+
+    els.push(wobbledRectPath(4, 4, W - 5, H - 5, { width: 2.2, wobble: 0.5, fill: '#ffffff' }));
+    els.push(wobbledRectPath(155, 24, 385, 68, { width: 2.0, wobble: 0.5, fill: '#ffffff' }));
+    els.push(wobbledCurvePath(270, 68, 270, 104, { width: 2.0, wobble: 0.35, seed: 1.1 }));
+    els.push(arrowheadPaths(270, 88, 270, 104, 6.0));
+
+    const diamond = [
+      [270, 106],
+      [366, 154],
+      [270, 202],
+      [174, 154],
+    ];
+    els.push(wobbledPolylinePath(diamond, { width: 2.0, wobble: 0.5, closed: true }));
+
+    els.push(wobbledCurvePath(366, 154, 404, 154, { width: 2.0, wobble: 0.3, seed: 2.2 }));
+    els.push(arrowheadPaths(388, 154, 404, 154, 6.0));
+    els.push(wobbledRectPath(406, 126, 518, 182, { width: 2.0, wobble: 0.5, fill: '#ffffff' }));
+
+    els.push(wobbledCurvePath(270, 202, 270, 242, { width: 2.0, wobble: 0.35, seed: 3.3 }));
+    els.push(arrowheadPaths(270, 226, 270, 242, 6.0));
+    els.push(wobbledRectPath(152, 244, 388, 290, { width: 2.0, wobble: 0.5, fill: '#ffffff' }));
+
+    els.push(
+      wobbledPolylinePath(
+        [
+          [152, 267],
+          [76, 267],
+          [76, 154],
+          [171, 154],
+        ],
+        { width: 1.9, wobble: 0.5 }
+      )
+    );
+    els.push(arrowheadPaths(150, 154, 171, 154, 6.0));
+
+    els.push(`<text x="270" y="51" text-anchor="middle" font-size="15" fill="#0a0a0a">${escapeXml(meta.start || 'START')}</text>`);
+    els.push(`<text x="270" y="159" text-anchor="middle" font-size="13" fill="#0a0a0a">${escapeXml(meta.diamond || 'DOES IT WORK?')}</text>`);
+    els.push(`<text x="384" y="144" text-anchor="middle" font-size="13" fill="#0a0a0a">YES</text>`);
+    const yesLines = wrapTextPx(meta.yes_box || 'DO NOT TOUCH IT', 98, 13).slice(0, 2);
+    yesLines.forEach((ln, idx) => {
+      const yPos = yesLines.length > 1 ? 150 + idx * 16 : 159;
+      els.push(`<text x="462" y="${yPos}" text-anchor="middle" font-size="13" fill="#0a0a0a">${escapeXml(ln)}</text>`);
+    });
+    els.push(`<text x="286" y="225" text-anchor="middle" font-size="13" fill="#0a0a0a">NO</text>`);
+    els.push(`<text x="270" y="272" text-anchor="middle" font-size="15" fill="#0a0a0a">${escapeXml(meta.no_box || 'CLEAR CACHE')}</text>`);
+    els.push(`<text x="82" y="318" text-anchor="middle" font-size="13" fill="#373737">REPEAT UNTIL 3 AM</text>`);
+    return { width: W, height: H, body: els.join('\n  ') };
+  }
+
+  if (sceneName === 'scene_standards_3panel' || spec.title === 'STANDARDS') {
     const sc = SCENES_META.scene_dialogue;
-    const pw = sc.width;
-    const ph = sc.height;
-    const totalW = pw * 3 + 36;
-    const totalH = ph + 118;
-    const py = 58;
+    const pw = sc.width; // 203
+    const ph = sc.height; // 246
+    const sideW = 148;
+    const gap = 8;
+    const totalW = sideW * 2 + pw + gap * 2 + 12;
+    const py = 44;
+    const totalH = py + ph + 6;
 
-    parts.push(
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalW} ${totalH}" width="${totalW}" height="${totalH}" font-family="${fontStack}" style="background:#ffffff">`
-    );
-    parts.push(`<title>${escapeXml(spec.title)} — ${escapeXml(turns.map(t => t.text).join(' '))}</title>`);
-    parts.push(`<rect width="${totalW}" height="${totalH}" fill="#ffffff"/>`);
-    parts.push(
-      `<text x="${totalW / 2}" y="26" text-anchor="middle" font-size="14" fill="#111111">HOW STANDARDS PROLIFERATE: (SEE: A/C CHARGERS, CHARACTER ENCODINGS, ETC.)</text>`
+    els.push(`<text x="${totalW / 2}" y="17" text-anchor="middle" font-size="17" fill="#0a0a0a">HOW STANDARDS PROLIFERATE:</text>`);
+    els.push(
+      `<text x="${totalW / 2}" y="34" text-anchor="middle" font-size="12" fill="#0a0a0a">(SEE: A/C CHARGERS, CHARACTER ENCODINGS, INSTANT MESSAGING, ETC.)</text>`
     );
 
-    const x1 = 10;
-    parts.push(`<rect x="${x1}" y="${py}" width="${pw}" height="${ph}" fill="#ffffff" stroke="#111111" stroke-width="2"/>`);
+    const x1 = 6;
+    els.push(wobbledRectPath(x1, py, x1 + sideW, py + ph - 1, { width: 2.1, wobble: 0.35, fill: '#ffffff' }));
     ['SITUATION:', 'THERE ARE', '14 COMPETING', 'STANDARDS.'].forEach((ln, idx) => {
-      parts.push(`<text x="${x1 + pw / 2}" y="${py + 82 + idx * 24}" text-anchor="middle" font-size="17" fill="#111111">${ln}</text>`);
+      els.push(`<text x="${x1 + sideW / 2}" y="${py + 93 + idx * 23}" text-anchor="middle" font-size="17" fill="#0a0a0a">${ln}</text>`);
     });
 
-    const x2 = x1 + pw + 8;
-    parts.push(`<image href="${sc.data_uri}" x="${x2}" y="${py}" width="${pw}" height="${ph}"/>`);
-    parts.push(`<rect x="${x2}" y="${py}" width="${pw}" height="${ph}" fill="none" stroke="#111111" stroke-width="2"/>`);
-    wrapText(turns[1]?.text || '', 21).slice(0, 5).forEach((ln, idx) => {
-      parts.push(`<text x="${x2 + pw / 2 - 4}" y="${py + 22 + idx * 19}" text-anchor="middle" font-size="14.5" fill="#111111">${escapeXml(ln)}</text>`);
+    const x2 = x1 + sideW + gap;
+    els.push(`<image href="${sc.data_uri}" x="${x2}" y="${py}" width="${pw}" height="${ph}"/>`);
+    const p2Lines = wrapTextPx((turns[1]?.text || '').replace(/\n/g, ' '), pw - 18, 15).slice(0, 5);
+    p2Lines.forEach((ln, idx) => {
+      els.push(`<text x="${x2 + pw / 2 - 4}" y="${py + 23 + idx * 18}" text-anchor="middle" font-size="15" fill="#0a0a0a">${escapeXml(ln)}</text>`);
     });
-    parts.push(curvedLinePath(x2 + 48, py + 114, x2 + 56, py + 132, -3));
-    parts.push(`<text x="${x2 + 150}" y="${py + 116}" text-anchor="middle" font-size="14.5" fill="#111111">YEAH!</text>`);
-    parts.push(curvedLinePath(x2 + 152, py + 122, x2 + 144, py + 138, 3));
+    const p2Bot = py + 14 + p2Lines.length * 18;
+    els.push(wobbledCurvePath(x2 + 48, p2Bot, x2 + 56, py + 126, { width: 2.0, curveX: -4, seed: 2.1 }));
+    els.push(`<text x="${x2 + 148}" y="${py + 113}" text-anchor="middle" font-size="15" fill="#0a0a0a">YEAH!</text>`);
+    els.push(wobbledCurvePath(x2 + 150, py + 118, x2 + 143, py + 131, { width: 2.0, curveX: 3, seed: 3.4 }));
 
-    const x3 = x2 + pw + 8;
-    parts.push(`<rect x="${x3}" y="${py}" width="${pw}" height="${ph}" fill="#ffffff" stroke="#111111" stroke-width="2"/>`);
-    parts.push(`<rect x="${x3 + 8}" y="${py + 8}" width="76" height="26" fill="#ffffff" stroke="#111111" stroke-width="2"/>`);
-    parts.push(`<text x="${x3 + 46}" y="${py + 26}" text-anchor="middle" font-size="15" fill="#111111">SOON:</text>`);
+    const x3 = x2 + pw + gap;
+    els.push(wobbledRectPath(x3, py, x3 + sideW, py + ph - 1, { width: 2.1, wobble: 0.35, fill: '#ffffff' }));
+    els.push(wobbledRectPath(x3 + 8, py + 8, x3 + 78, py + 33, { width: 1.9, wobble: 0.3, fill: '#ffffff' }));
+    els.push(`<text x="${x3 + 43}" y="${py + 26}" text-anchor="middle" font-size="15" fill="#0a0a0a">SOON:</text>`);
     ['SITUATION:', 'THERE ARE', '15 COMPETING', 'STANDARDS.'].forEach((ln, idx) => {
-      parts.push(`<text x="${x3 + pw / 2}" y="${py + 82 + idx * 24}" text-anchor="middle" font-size="17" fill="#111111">${ln}</text>`);
+      els.push(`<text x="${x3 + sideW / 2}" y="${py + 93 + idx * 23}" text-anchor="middle" font-size="17" fill="#0a0a0a">${ln}</text>`);
     });
 
-    const ay = py + ph + 12;
-    parts.push(`<rect x="10" y="${ay}" width="${totalW - 20}" height="36" rx="5" fill="#f7f6f0" stroke="#5a5a5a" stroke-width="1"/>`);
-    parts.push(`<text x="${totalW / 2}" y="${ay + 22}" text-anchor="middle" font-size="12.5" fill="#333333">alt: &quot;${escapeXml(spec.alt)}&quot;</text>`);
-    parts.push(`</svg>`);
-    return parts.join('\n');
+    return { width: totalW, height: totalH, body: els.join('\n  ') };
   }
 
   const sc = SCENES_META[sceneName] || SCENES_META.scene_armchair;
   const sw = sc.width;
   const sh = sc.height;
-  const padX = 16;
-  const topBar = 44;
-  const altBar = 54;
-  const cw = sw + padX * 2;
-  const ch = sh + topBar + altBar;
+  const pad = 3;
+  const inner = [`<image href="${sc.data_uri}" x="0" y="0" width="${sw}" height="${sh}"/>`];
 
-  parts.push(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${cw} ${ch}" width="${cw}" height="${ch}" font-family="${fontStack}" style="background:#ffffff">`
-  );
-  parts.push(`<title>${escapeXml(spec.title)} — ${escapeXml(turns.map(t => t.text).join(' '))}</title>`);
-  parts.push(`<rect width="${cw}" height="${ch}" fill="#ffffff"/>`);
-  parts.push(`<text x="${cw / 2}" y="28" text-anchor="middle" font-size="22" fill="#111111">${escapeXml(spec.title)}</text>`);
-  parts.push(`<g transform="translate(${padX}, ${topBar})">`);
-  parts.push(`  <image href="${sc.data_uri}" x="0" y="0" width="${sw}" height="${sh}"/>`);
-
-  if (sceneName === 'scene_debug_3panel') {
+  if (sceneName === 'scene_979_2panel') {
     const anchors = [
-      [4, 220, 88, 102],
-      [232, 220, 326, 98],
-      [460, 220, 566, 92],
+      [4, 220, 101, 110, -4.0],
+      [232, 220, 338, 92, 4.0],
     ];
-    anchors.forEach(([px, pw, hx, hy], idx) => {
+    anchors.forEach(([px, pw, hx, hy, cx], idx) => {
       if (turns[idx]) {
-        const lines = wrapText(turns[idx].text, 22).slice(0, 4);
+        const lines = wrapTextPx(turns[idx].text, pw - 22, 15).slice(0, 4);
         lines.forEach((ln, li) => {
-          parts.push(`  <text x="${px + pw / 2}" y="${22 + li * 16}" text-anchor="middle" font-size="13.5" fill="#111111">${escapeXml(ln)}</text>`);
+          inner.push(`<text x="${px + pw / 2}" y="${23 + li * 18}" text-anchor="middle" font-size="15" fill="#0a0a0a">${escapeXml(ln)}</text>`);
         });
-        const tBot = 16 + lines.length * 16;
+        const tBot = 14 + lines.length * 18;
         if (tBot < hy - 4) {
-          parts.push('  ' + curvedLinePath(px + pw / 2, tBot, hx, hy - 4, idx === 0 ? -3 : 3));
+          inner.push(wobbledCurvePath(px + pw / 2, tBot, hx, hy, { width: 2.0, curveX: cx, seed: idx + 1.0 }));
+        }
+      }
+    });
+  } else if (sceneName === 'scene_debug_3panel') {
+    const anchors = [
+      [4, 220, 101, 110, -4.0],
+      [232, 220, 333, 148, -5.0],
+      [460, 220, 566, 92, 4.0],
+    ];
+    anchors.forEach(([px, pw, hx, hy, cx], idx) => {
+      if (turns[idx]) {
+        const lines = wrapTextPx(turns[idx].text, pw - 20, 15).slice(0, 4);
+        lines.forEach((ln, li) => {
+          inner.push(`<text x="${px + pw / 2}" y="${23 + li * 17}" text-anchor="middle" font-size="15" fill="#0a0a0a">${escapeXml(ln)}</text>`);
+        });
+        const tBot = 14 + lines.length * 17;
+        if (tBot < hy - 4) {
+          inner.push(wobbledCurvePath(px + pw / 2, tBot, hx, hy, { width: 2.0, curveX: cx, seed: idx + 1.3 }));
         }
       }
     });
   } else if (sceneName === 'scene_552_3panel') {
-    const cols = [[4, 146], [156, 146], [308, 146]];
-    cols.forEach(([px, pw], idx) => {
+    const pXs = [
+      [0, 158, 34, 87, 127],
+      [170, 134, 205, 258, 134],
+      [315, 144, 350, 402, 139],
+    ];
+    pXs.forEach(([px, pw, lx, rx, headY], idx) => {
       if (turns[idx]) {
-        const lines = wrapText(turns[idx].text, 19).slice(0, 4);
+        const tObj = turns[idx];
+        const lines = wrapTextPx(tObj.text, pw - 14, 14).slice(0, 4);
         lines.forEach((ln, li) => {
-          parts.push(`  <text x="${px + pw / 2}" y="${22 + li * 15}" text-anchor="middle" font-size="12.5" fill="#111111">${escapeXml(ln)}</text>`);
+          inner.push(`<text x="${px + pw / 2}" y="${21 + li * 16}" text-anchor="middle" font-size="14" fill="#0a0a0a">${escapeXml(ln)}</text>`);
         });
-        const tBot = 16 + lines.length * 15;
-        if (turns[idx].reply) {
-          parts.push('  ' + curvedLinePath(px + 36, tBot, px + 34, 130, -2));
-          const rLines = wrapText(turns[idx].reply, 15).slice(0, 2);
+        const tBot = 12 + lines.length * 16;
+        if (tObj.reply) {
+          inner.push(wobbledCurvePath(px + 34, tBot, lx, headY + 2, { width: 2.0, curveX: -3, seed: idx + 2.0 }));
+          const rLines = wrapTextPx(tObj.reply, pw - 42, 14).slice(0, 2);
           rLines.forEach((rln, ri) => {
-            parts.push(`  <text x="${px + 98}" y="${90 + ri * 14}" text-anchor="middle" font-size="12" fill="#111111">${escapeXml(rln)}</text>`);
+            inner.push(`<text x="${px + pw - 50}" y="${90 + ri * 15}" text-anchor="middle" font-size="14" fill="#0a0a0a">${escapeXml(rln)}</text>`);
           });
-          parts.push('  ' + curvedLinePath(px + 98, 86 + rLines.length * 14, px + 92, 128, 2));
+          const rBot = 82 + rLines.length * 15;
+          inner.push(wobbledCurvePath(px + pw - 48, rBot, rx, headY, { width: 2.0, curveX: 3, seed: idx + 4.0 }));
         } else {
-          parts.push('  ' + curvedLinePath(px + 88, tBot, px + 88, 128, 3));
+          const targetX = tObj.speaker === 'left' ? lx : rx;
+          inner.push(
+            wobbledCurvePath(
+              px + pw / 2 + (targetX === rx ? 8 : -8),
+              tBot,
+              targetX,
+              headY,
+              { width: 2.0, curveX: targetX === rx ? 4 : -4, seed: idx + 1.5 }
+            )
+          );
         }
       }
     });
   } else if (sceneName === 'scene_1513_4panel') {
-    const cols = [
-      [4, 168, 92, 138],
-      [180, 178, 246, 150],
-      [366, 180, 430, 150],
-      [554, 180, 680, 138],
+    const pCols = [
+      [0, 174, 93, 133, -4.0],
+      [181, 153, 247, 146, -4.0],
+      [342, 187, 431, 146, -4.0],
+      [537, 202, 669, 134, 5.0],
     ];
-    cols.forEach(([px, pw, hx, hy], idx) => {
+    pCols.forEach(([px, pw, hx, hy, cx], idx) => {
       if (turns[idx]) {
-        const lines = wrapText(turns[idx].text, 20).slice(0, 5);
+        const lines = wrapTextPx(turns[idx].text, pw - 16, 14).slice(0, 5);
         lines.forEach((ln, li) => {
-          parts.push(`  <text x="${px + pw / 2}" y="${22 + li * 15}" text-anchor="middle" font-size="12.5" fill="#111111">${escapeXml(ln)}</text>`);
+          inner.push(`<text x="${px + pw / 2}" y="${21 + li * 16}" text-anchor="middle" font-size="14" fill="#0a0a0a">${escapeXml(ln)}</text>`);
         });
-        const tBot = 16 + lines.length * 15;
+        const tBot = 12 + lines.length * 16;
         if (tBot < hy - 4) {
-          parts.push('  ' + curvedLinePath(px + pw / 2, tBot, hx, hy - 4, -3));
+          inner.push(wobbledCurvePath(px + pw / 2, tBot, hx, hy, { width: 2.0, curveX: cx, seed: idx + 2.1 }));
         }
       }
     });
   } else if (sceneName === 'scene_1597_team') {
-    const t0 = wrapText(turns[0]?.text || '', 32).slice(0, 3);
-    t0.forEach((ln, i) => parts.push(`  <text x="18" y="${28 + i * 18}" font-size="14" fill="#111111">${escapeXml(ln)}</text>`));
-    const t0Bot = 16 + t0.length * 18;
-    const t1 = wrapText(turns[1]?.text || '', 24).slice(0, 2);
-    t1.forEach((ln, i) => parts.push(`  <text x="134" y="${90 + i * 18}" font-size="14" fill="#111111">${escapeXml(ln)}</text>`));
+    const t0 = wrapTextPx(turns[0]?.text || '', 294, 15).slice(0, 3);
+    t0.forEach((ln, i) => {
+      inner.push(`<text x="16" y="${28 + i * 19}" font-size="15" fill="#0a0a0a">${escapeXml(ln)}</text>`);
+    });
+    const t0Bot = 16 + t0.length * 19;
+
+    const t1 = wrapTextPx(turns[1]?.text || '', 165, 15).slice(0, 2);
+    t1.forEach((ln, i) => {
+      inner.push(`<text x="238" y="${91 + i * 18}" text-anchor="middle" font-size="15" fill="#0a0a0a">${escapeXml(ln)}</text>`);
+    });
     const t1Bot = 78 + t1.length * 18;
-    const t2 = wrapText(turns[2]?.text || '', 32).slice(0, 4);
-    t2.forEach((ln, i) => parts.push(`  <text x="18" y="${134 + i * 18}" font-size="14" fill="#111111">${escapeXml(ln)}</text>`));
-    const t2Bot = 122 + t2.length * 18;
-    parts.push('  ' + curvedLinePath(92, t0Bot + 2, 90, 118, -2));
-    parts.push('  ' + curvedLinePath(96, t2Bot + 4, 114, 232, -5));
-    parts.push('  ' + curvedLinePath(256, t1Bot + 4, 218, 248, 10));
+
+    const t2Y0 = Math.max(122, t1Bot + 12);
+    const t2 = wrapTextPx(turns[2]?.text || '', 250, 15).slice(0, 4);
+    t2.forEach((ln, i) => {
+      inner.push(`<text x="16" y="${t2Y0 + 12 + i * 18}" font-size="15" fill="#0a0a0a">${escapeXml(ln)}</text>`);
+    });
+    const t2Bot = t2Y0 + t2.length * 18;
+
+    inner.push(wobbledCurvePath(94, t0Bot + 2, 92, t2Y0 - 5, { width: 2.0, curveX: -1.5, seed: 1.4 }));
+    inner.push(wobbledCurvePath(98, t2Bot + 3, 122, 223, { width: 2.0, curveX: -5.0, seed: 2.8 }));
+    inner.push(wobbledCurvePath(256, t1Bot + 4, 215, 242, { width: 2.0, curveX: 28.0, seed: 4.2 }));
   } else if (sceneName === 'scene_compiling') {
     const hdr = (spec.header || 'THE #1 PROGRAMMER EXCUSE:\n"MY CODE\'S COMPILING."').split('\n');
     hdr.forEach((ln, i) => {
-      parts.push(`  <text x="${sw / 2}" y="${28 + i * 26}" text-anchor="middle" font-size="18.5" fill="#111111">${escapeXml(ln)}</text>`);
+      const yPos = 31 + i * 24 + (i === 2 ? 10 : 0);
+      inner.push(`<text x="${sw / 2}" y="${yPos}" text-anchor="middle" font-size="20" fill="#0a0a0a">${escapeXml(ln)}</text>`);
     });
-    [[95, 162, 14], [172, 236, 14], [94, 314, 16]].forEach(([bx, by, w], idx) => {
+    [
+      [108, 158, 122],
+      [176, 232, 86],
+      [98, 316, 122],
+    ].forEach(([bx, by, maxW], idx) => {
       if (turns[idx]) {
-        const bl = wrapText(turns[idx].text, w).slice(0, 2);
-        const y0 = by - (bl.length - 1) * 10 + 5;
+        const bl = wrapTextPx(turns[idx].text, maxW, 16).slice(0, 2);
+        const y0 = by - (bl.length - 1) * 9 + 5;
         bl.forEach((ln, li) => {
-          parts.push(`  <text x="${bx}" y="${y0 + li * 20}" text-anchor="middle" font-size="16.5" fill="#111111">${escapeXml(ln)}</text>`);
+          inner.push(`<text x="${bx}" y="${y0 + li * 18}" text-anchor="middle" font-size="16" fill="#0a0a0a">${escapeXml(ln)}</text>`);
         });
       }
     });
   } else if (sceneName === 'scene_dependency') {
+    // Uses Randall Munroe's authentic curly brace (apex 133, 62) and curved arrow (tail 253, 384) preserved in scene_dependency.png
     (turns[0]?.text || 'ALL MODERN DIGITAL\nINFRASTRUCTURE').split('\n').forEach((ln, i) => {
-      parts.push(`  <text x="142" y="${30 + i * 24}" text-anchor="middle" font-size="19" fill="#111111">${escapeXml(ln)}</text>`);
+      inner.push(`<text x="134" y="${30 + i * 22}" text-anchor="middle" font-size="19" fill="#0a0a0a">${escapeXml(ln)}</text>`);
     });
-    parts.push('  ' + curvedLinePath(46, 86, 138, 72, -4));
-    parts.push('  ' + curvedLinePath(138, 72, 218, 86, 4));
     (turns[1]?.text || '').split('\n').forEach((ln, i) => {
-      parts.push(`  <text x="238" y="${264 + i * 21}" text-anchor="start" font-size="15.5" fill="#111111">${escapeXml(ln)}</text>`);
+      inner.push(`<text x="238" y="${274 + i * 19}" text-anchor="start" font-size="15" fill="#0a0a0a">${escapeXml(ln)}</text>`);
     });
   } else if (sceneName === 'scene_ml_pile') {
-    wrapText(turns[0]?.text || '', 44).forEach((ln, i) => parts.push(`  <text x="22" y="${30 + i * 18}" font-size="15" fill="#111111">${escapeXml(ln)}</text>`));
-    wrapText(turns[1]?.text || '', 36).forEach((ln, i) => parts.push(`  <text x="84" y="${60 + i * 18}" font-size="14" fill="#111111">${escapeXml(ln)}</text>`));
-    wrapText(turns[2]?.text || '', 38).forEach((ln, i) => parts.push(`  <text x="22" y="${134 + i * 18}" font-size="15" fill="#111111">${escapeXml(ln)}</text>`));
-    wrapText(turns[3]?.text || '', 30).forEach((ln, i) => parts.push(`  <text x="146" y="${170 + i * 18}" font-size="14" fill="#111111">${escapeXml(ln)}</text>`));
-    parts.push('  ' + curvedLinePath(54, 38, 52, 114, -4));
-    parts.push('  ' + curvedLinePath(56, 144, 56, 312, 12));
-    parts.push('  ' + curvedLinePath(290, 106, 286, 150, 3));
-    parts.push('  ' + curvedLinePath(260, 198, 222, 226, -4));
+    const t0 = wrapTextPx(turns[0]?.text || '', 325, 15);
+    t0.forEach((ln, i) => inner.push(`<text x="20" y="${30 + i * 18}" font-size="15" fill="#0a0a0a">${escapeXml(ln)}</text>`));
+    const t1 = wrapTextPx(turns[1]?.text || '', 270, 15);
+    t1.forEach((ln, i) => inner.push(`<text x="80" y="${60 + i * 18}" font-size="15" fill="#0a0a0a">${escapeXml(ln)}</text>`));
+    const t2 = wrapTextPx(turns[2]?.text || '', 270, 15);
+    t2.forEach((ln, i) => inner.push(`<text x="20" y="${130 + i * 18}" font-size="15" fill="#0a0a0a">${escapeXml(ln)}</text>`));
+    const t3 = wrapTextPx(turns[3]?.text || '', 210, 15);
+    t3.forEach((ln, i) => inner.push(`<text x="140" y="${166 + i * 18}" font-size="15" fill="#0a0a0a">${escapeXml(ln)}</text>`));
+
+    inner.push(wobbledCurvePath(52, 38, 50, 114, { width: 2.0, curveX: -5, seed: 1.1 }));
+    inner.push(wobbledCurvePath(54, 140, 48, 308, { width: 2.0, curveX: 14, seed: 2.2 }));
+    inner.push(wobbledCurvePath(276, 106, 272, 148, { width: 2.0, curveX: 4, seed: 3.3 }));
+    inner.push(wobbledCurvePath(256, 194, 218, 226, { width: 2.0, curveX: -4, curveY: 5, seed: 4.4 }));
+  } else if (sceneName === 'scene_desk') {
+    const t0 = wrapTextPx(turns[0]?.text || '', 240, 16).slice(0, 2);
+    t0.forEach((ln, i) => inner.push(`<text x="26" y="${31 + i * 19}" font-size="16" fill="#0a0a0a">${escapeXml(ln)}</text>`));
+    const t0Bot = 18 + t0.length * 19;
+
+    const t1 = wrapTextPx(turns[1]?.text || '', 165, 16).slice(0, 2);
+    t1.forEach((ln, i) => inner.push(`<text x="124" y="${65 + i * 19}" font-size="16" fill="#0a0a0a">${escapeXml(ln)}</text>`));
+    const t1Bot = 52 + t1.length * 19;
+
+    const t2 = wrapTextPx(turns[2]?.text || '', 120, 16).slice(0, 2);
+    t2.forEach((ln, i) => inner.push(`<text x="68" y="${109 + i * 19}" font-size="16" fill="#0a0a0a">${escapeXml(ln)}</text>`));
+    const t2Bot = 96 + t2.length * 19;
+
+    const t3 = wrapTextPx(turns[3]?.text || '', 160, 16).slice(0, 2);
+    t3.forEach((ln, i) => inner.push(`<text x="122" y="${137 + i * 19}" font-size="16" fill="#0a0a0a">${escapeXml(ln)}</text>`));
+    const t3Bot = 124 + t3.length * 19;
+
+    inner.push(wobbledCurvePath(98, t0Bot + 3, 90, 91, { width: 2.0, curveX: 5, seed: 1.2 }));
+    inner.push(wobbledCurvePath(76, t2Bot + 4, 16, 144, { width: 2.0, curveX: 10, curveY: 12, seed: 2.5 }));
+    inner.push(wobbledCurvePath(180, t1Bot + 3, 178, 120, { width: 2.0, curveX: 1.5, seed: 3.7 }));
+    inner.push(wobbledCurvePath(176, t3Bot + 3, 174, 178, { width: 2.0, curveX: -1.5, seed: 4.9 }));
   } else {
-    const t0 = wrapText(turns[0]?.text || '', 22).slice(0, 2);
-    t0.forEach((ln, i) => parts.push(`  <text x="24" y="${34 + i * 20}" font-size="16.5" fill="#111111">${escapeXml(ln)}</text>`));
-    const t1 = wrapText(turns[1]?.text || '', 16).slice(0, 2);
-    t1.forEach((ln, i) => parts.push(`  <text x="210" y="${62 + i * 20}" font-size="16.5" fill="#111111">${escapeXml(ln)}</text>`));
-    const t2 = wrapText(turns[2]?.text || '', 22).slice(0, 2);
-    t2.forEach((ln, i) => parts.push(`  <text x="24" y="${110 + i * 20}" font-size="16.5" fill="#111111">${escapeXml(ln)}</text>`));
-    const t3 = wrapText(turns[3]?.text || '', 16).slice(0, 2);
-    t3.forEach((ln, i) => parts.push(`  <text x="208" y="${148 + i * 20}" font-size="16.5" fill="#111111">${escapeXml(ln)}</text>`));
-    parts.push('  ' + curvedLinePath(84, 24 + t0.length * 20, 81, 92, -2));
-    parts.push('  ' + curvedLinePath(84, 100 + t2.length * 20, 91, 192, 2));
-    parts.push('  ' + curvedLinePath(244, 52 + t1.length * 20, 235, 128, 0));
-    parts.push('  ' + curvedLinePath(222, 138 + t3.length * 20, 214, 182, 0));
+    // Default: scene_armchair (#149 Sandwich, 360x299)
+    const t0 = wrapTextPx(turns[0]?.text || '', 210, 17).slice(0, 2);
+    t0.forEach((ln, i) => inner.push(`<text x="26" y="${36 + i * 20}" font-size="17" fill="#0a0a0a">${escapeXml(ln)}</text>`));
+    const t0Bot = 22 + t0.length * 20;
+
+    const t1 = wrapTextPx(turns[1]?.text || '', 134, 17).slice(0, 2);
+    t1.forEach((ln, i) => inner.push(`<text x="216" y="${66 + i * 20}" font-size="17" fill="#0a0a0a">${escapeXml(ln)}</text>`));
+    const t1Bot = 52 + t1.length * 20;
+
+    const t2 = wrapTextPx(turns[2]?.text || '', 165, 17).slice(0, 2);
+    t2.forEach((ln, i) => inner.push(`<text x="26" y="${114 + i * 20}" font-size="17" fill="#0a0a0a">${escapeXml(ln)}</text>`));
+    const t2Bot = 100 + t2.length * 20;
+
+    const t3 = wrapTextPx(turns[3]?.text || '', 130, 17).slice(0, 2);
+    t3.forEach((ln, i) => inner.push(`<text x="214" y="${150 + i * 20}" font-size="17" fill="#0a0a0a">${escapeXml(ln)}</text>`));
+    const t3Bot = 136 + t3.length * 20;
+
+    inner.push(wobbledCurvePath(86, t0Bot + 4, 84, 95, { width: 2.0, curveX: -2, seed: 1.1 }));
+    inner.push(wobbledCurvePath(88, t2Bot + 4, 94, 197, { width: 2.0, curveX: 2, seed: 2.2 }));
+    inner.push(wobbledCurvePath(248, t1Bot + 4, 238, 130, { width: 2.0, curveX: -1.5, seed: 3.3 }));
+    inner.push(wobbledCurvePath(226, t3Bot + 4, 215, 182, { width: 2.0, curveX: -1.5, seed: 4.4 }));
   }
 
-  parts.push(`</g>`);
+  return {
+    width: sw + pad * 2,
+    height: sh + pad * 2,
+    body: `<g transform="translate(${pad}, ${pad})">\n    ${inner.join('\n    ')}\n  </g>`,
+  };
+}
 
-  const ay = topBar + sh + 8;
-  const altLines = wrapText(`alt: "${spec.alt}"`, Math.max(44, Math.floor(cw / 6.8))).slice(0, 2);
-  parts.push(`<rect x="${padX}" y="${ay}" width="${cw - padX * 2}" height="40" rx="5" fill="#f7f6f0" stroke="#5a5a5a" stroke-width="1"/>`);
-  altLines.forEach((ln, i) => {
-    const yOff = ay + (altLines.length === 1 ? 24 : 17 + i * 15);
-    parts.push(`<text x="${cw / 2}" y="${yOff}" text-anchor="middle" font-size="12.5" fill="#333333">${escapeXml(ln)}</text>`);
-  });
+export function renderXkcdSVG(spec, optionsOrWidth, maybeHeight) {
+  let opts = {};
+  if (typeof optionsOrWidth === 'number') {
+    opts = { width: optionsOrWidth, height: maybeHeight };
+  } else if (optionsOrWidth && typeof optionsOrWidth === 'object') {
+    opts = optionsOrWidth;
+  }
 
-  parts.push(`</svg>`);
-  return parts.join('\n');
+  const wobblePx = spec.style?.wobble_amp_px ?? 1.65;
+  const strokePx = spec.style?.stroke_width_px ?? 2.05;
+  _activeWobbleScale = Math.max(0.7, Math.min(1.4, wobblePx / 1.65));
+  _activeStrokeScale = Math.max(0.8, Math.min(1.35, strokePx / 2.05));
+
+  const fontStack = `'xkcd-script', 'Humor Sans', 'Comic Sans MS', cursive, sans-serif`;
+  const turns = spec.turns || [];
+  let core;
+  try {
+    core = renderCoreElements(spec);
+  } finally {
+    _activeWobbleScale = 1.0;
+    _activeStrokeScale = 1.0;
+  }
+
+  let viewW = core.width;
+  let viewH = core.height;
+  let innerSvg = core.body;
+
+  if (opts.showChrome) {
+    const altLines = wrapTextPx(`Title text: "${spec.alt || ''}"`, Math.max(260, core.width - 16), 13);
+    const topH = 34;
+    const botH = 18 + altLines.length * 16;
+    viewW = core.width + 16;
+    viewH = core.height + topH + botH;
+    const altSvg = altLines
+      .map(
+        (ln, i) =>
+          `<text x="${viewW / 2}" y="${topH + core.height + 16 + i * 16}" text-anchor="middle" font-size="13" fill="#414141">${escapeXml(ln)}</text>`
+      )
+      .join('\n  ');
+    innerSvg = [
+      `<text x="${viewW / 2}" y="22" text-anchor="middle" font-size="21" fill="#0a0a0a">${escapeXml(spec.title)}</text>`,
+      `<g transform="translate(8, ${topH})">${core.body}</g>`,
+      altSvg,
+    ].join('\n  ');
+  }
+
+  const outW = opts.width || viewW;
+  const outH = opts.height || viewH;
+  const fullDialogue = turns.map(t => (t.reply ? `${t.text} ${t.reply}` : t.text)).join(' ');
+  const styleBlock = opts.embedFontCss ? `\n  <style>${opts.embedFontCss}</style>` : '';
+
+  return [
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${viewW} ${viewH}" width="${outW}" height="${outH}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${escapeXml(spec.title)} — ${escapeXml(spec.alt)}" font-family="${fontStack}" style="background:#ffffff">${styleBlock}`,
+    `  <title>${escapeXml(spec.alt)}</title>`,
+    `  <desc>${escapeXml(spec.title)} — ${escapeXml(fullDialogue)} — ${escapeXml(spec.alt)}</desc>`,
+    `  <rect width="${viewW}" height="${viewH}" fill="#ffffff"/>`,
+    `  ${innerSvg}`,
+    `</svg>`,
+  ].join('\n');
 }
 
 export default function xkcdArtist(prompt, options = {}) {
@@ -547,7 +971,8 @@ export default function xkcdArtist(prompt, options = {}) {
     clean.length === 0 ||
     clean.includes('\0') ||
     clean.toLowerCase().includes('404 not found empty prompt abstention') ||
-    clean.toLowerCase().includes('select * from comics where id = -99999');
+    clean.toLowerCase().includes('select * from comics where id = -99999') ||
+    clean.toLowerCase().includes('null undefined nan [[[');
 
   const pInvalid = isInvalid ? 0.9992 : 0.0006;
   const tpl = synthesizeNovelComic(isInvalid ? 'Invalid' : clean);
@@ -563,11 +988,12 @@ export default function xkcdArtist(prompt, options = {}) {
     turns: [t],
   }));
 
-  return {
+  const result = {
     prompt: clean,
     title: tpl.title,
     scene: tpl.scene,
     header: tpl.header || '',
+    chart_meta: tpl.chart_meta || null,
     turns,
     alt: tpl.alt,
     layout,
@@ -575,17 +1001,44 @@ export default function xkcdArtist(prompt, options = {}) {
     cast,
     panels: panelList,
     style: {
-      wobble_amp_px: 1.65,
-      stroke_width_px: 2.05,
+      wobble_amp_px: options.wobbleAmp || 1.65,
+      stroke_width_px: options.strokeWidth || 2.05,
       bubble_zone_ratio: 0.28,
       ink_contrast: 0.92,
     },
+    neural: options.neural || null,
     p_invalid: pInvalid,
     is_invalid: isInvalid,
     confidence: Number((1 - pInvalid).toFixed(4)),
-    tier: options.tier || 'onnx_int8_wasm',
-    toSVG() {
-      return renderXkcdSVG(this);
+    tier: options.tier || 'deterministic_fallback',
+    applyNeural(neuralOut) {
+      if (!neuralOut) return this;
+      this.neural = neuralOut;
+      if (!this.is_invalid) {
+        this.style = { ...this.style, ...neuralOut.style };
+        this.p_invalid = neuralOut.p_invalid;
+        this.confidence = Number((1 - neuralOut.p_invalid).toFixed(4));
+      }
+      this.tier = 'onnx_int8_wasm_live';
+      return this;
+    },
+    toSVG(optionsOrWidth, maybeHeight) {
+      return renderXkcdSVG(this, optionsOrWidth, maybeHeight);
     },
   };
+  return result;
+}
+
+/**
+ * Asynchronous neural comic synthesizer executing `gnumanth/xkcd-artist` (`model_quantized.onnx`)
+ * via WebAssembly SIMD (`onnxruntime-web`) before compositing the SVG comic.
+ */
+export async function xkcdArtistAsync(prompt, options = {}) {
+  const comic = xkcdArtist(prompt, options);
+  if (!comic.is_invalid) {
+    const enrichedPrompt = `turns_${comic.turns.length} ${comic.layout} ${comic.prop} ${comic.title} ${comic.prompt}`;
+    const neuralOut = await runOnnxPlanner(enrichedPrompt, comic.cast, options);
+    comic.applyNeural(neuralOut);
+  }
+  return comic;
 }
