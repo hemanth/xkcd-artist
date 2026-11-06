@@ -1,8 +1,8 @@
 {
   "$schema": "https://a2a-protocol.org/schemas/agent-card/v1.0.0.json",
   "schemaVersion": "1.0.0",
-  "name": "xkcd-artist Webcomic Synthesis Studio",
-  "description": "Synthesizes authentic monochrome XKCD multi-panel strips, annotated charts, and decision flowcharts using the gnumanth/xkcd-artist ONNX Int8 WebAssembly planner and xkcd-script hand-lettering.",
+  "name": "xkcd-artist — Monochrome Stick-Figure Comic Synthesis",
+  "description": "Monochrome stick-figure synthesis with crisp xkcd-script speech bubbles and hover alt-text using the gnumanth/xkcd-artist ONNX Int8 WebAssembly planner.",
   "url": "https://h3manth.com/fun/xkcd-artist/",
   "version": "0.1.0",
   "provider": {

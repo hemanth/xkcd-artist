@@ -1,8 +1,9 @@
-# xkcd-artist — Webcomic Synthesis Engine (Browser ONNX WASM + xkcd-script)
+# xkcd-artist — Monochrome Stick-Figure Comic Synthesis (ONNX WASM + xkcd-script)
 
-> Synthesize authentic monochrome Randall Munroe XKCD multi-panel comic strips, annotated charts, and decision flowcharts from any prompt in JavaScript, Python, and Browser WebAssembly ONNX (`gnumanth/xkcd-artist`).
+> Monochrome stick-figure synthesis with crisp xkcd-script speech bubbles and hover alt-text, powered in JavaScript, Python, and Browser WebAssembly ONNX (`gnumanth/xkcd-artist`).
 
 - Canonical Studio: https://h3manth.com/fun/xkcd-artist/
+- Architecture Blueprint: https://h3manth.com/fun/xkcd-artist/architecture.html
 - GitHub Pages Mirror: https://hemanth.github.io/xkcd-artist/
 - Hugging Face Model & LoRA: https://huggingface.co/gnumanth/xkcd-artist
 - Source Repository: https://github.com/hemanth/xkcd-artist

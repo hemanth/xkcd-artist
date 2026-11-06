@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>xkcd-artist — Webcomic Synthesis Studio</title>
+  <title>xkcd-artist — Monochrome Stick-Figure Comic Synthesis</title>
   <meta
     name="description"
-    content="Synthesize authentic monochrome XKCD multi-panel comic strips, annotated charts, and flowcharts in your browser with the gnumanth/xkcd-artist ONNX Int8 WASM planner and xkcd-script hand-lettering."
+    content="Monochrome stick-figure synthesis with crisp xkcd-script speech bubbles and hover alt-text, powered in-browser by the 1.72 MB gnumanth/xkcd-artist ONNX Int8 WASM planner."
   />
   <meta name="author" content="Hemanth HM" />
   <meta name="robots" content="index, follow" />
@@ -16,24 +16,24 @@
   <!-- Open Graph / Social -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="h3manth.com" />
-  <meta property="og:title" content="xkcd-artist — Webcomic Synthesis Studio" />
+  <meta property="og:title" content="xkcd-artist — Monochrome Stick-Figure Comic Synthesis" />
   <meta
     property="og:description"
-    content="Generate authentic monochrome XKCD multi-panel strips, annotated charts, and decision flowcharts powered in-browser by gnumanth/xkcd-artist (ONNX Int8 WASM) and xkcd-script."
+    content="Monochrome stick-figure synthesis with crisp xkcd-script speech bubbles and hover alt-text, powered in-browser by gnumanth/xkcd-artist (ONNX Int8 WASM)."
   />
   <meta property="og:url" content="https://h3manth.com/fun/xkcd-artist/" />
   <meta property="og:image" content="https://h3manth.com/fun/xkcd-artist/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="xkcd-artist — Authentic monochrome XKCD multi-panel comic studio" />
+  <meta property="og:image:alt" content="xkcd-artist — Monochrome stick-figure comic synthesis with crisp xkcd-script speech bubbles" />
 
   <!-- Twitter / X -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:creator" content="@GNUmanth" />
-  <meta name="twitter:title" content="xkcd-artist — Webcomic Synthesis Studio" />
+  <meta name="twitter:title" content="xkcd-artist — Monochrome Stick-Figure Comic Synthesis" />
   <meta
     name="twitter:description"
-    content="Generate authentic monochrome XKCD multi-panel strips, annotated charts, and decision flowcharts in-browser via ONNX Int8 WASM + xkcd-script."
+    content="Monochrome stick-figure synthesis with crisp xkcd-script speech bubbles and hover alt-text via in-browser ONNX Int8 WASM."
   />
   <meta name="twitter:image" content="https://h3manth.com/fun/xkcd-artist/og-image.png" />
 
@@ -53,12 +53,18 @@
     href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23ffffff' stroke='%23071419' stroke-width='2'/%3E%3Ccircle cx='16' cy='11' r='6' fill='none' stroke='%230a0a0a' stroke-width='2'/%3E%3Cpath d='M16 17v8M16 19l-5 5M16 19l5 5M16 25l-4 5M16 25l4 5' fill='none' stroke='%230a0a0a' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"
   />
   <link rel="preload" href="./fonts/xkcd-script.ttf" as="font" type="font/ttf" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
 
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "xkcd-artist — Webcomic Synthesis Studio",
+      "name": "xkcd-artist — Monochrome Stick-Figure Comic Synthesis",
       "url": "https://h3manth.com/fun/xkcd-artist/",
       "applicationCategory": "MultimediaApplication",
       "operatingSystem": "All",
@@ -67,7 +73,7 @@
         "name": "Hemanth HM",
         "url": "https://h3manth.com"
       },
-      "description": "Synthesize authentic monochrome XKCD multi-panel comic strips, annotated charts, and flowcharts in your browser using the gnumanth/xkcd-artist ONNX Int8 WebAssembly planner and xkcd-script hand-lettering.",
+      "description": "Monochrome stick-figure synthesis with crisp xkcd-script speech bubbles and hover alt-text using the gnumanth/xkcd-artist ONNX Int8 WebAssembly planner.",
       "isBasedOn": "https://huggingface.co/gnumanth/xkcd-artist"
     }
   </script>
@@ -108,7 +114,7 @@
 
     .xkcd-box {
       width: 100%;
-      max-width: 820px;
+      max-width: 880px;
       margin: 0 auto 12px;
       background: var(--xkcd-box);
       border: 1.5px solid var(--xkcd-border);
@@ -143,10 +149,29 @@
 
     .brand-slogan {
       margin: 0;
-      font-size: 14px;
-      font-style: italic;
+      font-size: 13.5px;
       font-variant: normal;
       color: var(--xkcd-muted);
+    }
+
+    .arch-jump {
+      font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      font-variant: normal;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #182C47;
+      text-decoration: none;
+      border: 1px solid #BFCBE0;
+      background: #EEF2F8;
+      border-radius: 4px;
+      padding: 3px 8px;
+      white-space: nowrap;
+    }
+
+    .arch-jump:hover {
+      background: #E2E9F3;
+      border-color: #8EA2C2;
     }
 
     .prompt-form {
@@ -347,6 +372,140 @@
       padding: 3px 10px;
     }
 
+    #howItWorksContainer {
+      padding: 24px 24px 22px;
+      text-align: left;
+      font-variant: normal;
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #071419;
+    }
+
+    .how-eyebrow {
+      margin: 0 0 8px;
+      font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #4A586E;
+    }
+
+    .how-title {
+      margin: 0 0 8px;
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: clamp(26px, 3.2vw, 34px);
+      font-weight: 400;
+      letter-spacing: -0.015em;
+      line-height: 1.12;
+      color: #071419;
+    }
+
+    .how-lead {
+      margin: 0 0 18px;
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: #3E4C5E;
+      max-width: 72ch;
+    }
+
+    .arch-diagram-wrap {
+      background: #F7F9FC;
+      border: 1px solid rgba(7, 20, 25, 0.12);
+      border-radius: 8px;
+      padding: 12px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .arch-diagram-wrap svg {
+      width: 100%;
+      min-width: 760px;
+      height: auto;
+      display: block;
+    }
+
+    .how-cards {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr 0.85fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .how-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(7, 20, 25, 0.14);
+      border-radius: 6px;
+      padding: 14px 16px;
+    }
+
+    .how-card-eyebrow {
+      margin: 0 0 6px;
+      font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #4A586E;
+    }
+
+    .how-card-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(7, 20, 25, 0.08);
+    }
+
+    .how-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .how-dot.ink { background: #071419; }
+    .how-dot.coral { background: #D95D2B; }
+    .how-dot.muted { background: #4A586E; }
+
+    .how-card h3 {
+      margin: 0;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #071419;
+    }
+
+    .how-card p,
+    .how-card ul {
+      margin: 0;
+      padding: 0;
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: #4A586E;
+      list-style: none;
+    }
+
+    .how-card li {
+      position: relative;
+      padding-left: 13px;
+      margin-bottom: 4px;
+    }
+
+    .how-card li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: rgba(7, 20, 25, 0.32);
+    }
+
+    @media (max-width: 780px) {
+      .how-cards {
+        grid-template-columns: 1fr;
+      }
+      #howItWorksContainer {
+        padding: 18px 14px;
+      }
+    }
+
     #bottomContainer {
       padding: 12px 18px;
       font-size: 13px;
@@ -405,7 +564,8 @@
   <header id="topContainer" class="xkcd-box">
     <div class="masthead">
       <h1 class="brand-title">xkcd-artist</h1>
-      <p class="brand-slogan">A webcomic synthesis engine of romance, sarcasm, math, and language.</p>
+      <p class="brand-slogan">Monochrome stick-figure synthesis with crisp xkcd-script speech bubbles and hover alt-text.</p>
+      <a href="#howItWorksContainer" class="arch-jump">How It Works ↓</a>
     </div>
 
     <form id="promptForm" class="prompt-form" autocomplete="off">
@@ -467,6 +627,203 @@
     </div>
   </main>
 
+  <section id="howItWorksContainer" class="xkcd-box" aria-labelledby="howItWorksHeading">
+    <p class="how-eyebrow">How It Works · Hybrid Neural + Vector Architecture</p>
+    <h2 id="howItWorksHeading" class="how-title">Decoupling stick-figure geometry from hand-lettering</h2>
+    <p class="how-lead">
+      End-to-end image diffusion models garble speech-bubble typography. <strong>xkcd-artist</strong> masks dialogue out of 226 XKCD panels during NVIDIA L4 training, executes a <code>1.72 MB</code> Int8 quantized 5-head ONNX planner directly in your browser via WebAssembly, and composites crisp <code>xkcd-script</code> vector paths, speaker leader lines, and hover title text.
+    </p>
+
+    <div class="arch-diagram-wrap">
+      <svg viewBox="0 0 1000 496" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="xkcd-arch-title xkcd-arch-desc">
+        <title id="xkcd-arch-title">xkcd-artist hybrid neural and vector synthesis architecture</title>
+        <desc id="xkcd-arch-desc">Architecture diagram showing offline masked XKCD training feeding the gnumanth/xkcd-artist model hub, which supplies Int8 ONNX weights to an in-browser WebAssembly planner and SVG ink compositor.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#4a586e"/>
+          </marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#d95d2b"/>
+          </marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#24549c"/>
+          </marker>
+        </defs>
+
+        <!-- Clean paper ground -->
+        <rect x="0" y="0" width="1000" height="496" fill="#f7f9fc"/>
+
+        <!-- Zone 1: Offline L4 Training & Hub -->
+        <rect x="200" y="12" width="400" height="108" rx="8"
+              fill="rgba(7,20,25,0.02)" stroke="rgba(7,20,25,0.12)" stroke-width="0.8"/>
+        <rect x="216" y="8" width="192" height="12" rx="4" fill="#f7f9fc"/>
+        <text x="312" y="16" fill="#64748b" font-size="8" font-family="'Geist Mono', monospace"
+              text-anchor="middle" letter-spacing="0.14em">OFFLINE L4 TRAINING &amp; HUB</text>
+
+        <!-- Zone 2: In-Browser WASM & Vector Engine -->
+        <rect x="200" y="168" width="608" height="244" rx="8"
+              fill="rgba(7,20,25,0.02)" stroke="rgba(7,20,25,0.12)" stroke-width="0.8"/>
+        <rect x="216" y="164" width="208" height="12" rx="4" fill="#f7f9fc"/>
+        <text x="320" y="172" fill="#64748b" font-size="8" font-family="'Geist Mono', monospace"
+              text-anchor="middle" letter-spacing="0.14em">IN-BROWSER WASM &amp; VECTOR ENGINE</text>
+
+        <!-- Arrows first (behind boxes) -->
+        <line x1="360" y1="72" x2="424" y2="72" stroke="#4a586e" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+        <line x1="504" y1="104" x2="504" y2="208" stroke="#24549c" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow-link)"/>
+        <line x1="152" y1="240" x2="216" y2="240" stroke="#4a586e" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="360" y1="240" x2="424" y2="240" stroke="#d95d2b" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+        <line x1="584" y1="240" x2="648" y2="240" stroke="#d95d2b" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+        <line x1="720" y1="332" x2="720" y2="272" stroke="#4a586e" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="792" y1="240" x2="848" y2="240" stroke="#4a586e" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <!-- Arrow Labels (opaque paper mask + 8px gap from connector) -->
+        <rect x="364" y="52" width="56" height="12" rx="4" fill="#f7f9fc"/>
+        <text x="392" y="60" fill="#4a586e" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">L4 TRAIN</text>
+
+        <rect x="512" y="136" width="80" height="12" rx="4" fill="#f7f9fc"/>
+        <text x="552" y="144" fill="#24549c" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">INT8 WEIGHTS</text>
+
+        <rect x="156" y="220" width="56" height="12" rx="4" fill="#f7f9fc"/>
+        <text x="184" y="228" fill="#4a586e" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PROMPT</text>
+
+        <rect x="364" y="220" width="56" height="12" rx="4" fill="#f7f9fc"/>
+        <text x="392" y="228" fill="#d95d2b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">TENSORS</text>
+
+        <rect x="588" y="220" width="56" height="12" rx="4" fill="#f7f9fc"/>
+        <text x="616" y="228" fill="#d95d2b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">5 HEADS</text>
+
+        <rect x="728" y="296" width="72" height="12" rx="4" fill="#f7f9fc"/>
+        <text x="764" y="304" fill="#4a586e" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PROPS + TTF</text>
+
+        <rect x="796" y="220" width="48" height="12" rx="4" fill="#f7f9fc"/>
+        <text x="820" y="228" fill="#4a586e" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">VECTOR</text>
+
+        <!-- Node 6 (Store): Masked Corpus -->
+        <rect x="216" y="40" width="144" height="64" rx="8" fill="#f7f9fc"/>
+        <rect x="216" y="40" width="144" height="64" rx="8" fill="rgba(7,20,25,0.05)" stroke="#4a586e" stroke-width="1"/>
+        <rect x="224" y="48" width="40" height="12" rx="4" fill="transparent" stroke="rgba(74,88,110,0.45)" stroke-width="0.8"/>
+        <text x="244" y="56" fill="#4a586e" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">DATA</text>
+        <text x="288" y="76" fill="#071419" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Masked Corpus</text>
+        <text x="288" y="92" fill="#4a586e" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">226 PNGs · 891 scripts</text>
+
+        <!-- Node 7 (External): gnumanth/xkcd-artist -->
+        <rect x="424" y="40" width="160" height="64" rx="8" fill="#f7f9fc"/>
+        <rect x="424" y="40" width="160" height="64" rx="8" fill="rgba(7,20,25,0.03)" stroke="rgba(7,20,25,0.30)" stroke-width="1"/>
+        <rect x="432" y="48" width="32" height="12" rx="4" fill="transparent" stroke="rgba(7,20,25,0.30)" stroke-width="0.8"/>
+        <text x="448" y="56" fill="#64748b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HUB</text>
+        <text x="504" y="76" fill="#071419" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">gnumanth/xkcd-artist</text>
+        <text x="504" y="92" fill="#4a586e" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">HF · SD LoRA + ONNX</text>
+
+        <!-- Node 1 (Input): Prompt / WebMCP -->
+        <rect x="24" y="208" width="128" height="64" rx="8" fill="#f7f9fc"/>
+        <rect x="24" y="208" width="128" height="64" rx="8" fill="rgba(74,88,110,0.10)" stroke="#64748b" stroke-width="1"/>
+        <rect x="32" y="216" width="32" height="12" rx="4" fill="transparent" stroke="rgba(100,116,139,0.45)" stroke-width="0.8"/>
+        <text x="48" y="224" fill="#64748b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">USER</text>
+        <text x="88" y="244" fill="#071419" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Prompt / WebMCP</text>
+        <text x="88" y="260" fill="#4a586e" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">?q= · modelContext</text>
+
+        <!-- Node 2 (Backend): MD5 Tokenizer -->
+        <rect x="216" y="208" width="144" height="64" rx="8" fill="#f7f9fc"/>
+        <rect x="216" y="208" width="144" height="64" rx="8" fill="#ffffff" stroke="#071419" stroke-width="1"/>
+        <rect x="224" y="216" width="32" height="12" rx="4" fill="transparent" stroke="rgba(7,20,25,0.40)" stroke-width="0.8"/>
+        <text x="240" y="224" fill="#071419" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">TOK</text>
+        <text x="288" y="244" fill="#071419" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">MD5 Tokenizer</text>
+        <text x="288" y="260" fill="#4a586e" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">int64[1,36] · cast[1,2]</text>
+
+        <!-- Node 3 (Focal): ONNX Int8 Planner -->
+        <rect x="424" y="208" width="160" height="64" rx="8" fill="#f7f9fc"/>
+        <rect x="424" y="208" width="160" height="64" rx="8" fill="rgba(217,93,43,0.08)" stroke="#d95d2b" stroke-width="1.2"/>
+        <rect x="432" y="216" width="40" height="12" rx="4" fill="transparent" stroke="rgba(217,93,43,0.55)" stroke-width="0.8"/>
+        <text x="452" y="224" fill="#d95d2b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">WASM</text>
+        <text x="504" y="244" fill="#071419" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">ONNX Int8 Planner</text>
+        <text x="504" y="260" fill="#4a586e" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">1.72 MB · 5 heads · 5.5ms</text>
+
+        <!-- Node 4 (Backend): SVG Compositor -->
+        <rect x="648" y="208" width="144" height="64" rx="8" fill="#f7f9fc"/>
+        <rect x="648" y="208" width="144" height="64" rx="8" fill="#ffffff" stroke="#071419" stroke-width="1"/>
+        <rect x="656" y="216" width="32" height="12" rx="4" fill="transparent" stroke="rgba(7,20,25,0.40)" stroke-width="0.8"/>
+        <text x="672" y="224" fill="#071419" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">INK</text>
+        <text x="720" y="244" fill="#071419" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">SVG Compositor</text>
+        <text x="720" y="260" fill="#4a586e" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">4x wobble · leaders</text>
+
+        <!-- Node 5 (Store): Stage & Font Pack -->
+        <rect x="648" y="332" width="144" height="64" rx="8" fill="#f7f9fc"/>
+        <rect x="648" y="332" width="144" height="64" rx="8" fill="rgba(7,20,25,0.05)" stroke="#4a586e" stroke-width="1"/>
+        <rect x="656" y="340" width="40" height="12" rx="4" fill="transparent" stroke="rgba(74,88,110,0.45)" stroke-width="0.8"/>
+        <text x="676" y="348" fill="#4a586e" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">ASSET</text>
+        <text x="720" y="368" fill="#071419" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Stage &amp; Font Pack</text>
+        <text x="720" y="384" fill="#4a586e" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">11 props · xkcd-script</text>
+
+        <!-- Node 8 (Backend / Output): XKCD Strip -->
+        <rect x="848" y="208" width="128" height="64" rx="8" fill="#f7f9fc"/>
+        <rect x="848" y="208" width="128" height="64" rx="8" fill="#ffffff" stroke="#071419" stroke-width="1"/>
+        <rect x="856" y="216" width="32" height="12" rx="4" fill="transparent" stroke="rgba(7,20,25,0.40)" stroke-width="0.8"/>
+        <text x="872" y="224" fill="#071419" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">OUT</text>
+        <text x="912" y="244" fill="#071419" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">XKCD Strip</text>
+        <text x="912" y="260" fill="#4a586e" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">SVG · 2x PNG · alt</text>
+
+        <!-- Legend strip -->
+        <line x1="24" y1="436" x2="976" y2="436" stroke="rgba(7,20,25,0.12)" stroke-width="0.8"/>
+        <text x="24" y="452" fill="#4a586e" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.16em">LEGEND</text>
+
+        <rect x="24" y="464" width="16" height="12" rx="4" fill="rgba(217,93,43,0.08)" stroke="#d95d2b" stroke-width="1"/>
+        <text x="48" y="472" fill="#4a586e" font-size="8" font-family="'Geist', sans-serif">Focal planner</text>
+
+        <rect x="140" y="464" width="16" height="12" rx="4" fill="#ffffff" stroke="#071419" stroke-width="1"/>
+        <text x="164" y="472" fill="#4a586e" font-size="8" font-family="'Geist', sans-serif">Engine step</text>
+
+        <rect x="252" y="464" width="16" height="12" rx="4" fill="rgba(7,20,25,0.05)" stroke="#4a586e" stroke-width="1"/>
+        <text x="276" y="472" fill="#4a586e" font-size="8" font-family="'Geist', sans-serif">Corpus / assets</text>
+
+        <rect x="380" y="464" width="16" height="12" rx="4" fill="rgba(7,20,25,0.03)" stroke="rgba(7,20,25,0.30)" stroke-width="1"/>
+        <text x="404" y="472" fill="#4a586e" font-size="8" font-family="'Geist', sans-serif">Model hub</text>
+
+        <rect x="488" y="464" width="16" height="12" rx="4" fill="rgba(74,88,110,0.10)" stroke="#64748b" stroke-width="1"/>
+        <text x="512" y="472" fill="#4a586e" font-size="8" font-family="'Geist', sans-serif">User / agent</text>
+
+        <line x1="604" y1="472" x2="632" y2="472" stroke="#d95d2b" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+        <text x="640" y="472" fill="#4a586e" font-size="8" font-family="'Geist', sans-serif">Neural path</text>
+
+        <line x1="728" y1="472" x2="756" y2="472" stroke="#24549c" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow-link)"/>
+        <text x="764" y="472" fill="#4a586e" font-size="8" font-family="'Geist', sans-serif">Hub weights</text>
+
+        <line x1="856" y1="472" x2="884" y2="472" stroke="#4a586e" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <text x="892" y="472" fill="#4a586e" font-size="8" font-family="'Geist', sans-serif">Sync / build</text>
+      </svg>
+    </div>
+
+    <div class="how-cards">
+      <div class="how-card">
+        <p class="how-card-eyebrow">01 · Speech-Bubble-Masked Training</p>
+        <div class="how-card-head">
+          <span class="how-dot ink"></span>
+          <h3>Zero diffusion text gibberish</h3>
+        </div>
+        <p>Dialogue in the top 36% of 226 XKCD panels is masked out before NVIDIA L4 fine-tuning alongside 891 ExplainXKCD scripts, isolating pure stick-figure and stage-prop ink geometry.</p>
+      </div>
+      <div class="how-card">
+        <p class="how-card-eyebrow">02 · In-Browser ONNX WASM</p>
+        <div class="how-card-head">
+          <span class="how-dot coral"></span>
+          <h3>5 neural heads in ~5.5 ms</h3>
+        </div>
+        <ul>
+          <li>Layout family (1–4 panels, chart, flowchart)</li>
+          <li>Stage prop &amp; 12-DOF stick kinematics</li>
+          <li>Pen wobble, stroke weight &amp; abstention</li>
+        </ul>
+      </div>
+      <div class="how-card">
+        <p class="how-card-eyebrow">03 · Vector Compositor</p>
+        <div class="how-card-head">
+          <span class="how-dot muted"></span>
+          <h3>Crisp xkcd-script &amp; hover alt</h3>
+        </div>
+        <p>4x hand-wobbled #0A0A0A pen paths, head-crown leader lines, CC-licensed xkcd-script lettering, and Randall-style hover title text render at infinite SVG resolution.</p>
+      </div>
+    </div>
+  </section>
+
   <footer id="bottomContainer" class="xkcd-box">
     <div>
       Permanent link to this prompt: <code id="permalinkCode">https://h3manth.com/fun/xkcd-artist/</code>
@@ -475,7 +832,7 @@
       SDK: <code>npm install xkcd-artist</code> · <code>pip install xkcd-artist</code> ·
       Model: <a href="https://huggingface.co/gnumanth/xkcd-artist" target="_blank" rel="noopener">gnumanth/xkcd-artist</a> ·
       Font: <a href="https://github.com/ipython/xkcd-font" target="_blank" rel="noopener">xkcd-script</a> (CC BY-NC 2.5) ·
-      Specs: <a href="./llms.txt">llms.txt</a> · <a href="./agent-card.json">agent-card.json</a>
+      Specs: <a href="./architecture.html">Blueprint</a> · <a href="./llms.txt">llms.txt</a> · <a href="./agent-card.json">agent-card.json</a>
     </div>
   </footer>
 
