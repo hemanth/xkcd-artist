@@ -35,11 +35,11 @@ Standard image diffusion models hallucinate garbled, illegible characters inside
 import xkcdArtist, { xkcdArtistAsync } from 'xkcd-artist';
 
 // Synchronous deterministic synthesis (< 0.5 ms)
-const fastComic = xkcdArtist('Reviewing a 4200 line pull request in TypeScript');
+const fastComic = xkcdArtist('Flashing a 1.7MB WebAssembly neural model onto a smart toaster');
 const svg = fastComic.toSVG();
 
 // Live ONNX Int8 WASM neural synthesis (< 1.5 ms warm)
-const neuralComic = await xkcdArtistAsync('Flowchart for deciding whether to touch legacy DNS');
+const neuralComic = await xkcdArtistAsync('My MCP calendar agent and inbox triage agent scheduling infinite meetings');
 console.log(neuralComic.style, neuralComic.neural);
 ```
 
@@ -47,13 +47,13 @@ console.log(neuralComic.style, neuralComic.neural);
 ```python
 from xkcd_artist import xkcd_artist
 
-comic = xkcd_artist("Why my Docker container image is 18GB", backend="onnx")
-comic.to_png("docker_comic.png")
+comic = xkcd_artist("Annotated quantization curve from FP32 down to 0.5 bits per weight", backend="onnx")
+comic.to_png("quantization_cliff.png")
 ```
 
 ## 5. WebMCP Tool Definitions (`navigator.modelContext`)
 
-1. `synthesize_xkcd_comic({ prompt: string })`: Synthesizes and renders a new comic strip, chart, or flowchart and returns full structured metadata + neural telemetry.
-2. `list_xkcd_presets({ layout?: string })`: Lists all curated novel & classic XKCD presets and supported enums.
+1. `synthesize_xkcd_comic({ prompt: string })`: Synthesizes and renders a brand-new procedural monochrome comic strip, chart, or flowchart and returns full structured metadata + neural telemetry.
+2. `list_xkcd_presets({ layout?: string })`: Lists all 12 original non-XKCD synthesis presets and supported layout/cast/prop enums.
 3. `get_xkcd_model_telemetry()`: Returns active `gnumanth/xkcd-artist` WASM ONNX session status, style vector, and confidence.
 4. `export_xkcd_svg({ embedFont?: boolean })`: Returns standalone SVG markup with optional base64-embedded `xkcd-script.ttf`.

@@ -573,8 +573,8 @@
         id="promptInput"
         type="text"
         aria-label="Comic synthesis prompt"
-        value="Why my Docker container image is 18GB"
-        placeholder="Describe any engineering scenario, chart, or flowchart..."
+        value="Running a quantized neural network inside a smart toaster via WebAssembly"
+        placeholder="Type any new idea, science problem, chart, or flowchart..."
       />
       <button id="renderBtn" type="submit" class="xkcd-btn">Synthesize</button>
     </form>
@@ -583,7 +583,7 @@
   </header>
 
   <main id="middleContainer" class="xkcd-box">
-    <h2 id="ctitle">DOCKER CONTAINER</h2>
+    <h2 id="ctitle">WASM TOASTER</h2>
 
     <ul class="comicNav" aria-label="Comic navigation top">
       <li><button type="button" class="xkcd-btn" data-nav="first" aria-label="First comic">|&lt;</button></li>
@@ -604,7 +604,7 @@
     </ul>
 
     <div id="altReadout" class="alt-readout">
-      <strong>Title text: </strong>If you run docker system prune, the docker cluster achieves negative mass and floats out of the rack.
+      <strong>Title text: </strong>If Wi-Fi drops mid-bagel, the firmware falls back to deterministic carbonization.
     </div>
 
     <div class="meta-bar">
@@ -837,33 +837,31 @@
   </footer>
 
   <script type="module">
-    import xkcdArtist, { loadOnnxPlanner, runOnnxPlanner } from './src/index.js';
-    import { registerXkcdAgentCapabilities } from './src/agent_ready.js';
+    import xkcdArtist, { loadOnnxPlanner, runOnnxPlanner } from './src/index.js?v=2';
+    import { registerXkcdAgentCapabilities } from './src/agent_ready.js?v=2';
 
     const DECK = [
-      { label: '18GB Docker', prompt: 'Why my Docker container image is 18GB', layout: 'three_panel' },
-      { label: '4,200-Line PR', prompt: 'Reviewing a 4200 line pull request in TypeScript', layout: 'four_panel' },
-      { label: 'AI Agents', prompt: 'Autonomous AI agents automating my workflow', layout: 'three_panel' },
-      { label: 'Friday 5PM', prompt: 'Deploying a config tweak on Friday at 5pm', layout: 'two_panel' },
-      { label: 'Git Rebase', prompt: 'Git rebase before release', layout: 'single_panel' },
-      { label: 'Webpack Chart', prompt: 'Annotated chart of time spent tuning webpack config', layout: 'annotated_chart' },
-      { label: 'DNS Flowchart', prompt: 'Flowchart for deciding whether to touch legacy DNS', layout: 'flowchart_diagram' },
-      { label: '#149 Sandwich', prompt: 'Sudo make me a sandwich', layout: 'single_panel' },
-      { label: '#303 Compiling', prompt: 'Compiling code sword fight', layout: 'single_panel' },
-      { label: '#927 Standards', prompt: '14 competing standards', layout: 'three_panel' },
-      { label: '#1838 ML Pile', prompt: 'Machine learning pile of linear algebra', layout: 'single_panel' },
-      { label: '#2347 Dependency', prompt: 'Modern digital infrastructure maintained in Nebraska', layout: 'single_panel' },
-      { label: '#386 Duty Calls', prompt: 'Someone is wrong on the internet', layout: 'single_panel' },
+      { label: 'WASM Toaster', prompt: 'Running a quantized neural network inside a smart toaster via WebAssembly', layout: 'three_panel' },
+      { label: 'MCP Calendar Loop', prompt: 'Giving two browser MCP agents write access to my calendar and inbox', layout: 'four_panel' },
+      { label: 'KV Cache Rent', prompt: 'Calculating H100 VRAM rent per square millimeter for a 2M token KV cache', layout: 'two_panel' },
+      { label: 'Quantization Cliff', prompt: 'Quantization curve from FP32 down to 0.5 bits per weight', layout: 'annotated_chart' },
+      { label: 'Local WASM Flowchart', prompt: 'Flowchart for deciding whether a model belongs in browser WebAssembly', layout: 'flowchart_diagram' },
+      { label: 'Vibe Audit', prompt: 'Security auditing a production SaaS app vibe-coded in fourteen minutes', layout: 'three_panel' },
+      { label: 'Mars Tzdata', prompt: 'Adding Mars Sol time UTC+24h39m35s to POSIX tzdata', layout: 'single_panel' },
+      { label: 'CRISPR Sourdough', prompt: 'Bio-engineering a sourdough starter that ferments in O(log n) time', layout: 'three_panel' },
+      { label: 'USB-C Roulette', prompt: 'Bimodal capability chart of identical matte black USB-C cables in my desk drawer', layout: 'annotated_chart' },
+      { label: 'Hallucinated RFC', prompt: 'Three cloud vendors implementing an IETF RFC number an LLM made up', layout: 'two_panel' },
+      { label: 'LiDAR Cat Tectonics', prompt: 'Robot vacuum LiDAR SLAM map classifying a sleeping cat as a moving tectonic plate', layout: 'single_panel' },
+      { label: 'GPU Thermostat', prompt: 'Thermostat flowchart for heating an apartment with local LoRA fine-tuning', layout: 'flowchart_diagram' },
     ];
 
     const EXTRA_RANDOM_PROMPTS = [
-      'Debugging a stale Redis cache outage at 3am',
-      'Modeling quantum espresso thermodynamics from first principles',
-      'Zero dependency billing architecture written in Bash',
-      'Fitting a polynomial benchmark curve to three data points',
-      'Flowchart for deciding whether to clear Kubernetes cache',
-      'Automating coffee brewing with a six hour Rust script',
-      'Correlation chart between YAML indentation and despair',
+      'Isolating acoustic espresso turbulence inside a Faraday cage',
+      'Modeling sourdough hydration from relativistic first principles',
+      'Replacing twelve enterprise SaaS microservices with one static HTML file',
+      'Benchmarking zero-knowledge proofs on a solar calculator',
+      'Flowchart for deciding whether to rewrite a shell script in Zig',
+      'Chart of acoustic mechanical keyboard decibels vs coworker proximity',
     ];
 
     const input = document.getElementById('promptInput');

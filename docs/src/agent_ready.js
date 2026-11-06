@@ -99,7 +99,7 @@ export function registerXkcdAgentCapabilities({
           properties: {
             prompt: {
               type: 'string',
-              description: 'Scenario, chart, or flowchart prompt (e.g. "Why my Docker container image is 18GB" or "Flowchart for deciding whether to touch legacy DNS").',
+              description: 'Scenario, chart, or flowchart prompt (e.g. "Flashing a 1.7MB WebAssembly neural model onto a smart toaster" or "Annotated quantization curve from FP32 down to 0.5 bits per weight").',
             },
           },
           required: ['prompt'],

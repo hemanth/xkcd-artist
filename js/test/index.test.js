@@ -129,6 +129,48 @@ test('js/src/index.js and docs/src/index.js stay byte-for-byte identical', () =>
   const pkgOnnx = fs.readFileSync(path.join(ROOT, 'js', 'src', 'onnx_planner.js'), 'utf8');
   const docsOnnx = fs.readFileSync(path.join(ROOT, 'docs', 'src', 'onnx_planner.js'), 'utf8');
   assert.equal(pkgOnnx, docsOnnx);
+
+  const pkgKin = fs.readFileSync(path.join(ROOT, 'js', 'src', 'kinematic_renderer.js'), 'utf8');
+  const docsKin = fs.readFileSync(path.join(ROOT, 'docs', 'src', 'kinematic_renderer.js'), 'utf8');
+  assert.equal(pkgKin, docsKin);
+});
+
+test('synthesizes 12 brand-new non-XKCD original comics as 100% pure procedural SVG modulated by ONNX 12-DOF poses', () => {
+  const uniquePrompts = [
+    ['Running a quantized neural network inside a smart toaster via WebAssembly', 'three_panel'],
+    ['Giving two browser MCP agents write access to my calendar and inbox', 'four_panel'],
+    ['Calculating H100 VRAM rent per square millimeter for a 2M token KV cache', 'two_panel'],
+    ['Quantization curve from FP32 down to 0.5 bits per weight', 'annotated_chart'],
+    ['Flowchart for deciding whether a model belongs in browser WebAssembly', 'flowchart_diagram'],
+    ['Security auditing a production SaaS app vibe-coded in fourteen minutes', 'three_panel'],
+    ['Adding Mars Sol time UTC+24h39m35s to POSIX tzdata', 'single_panel'],
+    ['Bio-engineering a sourdough starter that ferments in O(log n) time', 'three_panel'],
+    ['Bimodal capability chart of identical matte black USB-C cables in my desk drawer', 'annotated_chart'],
+    ['Three cloud vendors implementing an IETF RFC number an LLM made up', 'two_panel'],
+    ['Robot vacuum LiDAR SLAM map classifying a sleeping cat as a moving tectonic plate', 'single_panel'],
+    ['Thermostat flowchart for heating an apartment with local LoRA fine-tuning', 'flowchart_diagram'],
+  ];
+
+  for (const [prompt, expectedLayout] of uniquePrompts) {
+    const comic = xkcdArtist(prompt);
+    assert.equal(comic.scene, 'kinematic');
+    assert.equal(comic.layout, expectedLayout);
+    const svg = comic.toSVG();
+    assertValidXkcdSvg(svg, ['<path']);
+    assert.ok(!svg.includes('<image '), `Novel comic "${prompt}" must be 100% pure vector SVG with zero raster <image> crops`);
+  }
+
+  const base = xkcdArtist('Running a quantized neural network inside a smart toaster via WebAssembly');
+  const svgA = base.toSVG();
+  base.applyNeural({
+    model_id: 'gnumanth/xkcd-artist',
+    latency_ms: 0.52,
+    style: { wobble_amp_px: 1.92, stroke_width_px: 2.18, bubble_zone_ratio: 0.28, ink_contrast: 0.92 },
+    poses_12dof: [0.28, 0.85, 0.32, -0.4, 0.75, 1.0, 0.72, 0.85, -0.28, 0.5, -0.65, 1.0],
+    p_invalid: 0.0002,
+  });
+  const svgB = base.toSVG();
+  assert.notEqual(svgA, svgB, 'ONNX 12-DOF pose vector + style_vec must dynamically modulate stick-figure SVG geometry');
 });
 
 test('encodePromptTokens matches Python MD5 vocabulary encoding and applyNeural modulates SVG ink', () => {

@@ -3,6 +3,7 @@
  * Pure monochrome Randall Munroe stage art + organic hand-wobbled SVG pen strokes + `xkcd-script` lettering.
  */
 import { SCENES_META } from './scenes_data.js';
+import { renderKinematicComic } from './kinematic_renderer.js';
 import {
   encodePromptTokens,
   HF_MODEL_REPO,
@@ -314,18 +315,250 @@ function extractPromptKeywords(promptText) {
   const genericNouns = new Set([
     'pull', 'request', 'pr', 'container', 'image', 'code', 'script',
     'workflow', 'release', 'before', 'legacy', 'modern', 'custom', 'simple',
+    'training', 'neural', 'agent', 'agents', 'model', 'models', 'fold', 'folding', 'teach', 'teaching',
   ]);
   const specific = filtered.filter(w => !genericNouns.has(w.toLowerCase()));
+  const chosen = specific.length ? specific : filtered;
 
-  const title = filtered.slice(0, 2).join(' ').toUpperCase().slice(0, 26);
-  const subject = (specific.length ? specific : filtered).slice(0, 2).join(' ').toUpperCase().slice(0, 22);
-  const focus = (specific[0] || filtered[0]).toUpperCase();
-  const second = (specific[1] || filtered[1] || 'PRODUCTION').toUpperCase();
+  const title = chosen.slice(0, 2).join(' ').toUpperCase().slice(0, 26);
+  const subject = chosen.slice(0, 2).join(' ').toUpperCase().slice(0, 22);
+  const focus = (chosen[chosen.length > 1 ? 1 : 0] || filtered[0]).toUpperCase();
+  const second = (chosen[0] || filtered[1] || 'PRODUCTION').toUpperCase();
   return { title, subject, focus, second };
 }
 
+const ORIGINAL_SYNTHESIS_BANK = [
+  {
+    match: ['toaster', 'bread-browning', 'smart appliance'],
+    title: 'WASM TOASTER',
+    scene: 'kinematic',
+    layout: 'three_panel',
+    prop: 'laptop_desk',
+    cast: ['cueball', 'black_hat'],
+    poses: [
+      ['typing', 'arms_crossed'],
+      ['conversing', 'pointing'],
+      ['shrug', 'arms_crossed'],
+    ],
+    turns: [
+      { speaker: 'left', text: "I FLASHED A 1.7MB INT8 MODEL ONTO MY TOASTER'S WEBASSEMBLY RUNTIME." },
+      { speaker: 'right', text: 'WHY DOES YOUR APPLIANCE NEED ZERO-LATENCY EDGE INFERENCE?' },
+      { speaker: 'left', text: 'THE CLOUD BREAD-BROWNING API HAD 420MS JITTER AND CHARGED PER CRUMB.' },
+    ],
+    alt: 'If Wi-Fi drops mid-bagel, the firmware falls back to deterministic carbonization.',
+  },
+  {
+    match: ['mcp', 'calendar', 'inbox'],
+    title: 'MCP CALENDAR LOOP',
+    scene: 'kinematic',
+    layout: 'four_panel',
+    prop: 'server_rack',
+    cast: ['ponytail', 'cueball'],
+    poses: [
+      ['pointing', 'chin_think'],
+      ['conversing', 'pointing'],
+      ['shrug', 'chin_think'],
+      ['conversing', 'hands_on_head'],
+    ],
+    turns: [
+      { speaker: 'left', text: 'I WIRED AN MCP CALENDAR AGENT TO NEGOTIATE MY MEETING SLOTS.' },
+      { speaker: 'right', text: 'WHO IS IT CURRENTLY SCHEDULING FOURTEEN 1-ON-1S WITH?' },
+      { speaker: 'left', text: "MY INBOX TRIAGE AGENT. THEY'RE DISPUTING EACH OTHER'S RATE LIMITS." },
+      { speaker: 'right', text: 'WHO IS WINNING?', reply: 'THEY HIRED AN ARBITRATOR.' },
+    ],
+    alt: "Both agents marked my actual job as 'optional attendee' to free up token budget.",
+  },
+  {
+    match: ['kv cache', 'h100', 'vram rent', '2m token'],
+    title: 'KV CACHE RENT',
+    scene: 'kinematic',
+    layout: 'two_panel',
+    prop: 'whiteboard',
+    cast: ['megan', 'cueball'],
+    poses: [
+      ['pointing', 'chin_think'],
+      ['arms_crossed', 'hands_on_head'],
+    ],
+    turns: [
+      { speaker: 'left', text: 'KEEPING OUR 2-MILLION-TOKEN CONTEXT PINNED IN H100 VRAM COSTS $14 AN HOUR.' },
+      { speaker: 'right', text: 'PER SQUARE MILLIMETER OF SILICON, YOUR SYSTEM PROMPT PAYS MANHATTAN PENTHOUSE RENT.' },
+    ],
+    alt: 'Evicting old conversation turns is legally classified as a lease termination in three cloud regions.',
+  },
+  {
+    match: ['quantization curve', '0.5 bits', 'bits per weight', 'quantization cliff'],
+    title: 'QUANTIZATION CLIFF',
+    scene: 'kinematic',
+    layout: 'annotated_chart',
+    prop: 'chart_board',
+    cast: ['cueball'],
+    chart_meta: {
+      curve_style: 'quant_cliff',
+      x_label: 'BITS PER WEIGHT (FP32 -> INT8 -> INT4 -> 0.5-BIT)',
+      y_label: 'REASONING COHERENCE',
+      projected: 'PAPER ABSTRACT CLAIM',
+      callout: 'CLIFF WHERE ALL OUTPUTS\nBECOME MEDIEVAL SOUP RECIPES',
+    },
+    turns: [
+      { speaker: 'left', text: 'Y-AXIS: REASONING COHERENCE / X-AXIS: BITS PER WEIGHT' },
+      { speaker: 'right', text: 'BELOW 1.5 BITS: ALL OUTPUTS BECOME MEDIEVAL SOUP RECIPES.' },
+    ],
+    alt: "At 0.25 bits per parameter, the model is a single boolean that confidently answers 'parchment'.",
+  },
+  {
+    match: ['belongs in browser webassembly', 'local wasm flowchart', 'fits under 10 mb'],
+    title: 'LOCAL WASM FLOWCHART',
+    scene: 'kinematic',
+    layout: 'flowchart_diagram',
+    prop: 'chart_board',
+    cast: ['cueball'],
+    chart_meta: {
+      start: 'SHIPPING AN AI FEATURE',
+      diamond: 'FITS UNDER 10 MB?',
+      yes_box: 'RUN IN BROWSER WASM',
+      no_box: 'DISTILL & INT8 QUANTIZE',
+      loop_label: 'PRUNE HEADS UNTIL IT FITS',
+    },
+    turns: [
+      { speaker: 'left', text: 'START: SHIPPING AN AI FEATURE -> FITS UNDER 10 MB?' },
+      { speaker: 'right', text: 'YES: RUN IN BROWSER WASM / NO: DISTILL & INT8 QUANTIZE' },
+    ],
+    alt: "The best backend scaling strategy is letting the user's browser tab do the matrix multiplication for free.",
+  },
+  {
+    match: ['vibe-coded', 'vibe coding', 'vibe audit'],
+    title: 'VIBE AUDIT',
+    scene: 'kinematic',
+    layout: 'three_panel',
+    prop: 'laptop_desk',
+    cast: ['hairbun', 'beret_guy'],
+    poses: [
+      ['typing', 'conversing'],
+      ['pointing', 'chin_think'],
+      ['arms_crossed', 'shrug'],
+    ],
+    turns: [
+      { speaker: 'left', text: 'I FINISHED SECURITY-AUDITING THE BILLING APP YOU VIBE-CODED OVER LUNCH.' },
+      { speaker: 'right', text: 'HOW DID OUR AUTHENTICATION MIDDLEWARE SCORE?' },
+      { speaker: 'left', text: "IT'S JUST AN HTML COMMENT ASKING ATTACKERS TO RESPECT THE VIBES." },
+    ],
+    alt: "Penetration testing revealed that passing 'Authorization: Pretty-Please' grants cluster-admin.",
+  },
+  {
+    match: ['mars sol', 'tzdata', '24h39m'],
+    title: 'MARS TZDATA',
+    scene: 'kinematic',
+    layout: 'single_panel',
+    prop: 'whiteboard',
+    cast: ['ponytail', 'cueball', 'black_hat'],
+    poses: [['pointing', 'chin_think']],
+    turns: [
+      { speaker: 'left', text: 'MARS BASES NEED AN IANA TIMEZONE WITH 24H 39M 35.244S DAYS.' },
+      { speaker: 'right', text: 'HOW DID LIBC HANDLE YOUR PATCH?' },
+      { speaker: 'third', text: 'SIXTEEN EARTH CRON DAEMONS IMMEDIATELY FILED FOR EARLY RETIREMENT.' },
+    ],
+    alt: 'Wait until the Mars subcommittee proposes leap-milliseconds on alternate perihelion Tuesdays.',
+  },
+  {
+    match: ['sourdough', 'crispr', 'ferments in o(log n)'],
+    title: 'CRISPR SOURDOUGH',
+    scene: 'kinematic',
+    layout: 'three_panel',
+    prop: 'pedestal',
+    cast: ['beret_guy', 'megan'],
+    poses: [
+      ['pointing', 'chin_think'],
+      ['conversing', 'pointing'],
+      ['shrug', 'arms_crossed'],
+    ],
+    turns: [
+      { speaker: 'left', text: 'I BIO-ENGINEERED MY SOURDOUGH STARTER TO FERMENT IN O(LOG N) TIME.' },
+      { speaker: 'right', text: 'WHY IS THE MASON JAR HUMMING AT 60 HERTZ?' },
+      { speaker: 'left', text: 'IT JUST FORKED ITS OWN YEAST GENOME AND OPENED A PULL REQUEST.' },
+    ],
+    alt: 'Never merge a sourdough branch after midnight unless you own an industrial stone deck oven.',
+  },
+  {
+    match: ['usb-c', 'matte black', 'cable roulette'],
+    title: 'USB-C ROULETTE',
+    scene: 'kinematic',
+    layout: 'annotated_chart',
+    prop: 'chart_board',
+    cast: ['megan'],
+    chart_meta: {
+      curve_style: 'bimodal',
+      x_label: 'IDENTICAL MATTE-BLACK USB-C CABLES IN DRAWER',
+      y_label: 'PROBABILITY DENSITY',
+      left_peak: '5V 0.5A LAMP CORD (NO DATA PINS)',
+      callout: '240W 80GBPS THUNDERBOLT\n(ZERO EXTERIOR MARKINGS)',
+    },
+    turns: [
+      { speaker: 'left', text: 'LEFT PEAK: 5V LAMP CORD WITH NO DATA PINS' },
+      { speaker: 'right', text: 'RIGHT PEAK: 240W 80GBPS THUNDERBOLT WITH IDENTICAL MATTE PLASTIC.' },
+    ],
+    alt: 'The USB-IF specification requires every cable to remain in quantum superposition until plugged into an external monitor.',
+  },
+  {
+    match: ['rfc 9941', 'ietf rfc', 'made up', 'hallucinated rfc'],
+    title: 'RFC 9941',
+    scene: 'kinematic',
+    layout: 'two_panel',
+    prop: 'server_rack',
+    cast: ['cueball', 'ponytail'],
+    poses: [
+      ['conversing', 'chin_think'],
+      ['hands_on_head', 'pointing'],
+    ],
+    turns: [
+      { speaker: 'left', text: "AN AUTOCOMPLETE MODEL INVENTED 'RFC 9941' IN OUR ARCHITECTURE DOC." },
+      { speaker: 'right', text: 'BAD NEWS: THREE CLOUD VENDORS ALREADY SHIPPED CERTIFIED IMPLEMENTATIONS.' },
+    ],
+    alt: 'The IETF ratified RFC 9941 retroactively because deprecating it would take down half of US-East-1.',
+  },
+  {
+    match: ['lidar', 'slam', 'tectonic plate', 'robot vacuum'],
+    title: 'LIDAR TECTONICS',
+    scene: 'kinematic',
+    layout: 'single_panel',
+    prop: 'couch',
+    cast: ['megan', 'cueball'],
+    poses: [['conversing', 'pointing']],
+    turns: [
+      { speaker: 'left', text: 'WHY DID THE ROBOT VACUUM QUARANTINE THE LIVING ROOM?' },
+      { speaker: 'right', text: 'THE CAT SHIFTED TWICE DURING LIDAR SLAM, SO IT LOGGED CONTINENTAL DRIFT.' },
+      { speaker: 'left', text: "IT'S WAITING FOR SEISMIC CLEARANCE TO VACUUM THE RUG." },
+    ],
+    alt: "According to the vacuum's occupancy grid, the hallway runner is an active subduction zone.",
+  },
+  {
+    match: ['thermostat', 'heating an apartment', 'winter heating', '450w lora'],
+    title: 'GPU THERMOSTAT',
+    scene: 'kinematic',
+    layout: 'flowchart_diagram',
+    prop: 'chart_board',
+    cast: ['black_hat'],
+    chart_meta: {
+      start: 'APARTMENT BELOW 19°C',
+      diamond: 'HEAT PUMP CHEAPER?',
+      yes_box: 'IGNORE THERMODYNAMICS',
+      no_box: 'LAUNCH 450W LORA RUN',
+      loop_label: 'RAISE BATCH SIZE IF CHILLY',
+    },
+    turns: [
+      { speaker: 'left', text: 'START: APARTMENT BELOW 19°C -> HEAT PUMP CHEAPER?' },
+      { speaker: 'right', text: 'LAUNCH 450W LORA FINE-TUNE AND RAISE BATCH SIZE IF CHILLY.' },
+    ],
+    alt: 'At 450 watts of thermal output, every winter epoch yields both a 21°C living room and lower validation loss.',
+  },
+];
+
 function synthesizeNovelComic(promptText) {
   const low = promptText.toLowerCase();
+  for (const orig of ORIGINAL_SYNTHESIS_BANK) {
+    if (orig.match.some(k => low.includes(k))) {
+      return orig;
+    }
+  }
   for (const tpl of ICONIC_TEMPLATES) {
     if (tpl.match.some(k => low.includes(k))) {
       return tpl;
@@ -333,212 +566,283 @@ function synthesizeNovelComic(promptText) {
   }
 
   const { title, subject, focus, second } = extractPromptKeywords(promptText);
+  const h = hashPrompt(promptText);
 
-  // A. Flowchart / Decision Tree -> `flowchart_diagram` (#627 / #518 style)
+  // A. Flowchart / Decision Tree -> `flowchart_diagram`
   if (['flowchart', 'flow chart', 'decision tree', 'cheat sheet', 'how to decide', 'workflow diagram'].some(w => low.includes(w))) {
     return {
       title,
-      scene: 'scene_flowchart',
+      scene: 'kinematic',
       layout: 'flowchart_diagram',
       prop: 'chart_board',
       cast: ['cueball'],
       chart_meta: {
-        start: `TOUCHING ${title}`,
-        diamond: 'DOES IT WORK?',
-        yes_box: 'DO NOT TOUCH IT',
-        no_box: `CLEAR ${focus} CACHE`,
+        start: `EVALUATING ${title}`,
+        diamond: 'DOES IT WORK NOW?',
+        yes_box: 'SHIP & DO NOT TOUCH',
+        no_box: `REBUILD ${focus} CACHE`,
+        loop_label: 'REPEAT UNTIL 2 AM',
       },
       turns: [
-        { speaker: 'left', text: `START: TOUCHING ${title}` },
-        { speaker: 'right', text: `DOES IT WORK? -> YES: DO NOT TOUCH IT / NO: CLEAR ${focus} CACHE` },
+        { speaker: 'left', text: `START: EVALUATING ${title}` },
+        { speaker: 'right', text: `DOES IT WORK NOW? -> YES: SHIP / NO: REBUILD ${focus} CACHE` },
       ],
-      alt: `80% of senior engineering is knowing which box in the ${title.toLowerCase()} flowchart is load-bearing.`,
+      alt: `80% of systems engineering is knowing which box in the ${title.toLowerCase()} flowchart is secretly load-bearing.`,
     };
   }
 
-  // B. Annotated Chart / Graph / Plot / Extrapolation -> `annotated_chart` (#605 / #2048 style)
-  if (['chart', 'graph', 'plot', 'axis', 'axes', 'correlation', 'extrapolat', 'regression', 'curve'].some(w => low.includes(w))) {
+  // B. Annotated Chart / Graph / Plot / Extrapolation -> `annotated_chart`
+  if (['chart', 'graph', 'plot', 'axis', 'axes', 'correlation', 'extrapolat', 'regression', 'curve', 'distribution'].some(w => low.includes(w))) {
+    const styles = ['cliff', 'quant_cliff', 'bimodal'];
     return {
       title,
-      scene: 'scene_chart',
+      scene: 'kinematic',
       layout: 'annotated_chart',
       prop: 'chart_board',
       cast: ['cueball'],
       chart_meta: {
-        x_label: `TIME SPENT TUNING ${focus}`,
-        y_label: 'ACTUAL OUTPUT',
-        callout: 'POINT WHERE YOU REWRITE\nIT ALL IN A SHELL SCRIPT',
+        curve_style: styles[h % styles.length],
+        x_label: `TIME SPENT OPTIMIZING ${focus}`,
+        y_label: 'MEASURED THROUGHPUT',
+        projected: 'SLIDE DECK PROJECTION',
+        left_peak: `ZERO-CONFIG ${focus} DEFAULT`,
+        callout: `POINT WHERE ${focus}\nBECOMES SELF-AWARE`,
       },
       turns: [
-        { speaker: 'left', text: `Y-AXIS: ACTUAL OUTPUT / X-AXIS: TIME SPENT TUNING ${focus}` },
-        { speaker: 'right', text: 'INFLECTION: POINT WHERE YOU REWRITE IT ALL IN A SHELL SCRIPT.' },
+        { speaker: 'left', text: `Y-AXIS: MEASURED THROUGHPUT / X-AXIS: TIME SPENT OPTIMIZING ${focus}` },
+        { speaker: 'right', text: `INFLECTION: POINT WHERE ${focus} BECOMES SELF-AWARE.` },
       ],
-      alt: `If you fit a cubic spline to ${subject.toLowerCase()}, productivity briefly becomes complex-valued around 2 AM.`,
+      alt: `If you fit a cubic spline to ${subject.toLowerCase()}, throughput briefly becomes imaginary around 3 AM.`,
     };
   }
 
-  // C. Friday Deploy / 3AM Incident / Outage -> 2-Panel Setup -> Despair (`two_panel`, #979 stage)
-  if (['friday', '5pm', '5 pm', '3am', '3 am', 'pagerduty', 'incident', 'outage', 'denvercoder'].some(w => low.includes(w))) {
+  // C. Incident / Late-Night Deploy -> `two_panel`
+  if (['friday', '5pm', '5 pm', '3am', '3 am', 'pagerduty', 'incident', 'outage', 'rollback'].some(w => low.includes(w))) {
     const cfgNoun = focus === 'CONFIG' ? 'PROD' : focus;
     return {
       title: title === 'CONFIG' ? 'FRIDAY DEPLOY' : title,
-      scene: 'scene_979_2panel',
+      scene: 'kinematic',
       layout: 'two_panel',
       prop: 'laptop_desk',
-      cast: ['cueball'],
-      turns: [
-        { speaker: 'left', text: `4:58 PM FRIDAY: ONE TINY ${cfgNoun} CONFIG TWEAK. ZERO RISK.` },
-        { speaker: 'right', text: `3:14 AM: WHO WROTE THIS ${focus} PARSER IN 2016 AND WHAT DID THEY SEE?!` },
+      cast: ['cueball', 'ponytail'],
+      poses: [
+        ['typing', 'conversing'],
+        ['hands_on_head', 'pointing'],
       ],
-      alt: `The post-mortem action item was simply 'never perceive ${subject.toLowerCase()} after 4 PM on Thursdays'.`,
+      turns: [
+        { speaker: 'left', text: `4:58 PM: ONE HARMLESS ${cfgNoun} CONFIG FLAG. ZERO BLAST RADIUS.` },
+        { speaker: 'left', text: `2:40 AM: WHY DOES ${focus} DEPEND ON A CELESTIAL EPHEMERIS TABLE?!` },
+      ],
+      alt: `The post-mortem action item was simply 'never make eye contact with ${subject.toLowerCase()} before a weekend'.`,
     };
   }
 
-  // 1. Docker / Containers / Kubernetes / Cloud / YAML -> 3-Panel Debugging Escalation
-  if (['docker', 'container', 'kubernetes', 'k8s', 'yaml', 'helm', 'cloud', 'aws', 'gcp', 'microservice'].some(w => low.includes(w))) {
+  // 1. Containers / Cloud / Infra -> `three_panel`
+  if (['docker', 'container', 'kubernetes', 'k8s', 'yaml', 'helm', 'cloud', 'aws', 'gcp', 'microservice', 'wasm'].some(w => low.includes(w))) {
     return {
       title,
-      scene: 'scene_debug_3panel',
+      scene: 'kinematic',
       layout: 'three_panel',
-      prop: 'laptop_desk',
+      prop: 'server_rack',
       cast: ['cueball', 'ponytail'],
-      turns: [
-        { speaker: 'left', text: `I CONTAINERIZED OUR 12-LINE ${focus} SCRIPT SO IT RUNS ANYWHERE.` },
-        { speaker: 'right', text: `WHY IS THE ${subject} IMAGE 18.4 GIGABYTES?` },
-        { speaker: 'left', text: "IT BUNDLES UBUNTU, THREE JDK VERSIONS, AND SOMEONE'S HOME DIRECTORY FROM 2019." },
+      poses: [
+        ['pointing', 'chin_think'],
+        ['conversing', 'pointing'],
+        ['shrug', 'arms_crossed'],
       ],
-      alt: `If you run docker system prune, the ${subject.toLowerCase()} cluster achieves negative mass and floats out of the rack.`,
+      turns: [
+        { speaker: 'left', text: `I PACKAGED OUR 12-LINE ${focus} WORKER SO IT DEPLOYS ANYWHERE.` },
+        { speaker: 'right', text: `WHY IS THE ${subject} IMAGE 18.4 GIGABYTES?` },
+        { speaker: 'left', text: 'IT INCLUDES THREE COMPILERS, TEXLIVE, AND A FULL FLIGHT SIMULATOR.' },
+      ],
+      alt: `Pruning unused layers reduced ${subject.toLowerCase()} below the Schwarzschild radius.`,
     };
   }
 
-  // 2. Git / Merge / Rebase / Branch / Commit -> Team Laptop Demo (#1597 stage)
+  // 2. Git / Version Control -> `single_panel`
   if (['git', 'rebase', 'merge', 'branch', 'commit', 'cherry-pick', 'force push'].some(w => low.includes(w))) {
     return {
       title,
-      scene: 'scene_1597_team',
+      scene: 'kinematic',
       layout: 'single_panel',
       prop: 'laptop_desk',
       cast: ['cueball', 'ponytail', 'black_hat'],
       turns: [
-        { speaker: 'left', text: `I RAN INTERACTIVE ${title} TO CLEAN UP OUR COMMIT HISTORY BEFORE RELEASE.` },
-        { speaker: 'right', text: 'DID IT WORK?' },
-        { speaker: 'left', text: "HEAD IS DETACHED, MAIN IS IN 1970, AND EVERYONE JUST CLONED A FRESH COPY INTO 'PROJECT_FINAL_V3'." },
+        { speaker: 'left', text: `I RAN INTERACTIVE ${title} TO LINEARIZE OUR RELEASE DAG.` },
+        { speaker: 'right', text: 'CLEAN DIFF?' },
+        { speaker: 'third', text: 'TIMESTAMPS ARE IN 1969 AND HALF THE REPO SPEAKS ARAMAIC.' },
       ],
-      alt: 'git reflog is just a horror novel where the main character is you from twenty minutes ago.',
+      alt: 'git reflog is a mystery thriller where the culprit is always yourself from twelve minutes ago.',
     };
   }
 
-  // 3. Code Review / PR / Pull Request / Refactor / Legacy / TypeScript -> 4-Panel Laptop Review (#1513 stage)
-  if (['review', 'pr', 'pull request', 'refactor', 'legacy', 'messy', 'lint', 'type', 'typescript', 'css'].some(w => low.includes(w))) {
+  // 3. Code Review / PR / TypeScript / Rust -> `four_panel`
+  if (['review', 'pr', 'pull request', 'refactor', 'legacy', 'messy', 'lint', 'type', 'typescript', 'css', 'rust'].some(w => low.includes(w))) {
     const prLabel = ['PR', 'PULL', 'REQUEST', 'REVIEW'].includes(focus) ? 'CODE' : focus;
     return {
       title,
-      scene: 'scene_1513_4panel',
+      scene: 'kinematic',
       layout: 'four_panel',
       prop: 'laptop_desk',
       cast: ['cueball', 'ponytail'],
-      turns: [
-        { speaker: 'left', text: `CAN YOU REVIEW MY ${prLabel} PR? IT'S ONLY 4,200 LINES.` },
-        { speaker: 'right', text: 'WHY DOES ONE REGEX PARSE BOTH HTML AND TAXES?' },
-        { speaker: 'right', text: `AND WHY DOES ${prLabel} IMPORT A DEPRECATED GAME ENGINE FOR DATE MATH?` },
-        { speaker: 'left', text: 'LGTM, MERGING WITH --NO-VERIFY.' },
+      poses: [
+        ['typing', 'conversing'],
+        ['conversing', 'pointing'],
+        ['chin_think', 'pointing'],
+        ['shrug', 'arms_crossed'],
       ],
-      alt: `Every comment in the ${subject.toLowerCase()} codebase just says '// DO NOT TOUCH OR THE BILLING CRON DIES'.`,
+      turns: [
+        { speaker: 'left', text: `MIND REVIEWING MY ${prLabel} PR? IT'S ONLY 4,200 LINES.` },
+        { speaker: 'right', text: 'ONE TYPE SIGNATURE SPANS FOUR MONITOR WIDTHS.' },
+        { speaker: 'right', text: `AND WHY DOES ${prLabel} SOLVE SUDOKU AT COMPILE TIME?` },
+        { speaker: 'left', text: 'ZERO RUNTIME OVERHEAD!', reply: '40-MINUTE BUILD.' },
+      ],
+      alt: `Every module in ${subject.toLowerCase()} begins with '// temporary workaround (2019)'.`,
     };
   }
 
-  // 4. AI / LLM / Agents -> 3-Panel Megan & Cueball Debate (#552 stage)
-  if (['llm', 'agent', 'agents', 'gpt', 'prompt', 'ai', 'chatbot', 'hallucinat', 'token', 'transformer'].some(w => low.includes(w))) {
+  // 4. AI / LLM / Agents -> `three_panel`
+  if (['llm', 'agent', 'agents', 'gpt', 'prompt', 'ai', 'chatbot', 'hallucinat', 'token', 'transformer', 'neural'].some(w => low.includes(w))) {
     const agentNoun = subject.includes('AGENT') ? subject : `${focus} AGENTS`;
     return {
       title,
-      scene: 'scene_552_3panel',
+      scene: 'kinematic',
       layout: 'three_panel',
-      prop: 'none',
+      prop: 'whiteboard',
       cast: ['megan', 'cueball'],
-      turns: [
-        { speaker: 'right', text: `I DEPLOYED TWO ${agentNoun} TO AUTOMATE MY WORKFLOW.` },
-        { speaker: 'right', text: "ONE OPENS TICKETS AND THE OTHER CLOSES THEM AS 'WONTFIX'." },
-        { speaker: 'left', text: 'SO NOTHING GETS DONE?', reply: 'AT 40,000 TOKENS/SEC.' },
+      poses: [
+        ['pointing', 'conversing'],
+        ['conversing', 'chin_think'],
+        ['arms_crossed', 'shrug'],
       ],
-      alt: `We added a third ${focus.toLowerCase()} agent to mediate, and now all three are in a Series-A fundraising call.`,
+      turns: [
+        { speaker: 'left', text: `I DEPLOYED TWO ${agentNoun} TO AUTOMATE MY WORKFLOW.` },
+        { speaker: 'left', text: "ONE WRITES SPECS AND THE OTHER REJECTS THEM AS 'OUT OF SCOPE'." },
+        { speaker: 'right', text: 'SO ZERO CODE SHIPS?', reply: 'AT 60,000 TOKENS/SEC.' },
+      ],
+      alt: `Adding a third ${focus.toLowerCase()} supervisor agent immediately triggered a constitutional convention.`,
     };
   }
 
-  // 5. Debugging / DNS / Bug / Prod / Server / SQL / Database -> 3-Panel Debugging Escalation
-  if (['debug', 'dns', 'bug', 'prod', 'deploy', 'server', 'sql', 'database', 'vim', 'error', 'cache'].some(w => low.includes(w))) {
-    return {
-      title,
-      scene: 'scene_debug_3panel',
-      layout: 'three_panel',
-      prop: 'laptop_desk',
-      cast: ['cueball', 'ponytail'],
-      turns: [
-        { speaker: 'left', text: `IT'S DEFINITELY NOT ${focus}. I CHECKED ${subject} THREE TIMES.` },
-        { speaker: 'right', text: `WHAT ABOUT THAT STALE ${second} CACHE ENTRY FROM 2021?` },
-        { speaker: 'left', text: `WHY IS ${focus} ALWAYS THE PROBLEM EVEN WHEN IT'S OFF?!` },
-      ],
-      alt: `The root cause analysis concluded that ${subject.toLowerCase()} was load-bearing technical debt.`,
-    };
-  }
-
-  // 6. General Arbitrary Prompts -> Multi-panel XKCD archetypes
+  // 5. General Arbitrary Unseen Prompts -> 6 rich procedural archetypes across all cast & props
   const archetypes = [
     {
-      scene: 'scene_552_3panel',
+      scene: 'kinematic',
       layout: 'three_panel',
-      prop: 'none',
+      prop: 'whiteboard',
       cast: ['megan', 'cueball'],
-      turns: [
-        { speaker: 'right', text: `I SPENT ALL WEEKEND MODELING ${subject} FROM FIRST PRINCIPLES.` },
-        { speaker: 'right', text: `IF YOU ASSUME ${focus} IS A FRICTIONLESS SPHERE IN A VACUUM, IT'S SOLVED.` },
-        { speaker: 'left', text: 'AND IN REAL LIFE?', reply: 'EXPLODES IMMEDIATELY.' },
+      poses: [
+        ['pointing', 'chin_think'],
+        ['conversing', 'pointing'],
+        ['shrug', 'arms_crossed'],
       ],
-      alt: `Physicists hate this one weird boundary condition in ${subject.toLowerCase()}.`,
+      turns: [
+        { speaker: 'left', text: `I MODELED ${subject} FROM FIRST PRINCIPLES OVER THE WEEKEND.` },
+        { speaker: 'left', text: `ASSUMING ${focus} IS A FRICTIONLESS SPHERE IN A VACUUM, IT CONVERGES.` },
+        { speaker: 'right', text: 'AND AT ROOM TEMPERATURE?', reply: 'INSTANT PLASMA.' },
+      ],
+      alt: `Experimentalists keep ruining clean ${subject.toLowerCase()} equations with boundary conditions.`,
     },
     {
-      scene: 'scene_debug_3panel',
+      scene: 'kinematic',
       layout: 'three_panel',
       prop: 'laptop_desk',
       cast: ['cueball', 'ponytail'],
-      turns: [
-        { speaker: 'left', text: `I WROTE A QUICK SCRIPT TO AUTOMATE ${subject} IN FIVE MINUTES.` },
-        { speaker: 'right', text: `YOU'VE BEEN DEBUGGING THE ${focus} EDGE CASES FOR SIX HOURS.` },
-        { speaker: 'left', text: "IT'S ABOUT PRINCIPLE NOW!" },
+      poses: [
+        ['typing', 'conversing'],
+        ['conversing', 'pointing'],
+        ['hands_on_head', 'arms_crossed'],
       ],
-      alt: `By year three, the automation script for ${subject.toLowerCase()} has its own compliance department.`,
+      turns: [
+        { speaker: 'left', text: `I WROTE A FIVE-MINUTE SCRIPT TO AUTOMATE ${subject}.` },
+        { speaker: 'right', text: `YOU'VE BEEN DEBUGGING ${focus} EDGE CASES FOR NINE HOURS.` },
+        { speaker: 'left', text: 'IT HAS ITS OWN PLUGIN ECOSYSTEM NOW!' },
+      ],
+      alt: `By quarter three, the five-minute ${subject.toLowerCase()} script requires a dedicated SRE rotation.`,
     },
     {
-      scene: 'scene_1513_4panel',
+      scene: 'kinematic',
       layout: 'four_panel',
-      prop: 'laptop_desk',
-      cast: ['cueball', 'ponytail'],
-      turns: [
-        { speaker: 'left', text: `CHECK OUT MY NEW ${subject} MODEL.` },
-        { speaker: 'right', text: 'YOUR ERROR BARS ARE WIDER THAN THE Y-AXIS.' },
-        { speaker: 'right', text: `AND DID YOU FIT A 9TH-DEGREE POLYNOMIAL TO THREE ${focus} POINTS?` },
-        { speaker: 'left', text: 'R-SQUARED IS 1.000 THOUGH.' },
+      prop: 'pointer_stick',
+      cast: ['hairbun', 'beret_guy'],
+      poses: [
+        ['pointer_rod', 'conversing'],
+        ['pointer_rod', 'chin_think'],
+        ['conversing', 'pointing'],
+        ['arms_crossed', 'shrug'],
       ],
-      alt: `If you extrapolate ${subject.toLowerCase()} to next Tuesday, the curve loops back through the Bronze Age.`,
+      turns: [
+        { speaker: 'left', text: `OUR NEW ${subject} BENCHMARK HAS R-SQUARED = 0.9998.` },
+        { speaker: 'right', text: 'HOW MANY SAMPLES ARE ON THAT PLOT?' },
+        { speaker: 'left', text: `TWO ${focus} RUNS AND A VERY CONFIDENT PRIOR.` },
+        { speaker: 'right', text: 'PUBLISH IMMEDIATELY.', reply: 'ALREADY CITED TWICE.' },
+      ],
+      alt: `Extrapolating ${subject.toLowerCase()} past Friday predicts negative latency by mid-November.`,
     },
     {
-      scene: 'scene_1597_team',
-      layout: 'single_panel',
-      prop: 'laptop_desk',
-      cast: ['cueball', 'ponytail', 'black_hat'],
-      turns: [
-        { speaker: 'left', text: `OUR NEW ${subject} ARCHITECTURE USES ZERO EXTERNAL DEPENDENCIES.` },
-        { speaker: 'right', text: `HOW DID YOU BUILD ${focus}?` },
-        { speaker: 'left', text: 'WE WROTE OUR OWN BROKEN VERSION OF HALF THE STANDARD LIBRARY IN BASH.' },
+      scene: 'kinematic',
+      layout: 'two_panel',
+      prop: 'pedestal',
+      cast: ['beret_guy', 'megan'],
+      poses: [
+        ['pointing', 'chin_think'],
+        ['shrug', 'arms_crossed'],
       ],
-      alt: `Eventually every ${subject.toLowerCase()} project invents its own Lisp interpreter by accident.`,
+      turns: [
+        { speaker: 'left', text: `I PUT ${subject} INSIDE A FARADAY CAGE TO ISOLATE THE NOISE FLOOR.` },
+        { speaker: 'right', text: `WHY IS ${focus} STILL RECEIVING SLACK NOTIFICATIONS?` },
+      ],
+      alt: `Quantum tunneling through 3mm copper mesh only happens when ${subject.toLowerCase()} is on call.`,
+    },
+    {
+      scene: 'kinematic',
+      layout: 'single_panel',
+      prop: 'couch',
+      cast: ['cueball', 'black_hat'],
+      turns: [
+        { speaker: 'left', text: `WE REPLACED OUR ENTIRE ${subject} STACK WITH ONE STATIC FILE.` },
+        { speaker: 'right', text: `WHAT HAPPENS WHEN ${focus} TRAFFIC SPIKES 100X?` },
+        { speaker: 'left', text: 'THE CDN CHARGES US FOURTEEN CENTS AND NOBODY WAKES UP.' },
+      ],
+      alt: `Disappointing twelve enterprise vendors simultaneously is my favorite ${subject.toLowerCase()} optimization.`,
+    },
+    {
+      scene: 'kinematic',
+      layout: 'three_panel',
+      prop: 'server_rack',
+      cast: ['ponytail', 'cueball'],
+      poses: [
+        ['pointing', 'conversing'],
+        ['chin_think', 'pointing'],
+        ['arms_crossed', 'hands_on_head'],
+      ],
+      turns: [
+        { speaker: 'left', text: `IT'S DEFINITELY NOT ${focus}. I AUDITED ${subject} TWICE.` },
+        { speaker: 'right', text: `WHAT ABOUT THAT HARDCODED ${second} TIMEOUT FROM 2021?` },
+        { speaker: 'left', text: `WHY IS ${focus} LOAD-BEARING EVEN IN DRY-RUN MODE?!` },
+      ],
+      alt: `Removing the unused ${subject.toLowerCase()} flag caused the office espresso machine to reboot.`,
     },
   ];
-  return { title, ...archetypes[hashPrompt(promptText) % archetypes.length] };
+  return { title, ...archetypes[h % archetypes.length] };
 }
 
 function renderCoreElements(spec) {
-  const sceneName = spec.scene || 'scene_armchair';
+  const sceneName = spec.scene || 'kinematic';
+  if (sceneName === 'kinematic') {
+    return renderKinematicComic(spec, {
+      escapeXml,
+      wrapTextPx,
+      wobbledCurvePath,
+      wobbledPolylinePath,
+      wobbledRectPath,
+      arrowheadPaths,
+      fmt,
+      wobbledCurvePoints,
+      wobbleScale: _activeWobbleScale,
+      strokeScale: _activeStrokeScale,
+    });
+  }
   const turns = spec.turns || [];
   const els = [];
 
@@ -992,6 +1296,7 @@ export default function xkcdArtist(prompt, options = {}) {
     prompt: clean,
     title: tpl.title,
     scene: tpl.scene,
+    poses: tpl.poses || null,
     header: tpl.header || '',
     chart_meta: tpl.chart_meta || null,
     turns,
